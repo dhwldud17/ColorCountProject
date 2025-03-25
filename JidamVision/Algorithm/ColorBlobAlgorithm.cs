@@ -54,63 +54,42 @@ namespace JidamVision.Algorithm
             Mat hsvImage = new Mat();
             Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV);
             //입력된 컬러이미지(_srcImage)를 HSV로 변환
-            Mat binaryImage = new Mat();
-            Cv2.InRange(hsvImage, ColorRange.lower, ColorRange.upper, binaryImage);
+
+
+            Mat mask = new Mat();
+            Cv2.InRange(hsvImage, ColorRange.lower, ColorRange.upper, mask);
             //입력된 HSV 값과 비교하여 마스크 생성. -> ColorRange.lower ~ ColorRange.upper 사이 색상만 남기고 나머지는 검정색으로 변환 
             //-> 우리가 찾고자 하는 영역은 흰색.(255)
-            if (ColorRange.invert)
-                binaryImage = ~binaryImage;
 
-            if (AreaFilter > 0)
-            {
-                if (!BlobFilter(binaryImage, AreaFilter))
-                    return false;
-            }
+
+            if (ColorRange.invert)
+                mask = ~mask;
+
+
+
+            //같은 색상인 부분 빨간색 픽셀로 표시되게 .색상은 바꿀수잇음
+
+            // 빨간색 마스크 생성
+            Mat redMask = new Mat(_srcImage.Size(), _srcImage.Type(), new Scalar(0, 0, 255)); // 빨간색
+                                                                                              // 마스크를 원본 이미지에 적용
+            Mat result = new Mat();
+            Cv2.BitwiseAnd(redMask, redMask, result, mask); // 빨간색 영역 생성
+            Cv2.BitwiseOr(_srcImage, result, _srcImage); // 원본 이미지와 합성
+
+            //if (AreaFilter > 0)
+            //{
+            //    if (!BlobFilter(binaryImage, AreaFilter))
+            //        return false;
+            //}
 
             IsInspected = true;
             return true;
         }
 
 
-        private bool BlobFilter(Mat binImage, int areaFilter)
-        {
-            Point[][] contours;
-            HierarchyIndex[] hierarchy;
-            Cv2.FindContours(binImage, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+       
 
-            Mat filteredImage = Mat.Zeros(binImage.Size(), MatType.CV_8UC1);
-
-            if (_findArea is null)
-                _findArea = new List<Rect>();
-
-            _findArea.Clear();
-
-            foreach (var contour in contours)
-            {
-                double area = Cv2.ContourArea(contour);
-                if (area < areaFilter)
-                    continue;
-
-                Rect boundingRect = Cv2.BoundingRect(contour);
-                _findArea.Add(boundingRect);
-            }
-
-            return true;
-        }
-
-        public override int GetResultRect(out List<Rect> resultArea)
-        {
-            resultArea = null;
-
-            if (!IsInspected)
-                return -1;
-
-            if (_findArea is null || _findArea.Count <= 0)
-                return -1;
-
-            resultArea = _findArea;
-            return resultArea.Count;
-        }
+       
 
 
     }
