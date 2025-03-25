@@ -1,6 +1,6 @@
 ﻿namespace JidamVision
 {
-    partial class TeachForm
+    partial class ModelTreeForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.tvModelTree = new System.Windows.Forms.TreeView();
+            this.SuspendLayout();
+            // 
+            // tvModelTree
+            // 
+            this.tvModelTree.Location = new System.Drawing.Point(12, 12);
+            this.tvModelTree.Name = "tvModelTree";
+            this.tvModelTree.Size = new System.Drawing.Size(776, 426);
+            this.tvModelTree.TabIndex = 0;
+            // 
+            // ModelTreeForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "TeachForm";
+            this.Controls.Add(this.tvModelTree);
+            this.Name = "ModelTreeForm";
+            this.Text = "RoiForm";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.TreeView tvModelTree;
     }
 }

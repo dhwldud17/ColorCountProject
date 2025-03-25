@@ -7,15 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace JidamVision
 {
-    public partial class TeachForm : DockContent
+    public partial class TeachForm : Form
     {
         public TeachForm()
         {
             InitializeComponent();
         }
+
+       
     }
 }
