@@ -1,4 +1,5 @@
 ﻿using JidamVision.Core;
+using JidamVision.Property;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -19,19 +20,25 @@ namespace JidamVision.Algorithm
 
     public class BlobAlgorithm : InspAlgorithm
     {
-        //이진화 필터로 찾은 영역
-        private List<Rect> _findArea;
+        // HSV 임계값 추가
+        public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
+        public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
+        public int VMin { get; set; } = 50;    // 최소 명도 (Value)
 
-        public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
+
+        // 이진화 필터로 찾은 영역
+        private List<Rect> _findArea;
 
         //픽셀 영역으로 이진화 필터
         public int AreaFilter { get; set; } = 100;
-
+        public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
         public BlobAlgorithm()
         {
             //#ABSTRACT ALGORITHM#5 각 함수마다 자신의 알고리즘 타입 설정
             InspectType = InspectType.InspBinary;
         }
+
+       
 
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음 
 
@@ -45,15 +52,16 @@ namespace JidamVision.Algorithm
             if (_srcImage == null)
                 return false;
 
-            Mat grayImage = new Mat();
+            // 이미지 변환
+            Mat hsvImage = new Mat();
             if (_srcImage.Type() == MatType.CV_8UC3)
-                Cv2.CvtColor(_srcImage, grayImage, ColorConversionCodes.BGR2GRAY);
+                Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV);
             else
-                grayImage = _srcImage;
+                hsvImage = _srcImage;
 
+            // HSV 범위에 맞는 마스크 생성
             Mat binaryImage = new Mat();
-            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
-            Cv2.InRange(grayImage, BinThreshold.lower, BinThreshold.upper, binaryImage);
+            Cv2.InRange(hsvImage, new Scalar(HCenter - 10, SMin, VMin), new Scalar(HCenter + 10, 255, 255), binaryImage);
 
             if (BinThreshold.invert)
                 binaryImage = ~binaryImage;

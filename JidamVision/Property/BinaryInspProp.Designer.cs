@@ -59,9 +59,9 @@
             this.grpBinary.Controls.Add(this.trackBarUpper);
             this.grpBinary.Controls.Add(this.trackBarLower);
             this.grpBinary.Location = new System.Drawing.Point(4, 4);
-            this.grpBinary.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpBinary.Margin = new System.Windows.Forms.Padding(4);
             this.grpBinary.Name = "grpBinary";
-            this.grpBinary.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpBinary.Padding = new System.Windows.Forms.Padding(4);
             this.grpBinary.Size = new System.Drawing.Size(357, 258);
             this.grpBinary.TabIndex = 0;
             this.grpBinary.TabStop = false;
@@ -71,7 +71,7 @@
             // 
             this.chkShowBinary.AutoSize = true;
             this.chkShowBinary.Location = new System.Drawing.Point(179, 188);
-            this.chkShowBinary.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkShowBinary.Margin = new System.Windows.Forms.Padding(4);
             this.chkShowBinary.Name = "chkShowBinary";
             this.chkShowBinary.Size = new System.Drawing.Size(88, 22);
             this.chkShowBinary.TabIndex = 5;
@@ -83,7 +83,7 @@
             // 
             this.chkInvert.AutoSize = true;
             this.chkInvert.Location = new System.Drawing.Point(33, 222);
-            this.chkInvert.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkInvert.Margin = new System.Windows.Forms.Padding(4);
             this.chkInvert.Name = "chkInvert";
             this.chkInvert.Size = new System.Drawing.Size(70, 22);
             this.chkInvert.TabIndex = 4;
@@ -97,7 +97,7 @@
             this.chkHighlight.Checked = true;
             this.chkHighlight.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkHighlight.Location = new System.Drawing.Point(33, 188);
-            this.chkHighlight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkHighlight.Margin = new System.Windows.Forms.Padding(4);
             this.chkHighlight.Name = "chkHighlight";
             this.chkHighlight.Size = new System.Drawing.Size(99, 22);
             this.chkHighlight.TabIndex = 3;
@@ -108,7 +108,7 @@
             // trackBarUpper
             // 
             this.trackBarUpper.Location = new System.Drawing.Point(33, 111);
-            this.trackBarUpper.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.trackBarUpper.Margin = new System.Windows.Forms.Padding(4);
             this.trackBarUpper.Maximum = 255;
             this.trackBarUpper.Name = "trackBarUpper";
             this.trackBarUpper.Size = new System.Drawing.Size(313, 69);
@@ -118,7 +118,7 @@
             // trackBarLower
             // 
             this.trackBarLower.Location = new System.Drawing.Point(33, 34);
-            this.trackBarLower.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.trackBarLower.Margin = new System.Windows.Forms.Padding(4);
             this.trackBarLower.Maximum = 255;
             this.trackBarLower.Name = "trackBarLower";
             this.trackBarLower.Size = new System.Drawing.Size(313, 69);
@@ -130,9 +130,9 @@
             this.grpFilter.Controls.Add(this.txtArea);
             this.grpFilter.Controls.Add(this.lbArea);
             this.grpFilter.Location = new System.Drawing.Point(6, 288);
-            this.grpFilter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpFilter.Margin = new System.Windows.Forms.Padding(4);
             this.grpFilter.Name = "grpFilter";
-            this.grpFilter.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpFilter.Padding = new System.Windows.Forms.Padding(4);
             this.grpFilter.Size = new System.Drawing.Size(356, 270);
             this.grpFilter.TabIndex = 1;
             this.grpFilter.TabStop = false;
@@ -141,7 +141,7 @@
             // btnFilter
             // 
             this.btnFilter.Location = new System.Drawing.Point(116, 130);
-            this.btnFilter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnFilter.Margin = new System.Windows.Forms.Padding(4);
             this.btnFilter.Name = "btnFilter";
             this.btnFilter.Size = new System.Drawing.Size(139, 36);
             this.btnFilter.TabIndex = 2;
@@ -152,7 +152,7 @@
             // txtArea
             // 
             this.txtArea.Location = new System.Drawing.Point(111, 32);
-            this.txtArea.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtArea.Margin = new System.Windows.Forms.Padding(4);
             this.txtArea.Name = "txtArea";
             this.txtArea.Size = new System.Drawing.Size(141, 28);
             this.txtArea.TabIndex = 1;
@@ -173,7 +173,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.grpFilter);
             this.Controls.Add(this.grpBinary);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "BinaryInspProp";
             this.Size = new System.Drawing.Size(387, 572);
             this.grpBinary.ResumeLayout(false);

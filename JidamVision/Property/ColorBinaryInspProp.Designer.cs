@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.grpHSV = new System.Windows.Forms.GroupBox();
+            this.txtV = new System.Windows.Forms.TextBox();
+            this.txtS = new System.Windows.Forms.TextBox();
+            this.txtH = new System.Windows.Forms.TextBox();
             this.panelColorPreview = new System.Windows.Forms.Panel();
             this.btnTeachinColor = new System.Windows.Forms.Button();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
@@ -39,14 +42,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.vTrackBar = new System.Windows.Forms.TrackBar();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblValue = new System.Windows.Forms.Label();
+            this.lblSaturation = new System.Windows.Forms.Label();
+            this.lblHue = new System.Windows.Forms.Label();
             this.sTrackBar = new System.Windows.Forms.TrackBar();
             this.hTrackBar = new System.Windows.Forms.TrackBar();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
@@ -55,9 +55,9 @@
             // 
             // grpHSV
             // 
-            this.grpHSV.Controls.Add(this.textBox3);
-            this.grpHSV.Controls.Add(this.textBox2);
-            this.grpHSV.Controls.Add(this.textBox1);
+            this.grpHSV.Controls.Add(this.txtV);
+            this.grpHSV.Controls.Add(this.txtS);
+            this.grpHSV.Controls.Add(this.txtH);
             this.grpHSV.Controls.Add(this.panelColorPreview);
             this.grpHSV.Controls.Add(this.btnTeachinColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
@@ -68,9 +68,9 @@
             this.grpHSV.Controls.Add(this.label6);
             this.grpHSV.Controls.Add(this.label4);
             this.grpHSV.Controls.Add(this.vTrackBar);
-            this.grpHSV.Controls.Add(this.label3);
-            this.grpHSV.Controls.Add(this.label2);
-            this.grpHSV.Controls.Add(this.label1);
+            this.grpHSV.Controls.Add(this.lblValue);
+            this.grpHSV.Controls.Add(this.lblSaturation);
+            this.grpHSV.Controls.Add(this.lblHue);
             this.grpHSV.Controls.Add(this.sTrackBar);
             this.grpHSV.Controls.Add(this.hTrackBar);
             this.grpHSV.Location = new System.Drawing.Point(20, 19);
@@ -79,6 +79,27 @@
             this.grpHSV.TabIndex = 0;
             this.grpHSV.TabStop = false;
             this.grpHSV.Text = "HSV";
+            // 
+            // txtV
+            // 
+            this.txtV.Location = new System.Drawing.Point(9, 297);
+            this.txtV.Name = "txtV";
+            this.txtV.Size = new System.Drawing.Size(86, 28);
+            this.txtV.TabIndex = 26;
+            // 
+            // txtS
+            // 
+            this.txtS.Location = new System.Drawing.Point(9, 191);
+            this.txtS.Name = "txtS";
+            this.txtS.Size = new System.Drawing.Size(86, 28);
+            this.txtS.TabIndex = 25;
+            // 
+            // txtH
+            // 
+            this.txtH.Location = new System.Drawing.Point(7, 93);
+            this.txtH.Name = "txtH";
+            this.txtH.Size = new System.Drawing.Size(88, 28);
+            this.txtH.TabIndex = 24;
             // 
             // panelColorPreview
             // 
@@ -168,32 +189,32 @@
             this.vTrackBar.Size = new System.Drawing.Size(367, 69);
             this.vTrackBar.TabIndex = 5;
             // 
-            // label3
+            // lblValue
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 253);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(52, 18);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Value";
+            this.lblValue.AutoSize = true;
+            this.lblValue.Location = new System.Drawing.Point(17, 253);
+            this.lblValue.Name = "lblValue";
+            this.lblValue.Size = new System.Drawing.Size(52, 18);
+            this.lblValue.TabIndex = 4;
+            this.lblValue.Text = "Value";
             // 
-            // label2
+            // lblSaturation
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 145);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(89, 18);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Saturation";
+            this.lblSaturation.AutoSize = true;
+            this.lblSaturation.Location = new System.Drawing.Point(6, 145);
+            this.lblSaturation.Name = "lblSaturation";
+            this.lblSaturation.Size = new System.Drawing.Size(89, 18);
+            this.lblSaturation.TabIndex = 3;
+            this.lblSaturation.Text = "Saturation";
             // 
-            // label1
+            // lblHue
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(30, 54);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(39, 18);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Hue";
+            this.lblHue.AutoSize = true;
+            this.lblHue.Location = new System.Drawing.Point(30, 54);
+            this.lblHue.Name = "lblHue";
+            this.lblHue.Size = new System.Drawing.Size(39, 18);
+            this.lblHue.TabIndex = 2;
+            this.lblHue.Text = "Hue";
             // 
             // sTrackBar
             // 
@@ -208,27 +229,6 @@
             this.hTrackBar.Name = "hTrackBar";
             this.hTrackBar.Size = new System.Drawing.Size(367, 69);
             this.hTrackBar.TabIndex = 0;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(7, 93);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(88, 28);
-            this.textBox1.TabIndex = 24;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(9, 191);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(86, 28);
-            this.textBox2.TabIndex = 25;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(9, 297);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(86, 28);
-            this.textBox3.TabIndex = 26;
             // 
             // ColorBinaryInspProp
             // 
@@ -250,25 +250,22 @@
 
         private System.Windows.Forms.GroupBox grpHSV;
         private System.Windows.Forms.TrackBar hTrackBar;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblHue;
+        private System.Windows.Forms.Label lblValue;
+        private System.Windows.Forms.Label lblSaturation;
         private System.Windows.Forms.TrackBar vTrackBar;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox vLabel;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox sLabel;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox hLabel;
         private System.Windows.Forms.CheckBox chkHighlight;
         private System.Windows.Forms.Button btnTeachinColor;
         private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBar;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtV;
+        private System.Windows.Forms.TextBox txtS;
+        private System.Windows.Forms.TextBox txtH;
     }
 }

@@ -49,16 +49,18 @@ namespace JidamVision.Teach
         public InspWindow()
         {
             //#ABSTRACT ALGORITHM#13 매칭 알고리즘과 이진화 알고리즘 추가
-            AddInspAlgorithm(InspectType.InspMatch);
+            //AddInspAlgorithm(InspectType.InspMatch);
             AddInspAlgorithm(InspectType.InspBinary);
+            AddInspAlgorithm(InspectType.InspColorBinary);
         }
 
         public InspWindow(InspWindowType windowType, string name)
         {
             InspWindowType = windowType;
             Name = name;
-            AddInspAlgorithm(InspectType.InspMatch);
+           // AddInspAlgorithm(InspectType.InspMatch);
             AddInspAlgorithm(InspectType.InspBinary);
+            AddInspAlgorithm(InspectType.InspColorBinary);
         }
 
         public bool SetTeachingImage(Mat image, System.Drawing.Rectangle rect)
@@ -68,28 +70,28 @@ namespace JidamVision.Teach
             return true;
         }
 
-        //#MATCH PROP#4 템플릿 매칭 이미지 로딩
-        public bool PatternLearn()
-        {
-            foreach (var algorithm in AlgorithmList)
-            {
-                if (algorithm.InspectType != InspectType.InspMatch)
-                    continue;
+        ////#MATCH PROP#4 템플릿 매칭 이미지 로딩
+        //public bool PatternLearn()
+        //{
+        //    foreach (var algorithm in AlgorithmList)
+        //    {
+        //        if (algorithm.InspectType != InspectType.InspMatch)
+        //            continue;
 
-                MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
+        //        MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
 
-                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
-                if (File.Exists(templatePath))
-                {
-                    _teachingImage = Cv2.ImRead(templatePath);
+        //        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
+        //        if (File.Exists(templatePath))
+        //        {
+        //            _teachingImage = Cv2.ImRead(templatePath);
 
-                    if (_teachingImage != null)
-                        matchAlgo.SetTemplateImage(_teachingImage);
-                }
-            }
+        //            if (_teachingImage != null)
+        //                matchAlgo.SetTemplateImage(_teachingImage);
+        //        }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         //#ABSTRACT ALGORITHM#10 타입에 따라 알고리즘을 추가하는 함수
         public bool AddInspAlgorithm(InspectType inspType)
@@ -101,9 +103,12 @@ namespace JidamVision.Teach
                 case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
                     break;
-                case InspectType.InspMatch:
-                    inspAlgo = new MatchAlgorithm();
+                case InspectType.InspColorBinary:
+                    inspAlgo = new BlobAlgorithm();
                     break;
+                    //case InspectType.InspMatch:
+                    //    inspAlgo = new MatchAlgorithm();
+                    //    break;
             }
 
             if (inspAlgo is null)
