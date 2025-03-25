@@ -19,7 +19,8 @@ namespace JidamVision
     public partial class MainForm : Form
     {
         private static DockPanel _dockPanel;
-
+        private TeachForm _teachWindow;
+        private InspectionForm _inspectionWindow; // 기존 검사 실행 창
         public MainForm()
         {
             InitializeComponent();
@@ -43,17 +44,28 @@ namespace JidamVision
             //도킹해제 금지 설정
             _dockPanel.AllowEndUserDocking = false;
 
+
+           _inspectionWindow = new InspectionForm();
+            _inspectionWindow.Show(_dockPanel, DockState.Document);
+
+            // Teach 창 추가 (처음에는 숨겨둠)
+
+            _teachWindow = new TeachForm();
+            _teachWindow.Show(_dockPanel, DockState.Document);
+
+            
+
             //메인폼 설정
-            var cameraWindow = new CameraForm();
-            cameraWindow.Show(_dockPanel, DockState.Document);
+            //var cameraWindow = new CameraForm();
+            //cameraWindow.Show(_dockPanel, DockState.Document);
 
             //검사 결과창 30% 비율로 추가
             var resultWindow = new ResultForm();
-            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
+            //resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
 
             //# MODEL TREE#3 검사 결과창 우측에 40% 비율로 모델트리 추가
             var modelTreeWindow = new ModelTreeForm();
-            modelTreeWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.4);
+            //modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
 
             //속성창 추가
             var propWindow = new PropertiesForm();
@@ -69,6 +81,35 @@ namespace JidamVision
             var logWindow = new LogForm();
             logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.5);
         }
+
+
+        private void ShowTeachWindow()
+        {
+            _inspectionWindow.Hide();
+            _teachWindow.Show(_dockPanel, DockState.Document);
+        }
+
+        private void ShowInspectionWindow()
+        {
+            _teachWindow.Hide();
+            _inspectionWindow.Show(_dockPanel, DockState.Document);
+        }
+
+
+        // Teach 탭 버튼 클릭 이벤트 핸들러
+        private void TeachTab_Click(object sender, EventArgs e)
+        {
+            ShowTeachWindow();
+        }
+
+        // 검사 실행 탭 버튼 클릭 이벤트 핸들러 (필요하면 추가)
+        private void InspectionTab_Click(object sender, EventArgs e)
+        {
+            ShowInspectionWindow();
+        }
+
+
+
 
         //제네릭 함수 사용를 이용해 입력된 타입의 폼 객체 얻기
         public static T GetDockForm<T>() where T : DockContent
@@ -183,5 +224,16 @@ namespace JidamVision
             setupForm.ShowDialog();
         }
 
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void tabPage3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        
     }
 }

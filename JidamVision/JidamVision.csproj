@@ -147,6 +147,12 @@
     <Compile Include="ImageViewCCtrl.Designer.cs">
       <DependentUpon>ImageViewCCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="InspectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InspectionForm.Designer.cs">
+      <DependentUpon>InspectionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Inspect\InspResult.cs" />
     <Compile Include="Inspect\InspWorker.cs" />
     <Compile Include="LogForm.cs">
@@ -229,6 +235,12 @@
     </Compile>
     <Compile Include="StatisticForm.Designer.cs">
       <DependentUpon>StatisticForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TeachForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TeachForm.Designer.cs">
+      <DependentUpon>TeachForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Teach\DiagramEntity.cs" />
     <Compile Include="Teach\GroupWindow.cs" />
