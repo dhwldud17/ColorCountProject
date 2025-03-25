@@ -26,7 +26,7 @@ namespace JidamVision
     {
         InspNone = -1,
         InspBinary,
-        InspMatch,
+        InspColorBinary,
         InspFilter,
         InspCount
     }
@@ -81,10 +81,11 @@ namespace JidamVision
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     _inspProp = blobProp;
                     break;
-                case InspectType.InspMatch:
-                    MatchInspProp matchProp = new MatchInspProp();
-                    matchProp.LoadInspParam();
-                    _inspProp = matchProp;
+                case InspectType.InspColorBinary:
+                    ColorBinaryInspProp blobProp = new ColorBinaryInspProp();
+                    blobProp.LoadInspParam();
+                    blobProp.RangeChanged += RangeSlider_RangeChanged;
+                    _inspProp = blobProp;
                     break;
                 case InspectType.InspFilter:
                     FilterInspProp filterProp = new FilterInspProp();
