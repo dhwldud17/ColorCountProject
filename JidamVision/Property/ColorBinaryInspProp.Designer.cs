@@ -44,6 +44,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.sTrackBar = new System.Windows.Forms.TrackBar();
             this.hTrackBar = new System.Windows.Forms.TrackBar();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
@@ -52,6 +55,9 @@
             // 
             // grpHSV
             // 
+            this.grpHSV.Controls.Add(this.textBox3);
+            this.grpHSV.Controls.Add(this.textBox2);
+            this.grpHSV.Controls.Add(this.textBox1);
             this.grpHSV.Controls.Add(this.panelColorPreview);
             this.grpHSV.Controls.Add(this.btnTeachinColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
@@ -101,9 +107,6 @@
             this.chkHighlight.Text = "Highlight in Camera viewer";
             this.chkHighlight.UseVisualStyleBackColor = true;
             // 
-           
-         
-            // 
             // label10
             // 
             this.label10.AutoSize = true;
@@ -122,8 +125,6 @@
             this.label12.TabIndex = 16;
             this.label12.Text = "0.00";
             // 
-           
-            // 
             // label7
             // 
             this.label7.AutoSize = true;
@@ -141,8 +142,6 @@
             this.label9.Size = new System.Drawing.Size(44, 18);
             this.label9.TabIndex = 11;
             this.label9.Text = "0.00";
-            // 
-           
             // 
             // label6
             // 
@@ -210,6 +209,27 @@
             this.hTrackBar.Size = new System.Drawing.Size(367, 69);
             this.hTrackBar.TabIndex = 0;
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(7, 93);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(88, 28);
+            this.textBox1.TabIndex = 24;
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(9, 191);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(86, 28);
+            this.textBox2.TabIndex = 25;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(9, 297);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(86, 28);
+            this.textBox3.TabIndex = 26;
+            // 
             // ColorBinaryInspProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
@@ -247,5 +267,8 @@
         private System.Windows.Forms.Button btnTeachinColor;
         private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBar;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }

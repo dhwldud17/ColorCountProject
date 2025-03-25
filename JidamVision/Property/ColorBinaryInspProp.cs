@@ -7,6 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using JidamVision.Algorithm;
+using JidamVision.Core;
+using JidamVision.Teach;
+using static System.Windows.Forms.MonthCalendar;
 
 namespace JidamVision.Property
 {
@@ -30,7 +34,42 @@ namespace JidamVision.Property
         public int SMin => sTrackBar.Value;
         public int VMin => vTrackBar.Value;
 
-        
+        //#BIN PROP# 이진화 검사 속성값을 GUI에 설정
+        public void LoadInspParam()
+        {
+            // TrackBar 초기 설정
+            hTrackBar.ValueChanged += OnValueChanged;
+            sTrackBar.ValueChanged += OnValueChanged;
+            vTrackBar.ValueChanged += OnValueChanged;
+
+            hTrackBar.Value = 0;
+            sTrackBar.Value = 0;
+            vTrackBar.Value = 0;
+            
+
+            //#BINARY FILTER#8 이진화 필터값을 GUI에 로딩
+            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
+            if (inspWindow != null)
+            {
+                //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
+                BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
+                if (blobAlgo != null)
+                {
+                    int filterArea = blobAlgo.AreaFilter;
+                    txtArea.Text = filterArea.ToString();
+                }
+            }
+
+            //#BINARY FILTER#11 GUI 이벤트와 UpdateBinary함수 연동
+        private void OnValueChanged(object sender, EventArgs e)
+        {
+            UpdateColorBinary();
+        }
+        private void chkHighlight_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateColorBinary();
+        }
+
         //컬러이진화초기화
         public ColorBinaryInspProp()
         {
