@@ -16,6 +16,7 @@ namespace JidamVision
         public TeachForm()
         {
             InitializeComponent();
+          
         }
     }
 }

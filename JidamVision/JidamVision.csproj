@@ -301,6 +301,9 @@
     <EmbeddedResource Include="Setting\SetupForm.resx">
       <DependentUpon>SetupForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="TeachForm.resx">
+      <DependentUpon>TeachForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

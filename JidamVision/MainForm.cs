@@ -21,6 +21,9 @@ namespace JidamVision
         private static DockPanel _dockPanel;
         private TeachForm _teachWindow;
         private InspectionForm _inspectionWindow; // 기존 검사 실행 창
+
+        private bool _isInspectionUIShown = false;
+        private bool _isTeachUIShown = false;
         public MainForm()
         {
             InitializeComponent();
@@ -34,79 +37,139 @@ namespace JidamVision
             // Visual Studio 2015 테마 적용
             _dockPanel.Theme = new VS2015BlueTheme();
 
-            LoadDockingWindows();
+               LoadDockingWindows();
+       
+            _isInspectionUIShown = true;
+            _isTeachUIShown = false;
+            ShowInspectionUI();
+
+            // 활성화된 도킹 창이 변경될 때 이벤트 핸들러 등록
+            _dockPanel.ActiveContentChanged += DockPanel_ActiveContentChanged;
 
             Global.Inst.Initialize();
+
+
         }
+        private void DockPanel_ActiveContentChanged(object sender, EventArgs e)
+        {
+         
+            var activeForm = _dockPanel.ActiveContent as DockContent;
+            if (activeForm == null)
+            {
+                // 활성 창이 없으면 기본적으로 _inspectionWindow를 활성화
+              //  _dockPanel.ActiveContent = _inspectionWindow;
+                activeForm = _inspectionWindow;
+            }
+            if (activeForm == _inspectionWindow && !_isInspectionUIShown)
+            {
+                _isInspectionUIShown = true;
+                _isTeachUIShown = false;
+                Console.WriteLine("검사 실행 창 선택됨");
+                ShowInspectionUI();
+            }
+            else if (activeForm == _teachWindow && !_isTeachUIShown)
+            {
+                _isInspectionUIShown = false;
+                _isTeachUIShown = true;
+                Console.WriteLine("Teach 창 선택됨");
+                ShowTeachUI();
+            }
+        }
+
+        // 검사 실행 창 활성화 시 특정 UI 설정
+        private void ShowInspectionUI()
+        {
+
+            //결과폼
+           var resultWindow = GetDockForm<ResultForm>();
+            if(resultWindow == null)
+            {
+                resultWindow = new ResultForm();
+                resultWindow.Show(_inspectionWindow.Pane, DockAlignment.Bottom, 0.3);
+            }
+          
+
+            // 모델 트리 창을 닫기 전에 닫혀있는지 확인하고, 닫기
+            var modelTreeWindow = GetDockForm<ModelTreeForm>();
+            if (modelTreeWindow != null)
+            {
+                modelTreeWindow.Close(); // ModelTreeForm을 닫음
+            }
+        }
+
+        // Teach 창 활성화 시 특정 UI 설정
+        private void ShowTeachUI()
+        {
+            // 모델 트리 창이 이미 열려 있는지 확인
+            var modelTreeWindow = GetDockForm<ModelTreeForm>();
+            if (modelTreeWindow == null)
+            {
+                modelTreeWindow = new ModelTreeForm();
+                modelTreeWindow.Show(_teachWindow.Pane, DockAlignment.Bottom, 0.2);
+                Console.WriteLine("ModelTreeForm이 이제 표시되었습니다.");
+            }
+
+            // 모델 트리 창을 닫기 전에 닫혀있는지 확인하고, 닫기
+            var resultWindow = GetDockForm<ResultForm>();
+            if (resultWindow != null)
+            {
+                resultWindow.Close(); // ModelTreeForm을 닫음
+                Console.WriteLine("ResultForm이 닫혔습니다.");
+            }
+
+        }
+
+
 
         private void LoadDockingWindows()
         {
             //도킹해제 금지 설정
             _dockPanel.AllowEndUserDocking = false;
+           
 
-
-           _inspectionWindow = new InspectionForm();
+            _inspectionWindow = new InspectionForm();
+            _inspectionWindow.Text = "검사창";
+            _inspectionWindow.CloseButton = false; // 닫기 버튼 제거
+            _inspectionWindow.CloseButtonVisible = false;
             _inspectionWindow.Show(_dockPanel, DockState.Document);
 
             // Teach 창 추가 (처음에는 숨겨둠)
 
             _teachWindow = new TeachForm();
+            _teachWindow.Text = "학습창";
+            _teachWindow.CloseButton = false; // 닫기 버튼 제거
+            _teachWindow.CloseButtonVisible = false;
             _teachWindow.Show(_dockPanel, DockState.Document);
+
+            ////로그창 50% 비율로 추가
+            var logWindow = new LogForm();
+            logWindow.Show(_dockPanel, DockState.DockRight);
+
+
+            ////검사 결과창 30% 비율로 추가
+            //var resultWindow = new ResultForm();
+            ////resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
+
+            ////# MODEL TREE#3 검사 결과창 우측에 40% 비율로 모델트리 추가
+            //var modelTreeWindow = new ModelTreeForm();
+            ////modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
+
+            ////속성창 추가
+            //var propWindow = new PropertiesForm();
+            //propWindow.Show(_dockPanel, DockState.DockRight);
+
+            ////속성창과 같은탭에 추가하기
+            //var statisticWindow = new StatisticForm();
+            //statisticWindow.Show(_dockPanel, DockState.DockRight);
+
+            //propWindow.Activate();
 
             
-
-            //메인폼 설정
-            //var cameraWindow = new CameraForm();
-            //cameraWindow.Show(_dockPanel, DockState.Document);
-
-            //검사 결과창 30% 비율로 추가
-            var resultWindow = new ResultForm();
-            //resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
-
-            //# MODEL TREE#3 검사 결과창 우측에 40% 비율로 모델트리 추가
-            var modelTreeWindow = new ModelTreeForm();
-            //modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
-
-            //속성창 추가
-            var propWindow = new PropertiesForm();
-            propWindow.Show(_dockPanel, DockState.DockRight);
-
-            //속성창과 같은탭에 추가하기
-            var statisticWindow = new StatisticForm();
-            statisticWindow.Show(_dockPanel, DockState.DockRight);
-
-            propWindow.Activate();
-
-            //로그창 50% 비율로 추가
-            var logWindow = new LogForm();
-            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.5);
         }
 
 
-        private void ShowTeachWindow()
-        {
-            _inspectionWindow.Hide();
-            _teachWindow.Show(_dockPanel, DockState.Document);
-        }
 
-        private void ShowInspectionWindow()
-        {
-            _teachWindow.Hide();
-            _inspectionWindow.Show(_dockPanel, DockState.Document);
-        }
-
-
-        // Teach 탭 버튼 클릭 이벤트 핸들러
-        private void TeachTab_Click(object sender, EventArgs e)
-        {
-            ShowTeachWindow();
-        }
-
-        // 검사 실행 탭 버튼 클릭 이벤트 핸들러 (필요하면 추가)
-        private void InspectionTab_Click(object sender, EventArgs e)
-        {
-            ShowInspectionWindow();
-        }
+     
 
 
 
