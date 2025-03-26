@@ -28,28 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
+            this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.SuspendLayout();
             // 
-            // imageViewCCtrl1
+            // imageViewer
             // 
-            this.imageViewCCtrl1.AutoSize = true;
-            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewCCtrl1.Location = new System.Drawing.Point(12, 21);
-            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
-            this.imageViewCCtrl1.Size = new System.Drawing.Size(328, 249);
-            this.imageViewCCtrl1.TabIndex = 0;
+            this.imageViewer.AutoSize = true;
+            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewer.Location = new System.Drawing.Point(12, 25);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(328, 249);
+            this.imageViewer.TabIndex = 0;
+            this.imageViewer.Load += new System.EventHandler(this.ImageViewer_Load);
             // 
             // TeachForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(560, 300);
-            this.Controls.Add(this.imageViewCCtrl1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Controls.Add(this.imageViewer);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "TeachForm";
             this.Text = "  ";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TeachForm_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -57,6 +59,6 @@
 
         #endregion
 
-        private ImageViewCCtrl imageViewCCtrl1;
+        private ImageViewCCtrl imageViewer;
     }
 }

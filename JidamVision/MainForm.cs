@@ -19,7 +19,7 @@ namespace JidamVision
     public partial class MainForm : Form
     {
         private static DockPanel _dockPanel;
-        private TeachForm _teachWindow;
+        private CameraForm _teachWindow;
         private InspectionForm _inspectionWindow; // 기존 검사 실행 창
 
         private bool _isInspectionUIShown = false;
@@ -39,8 +39,7 @@ namespace JidamVision
 
                LoadDockingWindows();
        
-            _isInspectionUIShown = true;
-            _isTeachUIShown = false;
+           
             ShowInspectionUI();
 
             // 활성화된 도킹 창이 변경될 때 이벤트 핸들러 등록
@@ -59,6 +58,7 @@ namespace JidamVision
                 // 활성 창이 없으면 기본적으로 _inspectionWindow를 활성화
               //  _dockPanel.ActiveContent = _inspectionWindow;
                 activeForm = _inspectionWindow;
+                _isInspectionUIShown = true;
             }
             if (activeForm == _inspectionWindow && !_isInspectionUIShown)
             {
@@ -95,6 +95,14 @@ namespace JidamVision
             {
                 modelTreeWindow.Close(); // ModelTreeForm을 닫음
             }
+
+            var propWindow = GetDockForm<PropertiesForm>();
+            if (propWindow != null)
+            {
+                propWindow.Close(); //propWindow을 닫음
+            }
+
+          
         }
 
         // Teach 창 활성화 시 특정 UI 설정
@@ -108,12 +116,23 @@ namespace JidamVision
                 modelTreeWindow.Show(_teachWindow.Pane, DockAlignment.Bottom, 0.2);
                 Console.WriteLine("ModelTreeForm이 이제 표시되었습니다.");
             }
+            
+            var propWindow = GetDockForm<PropertiesForm>();
+            if (propWindow == null)
+            {
+                propWindow = new PropertiesForm();
+                propWindow.Show(_dockPanel, DockState.DockRight);
+                Console.WriteLine("propWindows이 이제 표시되었습니다.");
+            }
 
-            // 모델 트리 창을 닫기 전에 닫혀있는지 확인하고, 닫기
+
+
+
+            // 
             var resultWindow = GetDockForm<ResultForm>();
             if (resultWindow != null)
             {
-                resultWindow.Close(); // ModelTreeForm을 닫음
+                resultWindow.Close(); //
                 Console.WriteLine("ResultForm이 닫혔습니다.");
             }
 
@@ -135,18 +154,17 @@ namespace JidamVision
 
             // Teach 창 추가 (처음에는 숨겨둠)
 
-            _teachWindow = new TeachForm();
+            _teachWindow = new CameraForm();
             _teachWindow.Text = "학습창";
             _teachWindow.CloseButton = false; // 닫기 버튼 제거
             _teachWindow.CloseButtonVisible = false;
             _teachWindow.Show(_dockPanel, DockState.Document);
 
             ////로그창 50% 비율로 추가
-            var logWindow = new LogForm();
-            logWindow.Show(_dockPanel, DockState.DockRight);
+          
 
-            var cameraWindow = new CameraForm();
-            cameraWindow.Show(_dockPanel, DockState.Document);
+            //var cameraWindow = new CameraForm();
+            //cameraWindow.Show(_dockPanel, DockState.Document);
             ////검사 결과창 30% 비율로 추가
             //var resultWindow = new ResultForm();
             ////resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
@@ -156,8 +174,10 @@ namespace JidamVision
             ////modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
 
             //속성창 추가
-            var propWindow = new PropertiesForm();
-            propWindow.Show(_dockPanel, DockState.DockRight);
+            //var propWindow = new PropertiesForm();
+            //propWindow.Show(_dockPanel, DockState.DockRight);
+            var logWindow = new LogForm();
+            logWindow.Show(_teachWindow.Pane, DockAlignment.Bottom, 0.2);
 
             ////속성창과 같은탭에 추가하기
             //var statisticWindow = new StatisticForm();

@@ -30,8 +30,10 @@ namespace JidamVision.Property
 
     public partial class BinaryInspProp : UserControl
     {
+        public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<RangeChangedEventArgs> RangeChanged;
 
+        BlobAlgorithm _blobAlgo = null;
 
         /* NOTE
         public int LowerValue
@@ -48,35 +50,62 @@ namespace JidamVision.Property
         public BinaryInspProp()
         {
             InitializeComponent();
-        }
 
-        //#BIN PROP# 이진화 검사 속성값을 GUI에 설정
-        public void LoadInspParam()
-        {
             // TrackBar 초기 설정
             trackBarLower.ValueChanged += OnValueChanged;
             trackBarUpper.ValueChanged += OnValueChanged;
 
+            txtArea.Leave += OnAreaLeave;
+
             trackBarLower.Value = 0;
             trackBarUpper.Value = 128;
 
-            //#BINARY FILTER#8 이진화 필터값을 GUI에 로딩
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow != null)
+        }
+
+        public void SetAlgorithm(BlobAlgorithm blobAlgo)
+        {
+            _blobAlgo = blobAlgo;
+            SetProperty();
+        }
+
+        public void SetProperty()
+        {
+            if (_blobAlgo is null)
+                return;
+
+            BinaryThreshold threshold = _blobAlgo.BinThreshold;
+            trackBarLower.Value = threshold.lower;
+            trackBarUpper.Value = threshold.upper;
+            chkInvert.Checked = threshold.invert;
+
+            int filterArea = _blobAlgo.AreaFilter;
+            txtArea.Text = filterArea.ToString();
+        }
+
+        public void GetProperty()
+        {
+            if (_blobAlgo is null)
+                return;
+
+            BinaryThreshold threshold = new BinaryThreshold();
+            threshold.upper = UpperValue;
+            threshold.lower = LowerValue;
+            threshold.invert = chkInvert.Checked;
+
+            _blobAlgo.BinThreshold = threshold;
+
+            if (txtArea.Text != "")
             {
-                //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
-                BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
-                if(blobAlgo != null)
-                {
-                    int filterArea = blobAlgo.AreaFilter;
-                    txtArea.Text = filterArea.ToString();
-                }
+                int filterArea = int.Parse(txtArea.Text);
+                _blobAlgo.AreaFilter = filterArea;
             }
         }
 
         //#BINARY FILTER#10 이진화 옵션을 선택할때마다, 이진화 이미지가 갱신되도록 하는 함수
         private void UpdateBinary()
         {
+            GetProperty();
+
             bool invert = chkInvert.Checked;
             bool highlight = chkHighlight.Checked;
 
@@ -115,32 +144,22 @@ namespace JidamVision.Property
             UpdateBinary();
         }
 
-        private void btnFilter_Click(object sender, EventArgs e)
+        private void OnAreaLeave(object sender, EventArgs e)
         {
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow is null)
+            if (_blobAlgo == null)
                 return;
 
-            //#INSP WORKER#9 inspWindow에서 이진화 알고리즘 찾는 코드 추가
-            BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
-            if (blobAlgo is null)
-                return;
-
-            BinaryThreshold threshold = new BinaryThreshold();
-            threshold.upper = UpperValue;
-            threshold.lower = LowerValue;
-            threshold.invert = chkInvert.Checked;
-
-            blobAlgo.BinThreshold = threshold;
-
-            int filterArea = int.Parse(txtArea.Text);
-            blobAlgo.AreaFilter = filterArea;
-
-            //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
-            Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspBinary);
+            if (int.TryParse(txtArea.Text, out int area))
+            {
+                _blobAlgo.AreaFilter = area;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtArea.Text = _blobAlgo.AreaFilter.ToString(); // 기존 값 복원
+            }
         }
-
-        
     }
 
     //#BINARY FILTER#9 이진화 관련 이벤트 발생시, 전달할 값 추가

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Property;
+using JidamVision.Teach;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 
@@ -55,16 +56,18 @@ namespace JidamVision.Core
     {
         private Mat _orinalImage = null;
         private Mat _previewImage = null;
-        //private Mat _tempImage = null;
+        private InspWindow _inspWindow = null;
 
         public void SetImage(Mat image)
         {
             _orinalImage = image;
             _previewImage = new Mat();
-            //_previewImage = null;
-            //_tempImage = new Mat(image.Size(), MatType.CV_8UC1,new Scalar(0));
         }
 
+        public void SetInspWindow(InspWindow inspwindow)
+        {
+            _inspWindow = inspwindow;
+        }
 
         //#BINARY FILTER#15 기존 이진화 프리뷰에, 배경없이 이진화 이미지만 보이는 모드 추가
         public void SetBinary(int lowerValue, int upperValue, bool invert, ShowBinaryMode showBinMode)
@@ -84,23 +87,46 @@ namespace JidamVision.Core
                 return;
             }
 
+            Rect windowArea = new Rect(0, 0, _orinalImage.Width, _orinalImage.Height);
+            if (_inspWindow != null)
+            {
+                windowArea = _inspWindow.WindowArea;
+            }
+
+            Mat orgRoi = _orinalImage[windowArea];
+
             Mat grayImage = new Mat();
-            if (_orinalImage.Type() == MatType.CV_8UC3)
-                Cv2.CvtColor(_orinalImage, grayImage, ColorConversionCodes.BGR2GRAY);
+            if (orgRoi.Type() == MatType.CV_8UC3)
+                Cv2.CvtColor(orgRoi, grayImage, ColorConversionCodes.BGR2GRAY);
             else
-                grayImage = _orinalImage;
+                grayImage = orgRoi;
 
             Mat binaryMask = new Mat();
-            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
             Cv2.InRange(grayImage, lowerValue, upperValue, binaryMask);
 
             if (invert)
                 binaryMask = ~binaryMask;
 
+            // binaryMask는 ROI 사이즈이므로 fullBinaryMask로 확장
+            Mat fullBinaryMask = Mat.Zeros(_orinalImage.Size(), MatType.CV_8UC1);
+            binaryMask.CopyTo(new Mat(fullBinaryMask, windowArea));
 
             if (showBinMode == ShowBinaryMode.ShowBinaryOnly)
             {
-                bmpImage = BitmapConverter.ToBitmap(binaryMask);
+                if (orgRoi.Type() == MatType.CV_8UC3)
+                {
+                    Mat colorBinary = new Mat();
+                    Cv2.CvtColor(binaryMask, colorBinary, ColorConversionCodes.GRAY2BGR);
+                    _previewImage = _orinalImage.Clone();
+                    colorBinary.CopyTo(new Mat(_previewImage, windowArea));
+                }
+                else
+                {
+                    _previewImage = _orinalImage.Clone();
+                    binaryMask.CopyTo(new Mat(_previewImage, windowArea));
+                }
+
+                bmpImage = BitmapConverter.ToBitmap(_previewImage);
                 cameraForm.UpdateDisplay(bmpImage);
                 return;
             }
@@ -114,7 +140,7 @@ namespace JidamVision.Core
 
                 Mat colorOrinal = overlayImage.Clone();
 
-                overlayImage.SetTo(new Scalar(0, 0, 255), binaryMask); // 빨간색으로 마스킹
+                overlayImage.SetTo(new Scalar(0, 0, 255), fullBinaryMask); // 빨간색으로 마스킹
 
                 // 원본과 합성 (투명도 적용)
                 Cv2.AddWeighted(colorOrinal, 0.7, overlayImage, 0.3, 0, _previewImage);
@@ -122,7 +148,7 @@ namespace JidamVision.Core
             else
             {
                 overlayImage = _orinalImage.Clone();
-                overlayImage.SetTo(new Scalar(0, 0, 255), binaryMask); // 빨간색으로 마스킹
+                overlayImage.SetTo(new Scalar(0, 0, 255), fullBinaryMask); // 빨간색으로 마스킹
 
                 // 원본과 합성 (투명도 적용)
                 Cv2.AddWeighted(_orinalImage, 0.7, overlayImage, 0.3, 0, _previewImage);
@@ -291,7 +317,7 @@ namespace JidamVision.Core
         }
 
         //필터 효과 기능
-        public void ApplyFilter(String selected_filter1,int selected_filter2)
+        public void ApplyFilter(String selected_filter1, int selected_filter2)
         {
             if (_orinalImage == null)
                 return;
@@ -316,13 +342,13 @@ namespace JidamVision.Core
                     break;
                 case "블러링":
                     ImageFilter filter = (ImageFilter)selected_filter2;
-                    ApplyImageFiltering(filter,_orinalImage,out filteredImage);
+                    ApplyImageFiltering(filter, _orinalImage, out filteredImage);
                     break;
                 case "Edge":
                     ImageEdge edge = (ImageEdge)selected_filter2;
                     ApplyEdgeDetection(edge, _orinalImage, out filteredImage);
                     break;
-                
+
                 default:
                     return;
             }

@@ -53,20 +53,20 @@ namespace JidamVision.Property
 
 
             //#BINARY FILTER#8 이진화 필터값을 GUI에 로딩
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow != null)
-            {
-                //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
-                BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
-                if (blobAlgo != null)
-                {
-                    int filterArea = blobAlgo.AreaFilter;
-                    // HSV 값에 대응하는 텍스트박스 추가
-                    txtH.Text = HCenter.ToString();
-                    txtS.Text = SMin.ToString();
-                    txtV.Text = VMin.ToString();
-                }
-            }
+            //InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
+            //if (inspWindow != null)
+            //{
+            //    //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
+            //    BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
+            //    if (blobAlgo != null)
+            //    {
+            //        int filterArea = blobAlgo.AreaFilter;
+            //        // HSV 값에 대응하는 텍스트박스 추가
+            //        txtH.Text = HCenter.ToString();
+            //        txtS.Text = SMin.ToString();
+            //        txtV.Text = VMin.ToString();
+            //    }
+            //}
         }
 
         // 트랙바 값이 바뀔 때 텍스트박스도 업데이트

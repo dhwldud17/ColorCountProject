@@ -12,6 +12,8 @@ using JidamVision.Property;
 using JidamVision.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using JidamVision.Algorithm;
+using JidamVision.Teach;
+
 
 namespace JidamVision
 {
@@ -31,7 +33,8 @@ namespace JidamVision
         InspColorBinary,   //컬러 이진화 추가
         InspFilter,
         InspCount,
-     
+        InspMatch
+
     }
 
     public partial class PropertiesForm : DockContent
@@ -85,8 +88,8 @@ namespace JidamVision
             {
                 case InspectType.InspBinary:
                     BinaryInspProp blobProp = new BinaryInspProp();
-                    blobProp.LoadInspParam();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
+                    blobProp.PropertyChanged += PropertyChanged;
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
@@ -108,7 +111,21 @@ namespace JidamVision
             return _inspProp;
         }
 
-        
+
+        public void ShowProperty(InspWindow window)
+        {
+            foreach (InspAlgorithm algo in window.AlgorithmList)
+            {
+                LoadOptionControl(algo.InspectType);
+            }
+
+            tabPropControl.SelectedIndex = 0;
+        }
+
+        public void ResetProperty()
+        {
+            tabPropControl.TabPages.Clear();
+        }
 
         public void AddInspType(InspectType inspPropType)
         {
@@ -136,7 +153,36 @@ namespace JidamVision
         }
 
 
+        public void UpdateProperty(InspWindow window)
+        {
+            if (window is null)
+                return;
 
+            foreach (TabPage tabPage in tabPropControl.TabPages)
+            {
+                if (tabPage.Controls.Count > 0)
+                {
+                    UserControl uc = tabPage.Controls[0] as UserControl;
+
+                    //if (uc is MatchInspProp matchProp)
+                    //{
+                    //    MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                    //    if (matchAlgo is null)
+                    //        continue;
+
+                    //    matchProp.SetAlgorithm(matchAlgo);
+                    //}
+                    //else if (uc is BinaryInspProp binaryProp)
+                    //{
+                    //    BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                    //    if (blobAlgo is null)
+                    //        continue;
+
+                    //    binaryProp.SetAlgorithm(blobAlgo);
+                    //}
+                }
+            }
+        }
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
@@ -156,6 +202,11 @@ namespace JidamVision
             int filter2 = e.FilterSelected2;
             Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
 
+        }
+
+        private void PropertyChanged(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.RedrawMainView();
         }
     }
 }

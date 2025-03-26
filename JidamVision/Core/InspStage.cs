@@ -1,4 +1,5 @@
-﻿using JidamVision.Grab;
+﻿using JidamVision.Algorithm;
+using JidamVision.Grab;
 using JidamVision.Inspect;
 using JidamVision.Setting;
 using JidamVision.Teach;
@@ -19,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace JidamVision.Core
 {
@@ -37,8 +39,6 @@ namespace JidamVision.Core
 
         //#MODEL#6 모델 변수 선언
         private Model _model = null;
-
-        private InspWindow _inspWindow = null;
 
         public ImageSpace ImageSpace
         {
@@ -61,12 +61,6 @@ namespace JidamVision.Core
         {
             get => _model;
         }
-
-        public InspWindow InspWindow
-        {
-            get => _inspWindow;
-        }
-
 
         //#INSP WORKER#1 1개만 있던 InspWindow를 리스트로 변경하여, 여러개의 ROI를 관리하도록 개선
         public List<InspWindow> InspWindowList { get; set; } = new List<InspWindow>();
@@ -150,7 +144,7 @@ namespace JidamVision.Core
 
             SetBuffer(bufferCount);
 
-            if(_camType == CameraType.HikRobotCam)
+            if (_camType == CameraType.HikRobotCam)
             {
                 _grabManager.SetExposureTime(20000);
                 _grabManager.SetGain(1.4f);
@@ -158,7 +152,7 @@ namespace JidamVision.Core
 
                 _grabManager.SetWhiteBalance(true);
             }
-            
+
         }
         public void SetImageBuffer(string filePath)
         {
@@ -177,7 +171,7 @@ namespace JidamVision.Core
 
             imageWidth = (matImage.Width + 3) / 4 * 4;
             imageHeight = matImage.Height;
-            
+
             // 4바이트 정렬된 새로운 Mat 생성
             Mat alignedMat = new Mat();
             Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
@@ -312,27 +306,52 @@ namespace JidamVision.Core
         private void InitInspWindow()
         {
             SLogger.Write("검사 속성창 초기화!");
+        }
 
+        public void TryInspection(InspWindow inspWindow)
+        {
+            if (inspWindow is null)
+                return;
+
+            InspWorker.TryInspect(inspWindow, InspectType.InspNone);
+        }
+
+        public void SelectInspWindow(InspWindow inspWindow)
+        {
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             if (propForm != null)
             {
-                //#ABSTRACT ALGORITHM#8 InspAlgorithm을 추상화하였으므로, 
-                //모든 검사 타입을 for문을 통해서 추가,
-                //함수명 변경 SetInspType -> AddInspType
-                for (int i = 0; i < (int)InspectType.InspCount; i++)
-                    propForm.AddInspType((InspectType)i);
+                if (inspWindow is null)
+                {
+                    propForm.ResetProperty();
+                    return;
+                }
+
+                propForm.ShowProperty(inspWindow);
             }
+
+            UpdateProperty(inspWindow);
+
+            Global.Inst.InspStage.PreView.SetInspWindow(inspWindow);
         }
 
         //#MODEL#9 ImageViwer에서 ROI를 추가하여, InspWindow생성하는 함수
         public void AddInspWindow(InspWindowType windowType, Rect rect)
-        { 
+        {
             InspWindow inspWindow = _model.AddInspWindow(windowType);
             if (inspWindow is null)
                 return;
 
             inspWindow.WindowArea = rect;
+            UpdateProperty(inspWindow);
             UpdateDiagramEntity();
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SelectDiagramEntity(inspWindow);
+                SelectInspWindow(inspWindow);
+            }
         }
 
         //입력된 윈도우 이동
@@ -346,7 +365,10 @@ namespace JidamVision.Core
             if (group != null)
                 group.OffsetMove(offset);
             else
+            {
                 inspWindow.OffsetMove(offset);
+                UpdateProperty(inspWindow);
+            }
         }
 
         //#MODEL#10 기존 ROI 수정되었을때, 그 정보를 InspWindow에 반영
@@ -356,6 +378,8 @@ namespace JidamVision.Core
                 return;
 
             inspWindow.WindowArea = rect;
+
+            UpdateProperty(inspWindow);
         }
 
         //#MODEL#11 InspWindow 삭제하기
@@ -398,7 +422,7 @@ namespace JidamVision.Core
                 group = (GroupWindow)window.Parent;
             }
 
-            if(group == null)
+            if (group == null)
             {
                 MessageBox.Show("그룹윈도우가 아닙니다!");
                 return;
@@ -406,6 +430,33 @@ namespace JidamVision.Core
 
             _model.BreakGroupWindow(group);
             UpdateDiagramEntity();
+        }
+
+        private void UpdateProperty(InspWindow inspWindow)
+        {
+            if (inspWindow is null)
+                return;
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm is null)
+                return;
+
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo != null)
+            {
+                Mat curImage = cameraForm.GetDisplayImage();
+                if (curImage is null)
+                    return;
+
+                Mat teachingImage = curImage[inspWindow.WindowArea];
+                matchAlgo.SetTemplateImage(teachingImage);
+            }
+
+            PropertiesForm propertiesForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propertiesForm is null)
+                return;
+
+            propertiesForm.UpdateProperty(inspWindow);
         }
 
         //#MODEL#15 변경된 모델 정보 갱신하여, ImageViewer와 모델트리에 반영
@@ -421,6 +472,15 @@ namespace JidamVision.Core
             if (modelTreeForm != null)
             {
                 modelTreeForm.UpdateDiagramEntity();
+            }
+        }
+
+        public void RedrawMainView()
+        {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdateImageViewer();
             }
         }
 
