@@ -1,4 +1,5 @@
-﻿using JidamVision.Core;
+﻿using JidamVision.Algorithm;
+using JidamVision.Core;
 using JidamVision.Teach;
 using OpenCvSharp.Dnn;
 using System;
@@ -12,9 +13,11 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using static System.Windows.Forms.MonthCalendar;
 
 namespace JidamVision
 {
@@ -32,13 +35,15 @@ namespace JidamVision
     public enum EntityActionType
     {
         None = 0,
-        Add = 1,
+        Select,
+        Inspect,
+        Add,
         Move,
         Resize,
         Delete,
         DeleteList,
         AddGroup,
-        Break
+        Break,
     }
 
     public partial class ImageViewCCtrl : UserControl
@@ -113,6 +118,9 @@ namespace JidamVision
             _contextMenu.Items.Add("Create Group", null, OnCreateGroupClicked);
             _contextMenu.Items.Add("Break Group", null, OnBreakGroupClicked);
             _contextMenu.Items.Add("Delete", null, OnDeleteClicked);
+            _contextMenu.Items.Add(new ToolStripSeparator());
+            _contextMenu.Items.Add("Teaching", null, OnTeachingClicked);
+            _contextMenu.Items.Add("Unlock", null, OnUnlockClicked);
 
             // 마우스 휠 이벤트를 등록하여 줌 기능 추가
             // MouseWheel+= : 같은 이벤트에 여러 개의 핸들러 등록가능. 이전 핸들러 삭제않고 추가됨
@@ -138,16 +146,15 @@ namespace JidamVision
             switch (inspWindowType)
             {
                 case InspWindowType.Base:
-                    color = Color.Orange;
+                    color = Color.BurlyWood;
                     break;
-
                 case InspWindowType.Sub:
-                    color = Color.Magenta;
+                    color = Color.Brown;
                     break;
-
                 case InspWindowType.ID:
                     color = Color.Cyan;
                     break;
+                
             }
 
             return color;
@@ -188,6 +195,14 @@ namespace JidamVision
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
+                //이미지 크기가 같다면, 이미지 변경 후, 화면 갱신
+                if (_bitmapImage.Width == bitmap.Width && _bitmapImage.Height == bitmap.Height)
+                {
+                    _bitmapImage = bitmap;
+                    Invalidate();
+                    return;
+                }
+
                 _bitmapImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
                 _bitmapImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
             }
@@ -405,6 +420,12 @@ namespace JidamVision
                         }
                     }
 
+                    if (_multiSelectedEntities.Count <= 1 && _selEntity != null)
+                    {
+                        //확장영역이 있다면 표시
+                     //   DrawInspParam(g, _selEntity.LinkedWindow);
+                    }
+
                     //#GROUP ROI#10 선택 영역 박스 그리기
                     if (_isBoxSelecting && !_selectionBox.IsEmpty)
                     {
@@ -421,6 +442,7 @@ namespace JidamVision
                 }
             }
         }
+
 
         private void ImageViewCCtrl_MouseDown(object sender, MouseEventArgs e)
         {
@@ -449,7 +471,7 @@ namespace JidamVision
                         }
                     }
 
-                    if (_selEntity != null && _selEntity.GetParentGroup() == null)
+                    if (_selEntity != null && !_selEntity.IsHold && _selEntity.GetParentGroup() == null)
                     {
                         Rectangle screenRect = VirtualToScreen(_selEntity.EntityROI);
                         //마우스 클릭 위치가 ROI 크기 변경을 하기 위한 위치(모서리,엣지)인지 여부 판단
@@ -488,9 +510,9 @@ namespace JidamVision
                             }
 
                             _selEntity = entity;
+                            _roiRect = entity.EntityROI;
                             _isMovingRoi = true;
                             _moveStart = e.Location;
-                            _roiRect = entity.EntityROI;
                             break;
                         }
                     }
@@ -563,7 +585,7 @@ namespace JidamVision
                             entity.EntityROI = rect;
                         }
                     }
-                    else if (_selEntity != null)
+                    else if (_selEntity != null && !_selEntity.IsHold)
                     {
                         _roiRect.X += dxVirtual;
                         _roiRect.Y += dyVirtual;
@@ -617,16 +639,26 @@ namespace JidamVision
             {
                 if (_isSelectingRoi)
                 {
-                    //ROI 크기가 10보다 작으면, 추가하지 않음
-                    if (_roiRect.Width >= 10 && _roiRect.Height >= 10)
-                    {
-                        _selEntity = new DiagramEntity(_roiRect, _selColor);
-                    }
-
                     _isSelectingRoi = false;
+
+                    if (_bitmapImage is null)
+                        return;
+
+                    //ROI 크기가 10보다 작으면, 추가하지 않음
+                    if (_roiRect.Width < 10 ||
+                        _roiRect.Height < 10 ||
+                        _roiRect.X < 0 ||
+                        _roiRect.Y < 0 ||
+                        _roiRect.Right > _bitmapImage.Width ||
+                        _roiRect.Bottom > _bitmapImage.Height)
+                        return;
+
+                    _selEntity = new DiagramEntity(_roiRect, _selColor);
 
                     //모델에 InspWindow 추가하는 이벤트 발생
                     DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, _newRoiType, _roiRect, new Point()));
+
+
                 }
                 else if (_isResizingRoi)
                 {
@@ -654,6 +686,10 @@ namespace JidamVision
                         //모델에 InspWindow 이동 이벤트 발생
                         if (offsetMove.X != 0 || offsetMove.Y != 0)
                             DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Move, linkedWindow, _newRoiType, _roiRect, offsetMove));
+                        else
+                            //모델에 InspWindow 선택 변경 이벤트 발생
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Select, _selEntity.LinkedWindow));
+
                     }
                 }
                 // ROI 선택 완료
@@ -676,7 +712,12 @@ namespace JidamVision
                         _selEntity = _multiSelectedEntities[0];
 
                     _selectionBox = Rectangle.Empty;
+
+                    //선택해제
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Select, null));
+
                     Invalidate();
+
                     return;
                 }
             }
@@ -863,12 +904,24 @@ namespace JidamVision
         {
             _isCtrlPressed = keyData == Keys.Control;
 
-            if (keyData == Keys.Delete)
+            switch (keyData)
             {
-                if (_selEntity != null)
-                {
-                    DeleteSelEntity();
-                }
+                case Keys.Delete:
+                    {
+                        if (_selEntity != null)
+                        {
+                            DeleteSelEntity();
+                        }
+                    }
+                    break;
+                case Keys.Enter:
+                    {
+                        if (_selEntity != null)
+                        {
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Inspect, _selEntity.LinkedWindow));
+                        }
+                    }
+                    break;
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -892,6 +945,19 @@ namespace JidamVision
             _selEntity = null;
             Invalidate();
             return true;
+        }
+
+        public void SelectDiagramEntity(InspWindow window)
+        {
+            DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
+            if (entity != null)
+            {
+                _multiSelectedEntities.Clear();
+                AddSelectedROI(entity);
+
+                _selEntity = entity;
+                _roiRect = entity.EntityROI;
+            }
         }
 
         //#GROUP ROI#4 팝업 메뉴 함수 
@@ -923,6 +989,33 @@ namespace JidamVision
         private void OnDeleteClicked(object sender, EventArgs e)
         {
             DeleteSelEntity();
+        }
+
+        private void OnTeachingClicked(object sender, EventArgs e)
+        {
+            if (_selEntity is null)
+                return;
+
+            InspWindow window = _selEntity.LinkedWindow;
+
+            if (window is null)
+                return;
+
+        //    window.IsTeach = true;
+            _selEntity.IsHold = true;
+        }
+
+        private void OnUnlockClicked(object sender, EventArgs e)
+        {
+            if (_selEntity is null)
+                return;
+
+            InspWindow window = _selEntity.LinkedWindow;
+
+            if (window is null)
+                return;
+
+            _selEntity.IsHold = false;
         }
 
         private void DeleteSelEntity()

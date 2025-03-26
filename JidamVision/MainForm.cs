@@ -145,7 +145,8 @@ namespace JidamVision
             var logWindow = new LogForm();
             logWindow.Show(_dockPanel, DockState.DockRight);
 
-
+            var cameraWindow = new CameraForm();
+            cameraWindow.Show(_dockPanel, DockState.Document);
             ////검사 결과창 30% 비율로 추가
             //var resultWindow = new ResultForm();
             ////resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
@@ -154,9 +155,9 @@ namespace JidamVision
             //var modelTreeWindow = new ModelTreeForm();
             ////modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
 
-            ////속성창 추가
-            //var propWindow = new PropertiesForm();
-            //propWindow.Show(_dockPanel, DockState.DockRight);
+            //속성창 추가
+            var propWindow = new PropertiesForm();
+            propWindow.Show(_dockPanel, DockState.DockRight);
 
             ////속성창과 같은탭에 추가하기
             //var statisticWindow = new StatisticForm();

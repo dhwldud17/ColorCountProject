@@ -85,15 +85,23 @@ namespace JidamVision.Inspect
                         blobAlgo.SetInspData(srcImage);
                         break;
                     }
-
-                case InspectType.InspMatch:
+                case InspectType.InspColorBinary:
                     {
-                        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
 
                         Mat srcImage = Global.Inst.InspStage.GetMat();
-                        matchAlgo.SetInspData(srcImage);
+                        blobAlgo.SetInspData(srcImage);
                         break;
                     }
+
+                //case InspectType.InspMatch:
+                //    {
+                //        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+
+                //        Mat srcImage = Global.Inst.InspStage.GetMat();
+                //        matchAlgo.SetInspData(srcImage);
+                //        break;
+                //    }
                 default:
                     {
                         Console.WriteLine($"Not support inspection type : %s", inspType.ToString());

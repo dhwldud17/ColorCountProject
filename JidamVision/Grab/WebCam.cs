@@ -25,7 +25,7 @@ namespace JidamVision.Grab
         internal override bool Create(string strIpAddr = null)
         {
             //_capture = new VideoCapture(0, VideoCaptureAPIs.DSHOW); // 0번 카메라 (기본 웹캠)
-            _capture = new VideoCapture(0); // 0번 카메라 (기본 웹캠)
+            //_capture = new VideoCapture(0); // 0번 카메라 (기본 웹캠)
             if (_capture == null)
                 return false;
 

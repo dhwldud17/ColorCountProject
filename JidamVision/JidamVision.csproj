@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\BlobAlgorithm.cs" />
+    <Compile Include="Algorithm\ColorBlobAlgorithm.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
     <Compile Include="Algorithm\MatchAlgorithm.cs" />
     <Compile Include="CameraForm.cs">
@@ -193,17 +194,17 @@
     <Compile Include="Property\BinaryInspProp.Designer.cs">
       <DependentUpon>BinaryInspProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="Property\ColorBinaryInspProp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Property\ColorBinaryInspProp.Designer.cs">
+      <DependentUpon>ColorBinaryInspProp.cs</DependentUpon>
+    </Compile>
     <Compile Include="Property\FilterInspProp.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Property\FilterInspProp.Designer.cs">
       <DependentUpon>FilterInspProp.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Property\MatchInspProp.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Property\MatchInspProp.Designer.cs">
-      <DependentUpon>MatchInspProp.cs</DependentUpon>
     </Compile>
     <Compile Include="ResultForm.cs">
       <SubType>Form</SubType>
@@ -283,11 +284,11 @@
     <EmbeddedResource Include="Property\BinaryInspProp.resx">
       <DependentUpon>BinaryInspProp.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Property\ColorBinaryInspProp.resx">
+      <DependentUpon>ColorBinaryInspProp.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Property\FilterInspProp.resx">
       <DependentUpon>FilterInspProp.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Property\MatchInspProp.resx">
-      <DependentUpon>MatchInspProp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResultForm.resx">
       <DependentUpon>ResultForm.cs</DependentUpon>

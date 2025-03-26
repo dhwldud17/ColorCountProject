@@ -36,9 +36,10 @@
             this.rbtnGreenChannel = new System.Windows.Forms.RadioButton();
             this.rbtnBlueChannel = new System.Windows.Forms.RadioButton();
             this.rbtnRedChannel = new System.Windows.Forms.RadioButton();
-            this.btnSave = new System.Windows.Forms.Button();
             this.btnInspect = new System.Windows.Forms.Button();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.chkCycle = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -141,21 +142,11 @@
             this.rbtnRedChannel.UseVisualStyleBackColor = true;
             this.rbtnRedChannel.CheckedChanged += new System.EventHandler(this.rbtnRedChannel_CheckedChanged);
             // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(350, 99);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 22);
-            this.btnSave.TabIndex = 5;
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
             // btnInspect
             // 
-            this.btnInspect.Location = new System.Drawing.Point(350, 127);
+            this.btnInspect.Location = new System.Drawing.Point(350, 70);
             this.btnInspect.Name = "btnInspect";
-            this.btnInspect.Size = new System.Drawing.Size(75, 30);
+            this.btnInspect.Size = new System.Drawing.Size(75, 24);
             this.btnInspect.TabIndex = 6;
             this.btnInspect.Text = "검사";
             this.btnInspect.UseVisualStyleBackColor = true;
@@ -172,13 +163,34 @@
             this.imageViewer.Size = new System.Drawing.Size(332, 272);
             this.imageViewer.TabIndex = 2;
             // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(350, 100);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 27);
+            this.btnStop.TabIndex = 7;
+            this.btnStop.Text = "정지";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // chkCycle
+            // 
+            this.chkCycle.AutoSize = true;
+            this.chkCycle.Location = new System.Drawing.Point(350, 133);
+            this.chkCycle.Name = "chkCycle";
+            this.chkCycle.Size = new System.Drawing.Size(57, 16);
+            this.chkCycle.TabIndex = 8;
+            this.chkCycle.Text = "Cycle";
+            this.chkCycle.UseVisualStyleBackColor = true;
+            // 
             // CameraForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(432, 291);
+            this.Controls.Add(this.chkCycle);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnInspect);
-            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.imageViewer);
@@ -203,8 +215,9 @@
         private System.Windows.Forms.RadioButton rbtnGrayChannel;
         private System.Windows.Forms.RadioButton rbtnGreenChannel;
         private System.Windows.Forms.RadioButton rbtnBlueChannel;
-        private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnInspect;
         private System.Windows.Forms.RadioButton rbtnColor;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.CheckBox chkCycle;
     }
 }
