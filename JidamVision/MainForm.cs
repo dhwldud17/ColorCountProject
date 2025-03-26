@@ -1,6 +1,7 @@
 ﻿using JidamVision.Core;
 using JidamVision.Setting;
 using JidamVision.Util;
+using JidamVision.Teach;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;

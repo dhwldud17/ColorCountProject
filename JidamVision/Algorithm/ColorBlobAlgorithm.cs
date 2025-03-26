@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JidamVision.Property;
 
 namespace JidamVision.Algorithm
 {
@@ -43,6 +44,9 @@ namespace JidamVision.Algorithm
 
         // 픽셀 영역 필터링 (기본값 100)
         public int AreaFilter { get; set; } = 100;
+        public int HCenter { get; set; } // HCenter 속성 추가
+        public int SMin { get; set; } // SMin 속성 추가
+        public int VMin { get; set; } // VMin 속성 추가
 
         public ColorBlobAlgorithm()
         {
@@ -52,6 +56,9 @@ namespace JidamVision.Algorithm
         // HSV 값을 바탕으로 색상 범위를 설정
         public void SetColorRange(int hCenter, int sMin, int vMin)
         {
+            HCenter = hCenter;
+            SMin = sMin;
+            VMin = vMin;
             // 색상 범위 설정 (HSV)
             _colorRange.lower = new Scalar(hCenter - 10, sMin - 50, vMin - 50); // 범위는 예시로 설정, 필요시 조정
             _colorRange.upper = new Scalar(hCenter + 10, sMin + 50, vMin + 50);
