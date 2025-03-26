@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.bntStart = new System.Windows.Forms.Button();
             this.bntStop = new System.Windows.Forms.Button();
             this.rtbTotalnumber = new System.Windows.Forms.RichTextBox();
@@ -44,17 +43,10 @@
             this.lbFaulty = new System.Windows.Forms.Label();
             this.lbPercent = new System.Windows.Forms.Label();
             this.lbTotalnumber = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
+            this.imageViewer = new JidamVision.ImageViewCCtrl();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(27, 112);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(526, 498);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
             // 
             // bntStart
             // 
@@ -184,11 +176,35 @@
             this.lbTotalnumber.TabIndex = 15;
             this.lbTotalnumber.Text = "총개수";
             // 
+            // imageViewCCtrl1
+            // 
+            this.imageViewCCtrl1.AutoSize = true;
+            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewCCtrl1.Location = new System.Drawing.Point(421, 479);
+            this.imageViewCCtrl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
+            this.imageViewCCtrl1.Size = new System.Drawing.Size(4, 4);
+            this.imageViewCCtrl1.TabIndex = 16;
+            // 
+            // imageViewer
+            // 
+            this.imageViewer.AutoSize = true;
+            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewer.Location = new System.Drawing.Point(24, 112);
+            this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(528, 490);
+            this.imageViewer.TabIndex = 17;
+            // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 698);
+            this.Controls.Add(this.imageViewer);
+            this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.lbTotalnumber);
             this.Controls.Add(this.lbPercent);
             this.Controls.Add(this.lbFaulty);
@@ -204,10 +220,8 @@
             this.Controls.Add(this.rtbTotalnumber);
             this.Controls.Add(this.bntStop);
             this.Controls.Add(this.bntStart);
-            this.Controls.Add(this.pictureBox1);
             this.Name = "InspectionForm";
             this.Text = "InspectionForm";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -215,8 +229,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button bntStart;
         private System.Windows.Forms.Button bntStop;
         private System.Windows.Forms.RichTextBox rtbTotalnumber;
@@ -232,5 +244,7 @@
         private System.Windows.Forms.Label lbFaulty;
         private System.Windows.Forms.Label lbPercent;
         private System.Windows.Forms.Label lbTotalnumber;
+        private ImageViewCCtrl imageViewCCtrl1;
+        private ImageViewCCtrl imageViewer;
     }
 }
