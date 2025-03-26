@@ -13,8 +13,7 @@ namespace JidamVision.Core
         Global,
         Group,
         Base,
-        Sub,
-        ID,
+       Cabel
     }
 
     public static class Define

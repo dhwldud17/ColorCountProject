@@ -76,14 +76,11 @@ namespace JidamVision.Teach
                     name = "BASE";
                     prefix = "BAS";
                     break;
-                case InspWindowType.Sub:
-                    name = "SUB";
-                    prefix = "SUB";
+                case InspWindowType.Cabel:
+                    name = "CABEL";
+                    prefix = "CABLE";
                     break;
-                case InspWindowType.ID:
-                    name = "ID";
-                    prefix = "ID";
-                    break;
+                
                 default:
                     return false;
             }

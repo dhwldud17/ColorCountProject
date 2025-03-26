@@ -39,12 +39,12 @@ namespace JidamVision
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
             ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
-            ToolStripMenuItem addSubRoiItem = new ToolStripMenuItem("Sub", null, AddNode_Click) { Tag = "Sub" };
-            ToolStripMenuItem addIdRoiItem = new ToolStripMenuItem("ID", null, AddNode_Click) { Tag = "ID" };
+            ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
+           
 
             _contextMenu.Items.Add(addBaseRoiItem);
-            _contextMenu.Items.Add(addSubRoiItem);
-            _contextMenu.Items.Add(addIdRoiItem);
+            _contextMenu.Items.Add(addCabelRoiItem);
+           
         }
 
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
@@ -72,14 +72,11 @@ namespace JidamVision
                 {
                     AddNewROI(InspWindowType.Base);
                 }
-                else if (nodeType == "Sub")
+                else if (nodeType == "Cabel")
                 {
-                    AddNewROI(InspWindowType.Sub);
+                    AddNewROI(InspWindowType.Cabel);
                 }
-                else if (nodeType == "ID")
-                {
-                    AddNewROI(InspWindowType.ID);
-                }
+                
             }
         }
 
