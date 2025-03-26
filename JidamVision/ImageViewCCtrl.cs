@@ -1,4 +1,5 @@
-﻿using JidamVision.Core;
+﻿using JidamVision.Algorithm;
+using JidamVision.Core;
 using JidamVision.Teach;
 using OpenCvSharp.Dnn;
 using System;
@@ -12,9 +13,11 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using static System.Windows.Forms.MonthCalendar;
 
 namespace JidamVision
 {
@@ -32,18 +35,21 @@ namespace JidamVision
     public enum EntityActionType
     {
         None = 0,
-        Add = 1,
+        Select,
+        Inspect,
+        Add,
         Move,
         Resize,
         Delete,
-        Break
+        DeleteList,
+        AddGroup,
+        Break,
     }
 
     public partial class ImageViewCCtrl : UserControl
     {
         //#MULTI ROI#2 ROI를 추가,수정,삭제 등으로 변경 시, 이벤트 발생
-        public event EventHandler<DiagramEntityEventArgs> ModifyROI;
-        public event EventHandler<GroupWindowEventArgs> GroupWindowEvent;
+        public event EventHandler<DiagramEntityEventArgs> DiagramEntityEvent;
 
         private Point _roiStart = Point.Empty;
         private Rectangle _roiRect = Rectangle.Empty;
@@ -97,6 +103,7 @@ namespace JidamVision
         private Rectangle _selectionBox = Rectangle.Empty;
         private bool _isBoxSelecting = false;
         private bool _isCtrlPressed = false;
+        private Rectangle _screenSelectedRect = Rectangle.Empty;
 
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
@@ -111,6 +118,9 @@ namespace JidamVision
             _contextMenu.Items.Add("Create Group", null, OnCreateGroupClicked);
             _contextMenu.Items.Add("Break Group", null, OnBreakGroupClicked);
             _contextMenu.Items.Add("Delete", null, OnDeleteClicked);
+            _contextMenu.Items.Add(new ToolStripSeparator());
+            _contextMenu.Items.Add("Teaching", null, OnTeachingClicked);
+            _contextMenu.Items.Add("Unlock", null, OnUnlockClicked);
 
             // 마우스 휠 이벤트를 등록하여 줌 기능 추가
             // MouseWheel+= : 같은 이벤트에 여러 개의 핸들러 등록가능. 이전 핸들러 삭제않고 추가됨
@@ -136,16 +146,15 @@ namespace JidamVision
             switch (inspWindowType)
             {
                 case InspWindowType.Base:
-                    color = Color.Orange;
+                    color = Color.BurlyWood;
                     break;
-
                 case InspWindowType.Sub:
-                    color = Color.Magenta;
+                    color = Color.Brown;
                     break;
-
                 case InspWindowType.ID:
                     color = Color.Cyan;
                     break;
+                
             }
 
             return color;
@@ -186,6 +195,14 @@ namespace JidamVision
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
+                //이미지 크기가 같다면, 이미지 변경 후, 화면 갱신
+                if (_bitmapImage.Width == bitmap.Width && _bitmapImage.Height == bitmap.Height)
+                {
+                    _bitmapImage = bitmap;
+                    Invalidate();
+                    return;
+                }
+
                 _bitmapImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
                 _bitmapImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
             }
@@ -333,7 +350,7 @@ namespace JidamVision
 
                     //#MULTI ROI#8 여러개 ROI를 그려주는 코드
                     //#GROUP ROI#8 멀티ROI 처리
-                    Rectangle screenSelectedRect = new Rectangle(0, 0, 0, 0);
+                    _screenSelectedRect = new Rectangle(0, 0, 0, 0);
                     foreach (DiagramEntity entity in _diagramEntityList)
                     {
                         Rectangle screenRect = VirtualToScreen(entity.EntityROI);
@@ -344,15 +361,15 @@ namespace JidamVision
                                 pen.DashStyle = DashStyle.Dash;
                                 pen.Width = 2;
 
-                                if (screenSelectedRect.IsEmpty)
+                                if (_screenSelectedRect.IsEmpty)
                                 {
-                                    screenSelectedRect = screenRect;
+                                    _screenSelectedRect = screenRect;
                                 }
                                 else
                                 {
                                     //선택된 roi가 여러개 일때, 전체 roi 영역 계산
                                     //선택된 roi 영역 합치기
-                                    screenSelectedRect = Rectangle.Union(screenSelectedRect, screenRect);
+                                    _screenSelectedRect = Rectangle.Union(_screenSelectedRect, screenRect);
                                 }
                             }
 
@@ -375,17 +392,17 @@ namespace JidamVision
                     }
 
                     //#GROUP ROI#9 선택된 개별 roi가 없고, 여러개가 선택되었다면
-                    if (_multiSelectedEntities.Count > 1 && !screenSelectedRect.IsEmpty)
+                    if (_multiSelectedEntities.Count > 1 && !_screenSelectedRect.IsEmpty)
                     {
                         using (Pen pen = new Pen(Color.White, 2))
                         {
-                            g.DrawRectangle(pen, screenSelectedRect);
+                            g.DrawRectangle(pen, _screenSelectedRect);
                         }
 
                         // 리사이즈 핸들 그리기 (8개 포인트: 4 모서리 + 4 변 중간)
                         using (Brush brush = new SolidBrush(Color.LightBlue))
                         {
-                            Point[] resizeHandles = GetResizeHandles(screenSelectedRect);
+                            Point[] resizeHandles = GetResizeHandles(_screenSelectedRect);
                             foreach (Point handle in resizeHandles)
                             {
                                 g.FillRectangle(brush, handle.X - _ResizeHandleSize / 2, handle.Y - _ResizeHandleSize / 2, _ResizeHandleSize, _ResizeHandleSize);
@@ -401,6 +418,12 @@ namespace JidamVision
                         {
                             g.DrawRectangle(pen, rect);
                         }
+                    }
+
+                    if (_multiSelectedEntities.Count <= 1 && _selEntity != null)
+                    {
+                        //확장영역이 있다면 표시
+                     //   DrawInspParam(g, _selEntity.LinkedWindow);
                     }
 
                     //#GROUP ROI#10 선택 영역 박스 그리기
@@ -420,6 +443,7 @@ namespace JidamVision
             }
         }
 
+
         private void ImageViewCCtrl_MouseDown(object sender, MouseEventArgs e)
         {
             //#MULTI ROI#10 여러개 ROI 기능에 맞게 코드 수정
@@ -434,7 +458,20 @@ namespace JidamVision
                 }
                 else
                 {
-                    if (_selEntity != null && _selEntity.GetParentGroup() == null)
+                    if (_multiSelectedEntities.Count > 1)
+                    {
+                        if (_screenSelectedRect.Contains(e.Location))
+                        {
+                            _selEntity = _multiSelectedEntities[0];
+                            _isMovingRoi = true;
+                            _moveStart = e.Location;
+                            _roiRect = _multiSelectedEntities[0].EntityROI;
+                            Invalidate();
+                            return;
+                        }
+                    }
+
+                    if (_selEntity != null && !_selEntity.IsHold && _selEntity.GetParentGroup() == null)
                     {
                         Rectangle screenRect = VirtualToScreen(_selEntity.EntityROI);
                         //마우스 클릭 위치가 ROI 크기 변경을 하기 위한 위치(모서리,엣지)인지 여부 판단
@@ -473,9 +510,9 @@ namespace JidamVision
                             }
 
                             _selEntity = entity;
+                            _roiRect = entity.EntityROI;
                             _isMovingRoi = true;
                             _moveStart = e.Location;
-                            _roiRect = entity.EntityROI;
                             break;
                         }
                     }
@@ -548,7 +585,7 @@ namespace JidamVision
                             entity.EntityROI = rect;
                         }
                     }
-                    else if (_selEntity != null)
+                    else if (_selEntity != null && !_selEntity.IsHold)
                     {
                         _roiRect.X += dxVirtual;
                         _roiRect.Y += dyVirtual;
@@ -602,16 +639,26 @@ namespace JidamVision
             {
                 if (_isSelectingRoi)
                 {
-                    //ROI 크기가 10보다 작으면, 추가하지 않음
-                    if (_roiRect.Width >= 10 && _roiRect.Height >= 10)
-                    {
-                        _selEntity = new DiagramEntity(_roiRect, _selColor);
-                    }
-
                     _isSelectingRoi = false;
 
+                    if (_bitmapImage is null)
+                        return;
+
+                    //ROI 크기가 10보다 작으면, 추가하지 않음
+                    if (_roiRect.Width < 10 ||
+                        _roiRect.Height < 10 ||
+                        _roiRect.X < 0 ||
+                        _roiRect.Y < 0 ||
+                        _roiRect.Right > _bitmapImage.Width ||
+                        _roiRect.Bottom > _bitmapImage.Height)
+                        return;
+
+                    _selEntity = new DiagramEntity(_roiRect, _selColor);
+
                     //모델에 InspWindow 추가하는 이벤트 발생
-                    ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, _newRoiType, _roiRect, new Point()));
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, _newRoiType, _roiRect, new Point()));
+
+
                 }
                 else if (_isResizingRoi)
                 {
@@ -619,27 +666,31 @@ namespace JidamVision
                     _isResizingRoi = false;
 
                     //모델에 InspWindow 크기 변경 이벤트 발생
-                    ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Resize, _selEntity.LinkedWindow, _newRoiType, _roiRect, new Point()));
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Resize, _selEntity.LinkedWindow, _newRoiType, _roiRect, new Point()));
                 }
                 else if (_isMovingRoi)
                 {
-                    if (_selEntity != null)
-                        _selEntity.EntityROI = _roiRect;
-
                     _isMovingRoi = false;
 
-                    InspWindow linkedWindow = _selEntity.LinkedWindow;
-
-                    Point offsetMove = new Point(0, 0);
-                    if (linkedWindow != null)
+                    if (_selEntity != null)
                     {
-                        offsetMove.X = _roiRect.X - linkedWindow.WindowArea.X;
-                        offsetMove.Y = _roiRect.Y - linkedWindow.WindowArea.Y;
-                    }
+                        InspWindow linkedWindow = _selEntity.LinkedWindow;
 
-                    //모델에 InspWindow 이동 이벤트 발생
-                    if (offsetMove.X != 0 || offsetMove.Y != 0)
-                        ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Move, linkedWindow, _newRoiType, _roiRect, offsetMove));
+                        Point offsetMove = new Point(0, 0);
+                        if (linkedWindow != null)
+                        {
+                            offsetMove.X = _selEntity.EntityROI.X - linkedWindow.WindowArea.X;
+                            offsetMove.Y = _selEntity.EntityROI.Y - linkedWindow.WindowArea.Y;
+                        }
+
+                        //모델에 InspWindow 이동 이벤트 발생
+                        if (offsetMove.X != 0 || offsetMove.Y != 0)
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Move, linkedWindow, _newRoiType, _roiRect, offsetMove));
+                        else
+                            //모델에 InspWindow 선택 변경 이벤트 발생
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Select, _selEntity.LinkedWindow));
+
+                    }
                 }
                 // ROI 선택 완료
                 if (_isBoxSelecting)
@@ -661,7 +712,12 @@ namespace JidamVision
                         _selEntity = _multiSelectedEntities[0];
 
                     _selectionBox = Rectangle.Empty;
+
+                    //선택해제
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Select, null));
+
                     Invalidate();
+
                     return;
                 }
             }
@@ -847,6 +903,27 @@ namespace JidamVision
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             _isCtrlPressed = keyData == Keys.Control;
+
+            switch (keyData)
+            {
+                case Keys.Delete:
+                    {
+                        if (_selEntity != null)
+                        {
+                            DeleteSelEntity();
+                        }
+                    }
+                    break;
+                case Keys.Enter:
+                    {
+                        if (_selEntity != null)
+                        {
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Inspect, _selEntity.LinkedWindow));
+                        }
+                    }
+                    break;
+            }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -860,10 +937,27 @@ namespace JidamVision
 
         public bool SetDiagramEntityList(List<DiagramEntity> diagramEntityList)
         {
-            _diagramEntityList = diagramEntityList;
+            //작은 roi가 먼저 선택되도록, 소팅
+            _diagramEntityList = diagramEntityList
+                                .OrderBy(r => r.EntityROI.Width * r.EntityROI.Height)
+                                .ToList();
+
             _selEntity = null;
             Invalidate();
             return true;
+        }
+
+        public void SelectDiagramEntity(InspWindow window)
+        {
+            DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
+            if (entity != null)
+            {
+                _multiSelectedEntities.Clear();
+                AddSelectedROI(entity);
+
+                _selEntity = entity;
+                _roiRect = entity.EntityROI;
+            }
         }
 
         //#GROUP ROI#4 팝업 메뉴 함수 
@@ -878,7 +972,7 @@ namespace JidamVision
             if (selected.Count == 0)
                 return;
 
-            GroupWindowEvent?.Invoke(this, new GroupWindowEventArgs(EntityActionType.Add, selected, InspWindowType.Group));
+            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.AddGroup, selected, InspWindowType.Group));
 
             // 선택 해제
             _multiSelectedEntities.Clear();
@@ -889,25 +983,67 @@ namespace JidamVision
         {
             if (_selEntity == null)
                 return;
-            GroupWindowEvent?.Invoke(this, new GroupWindowEventArgs(EntityActionType.Break, _selEntity.LinkedWindow));
+            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Break, _selEntity.LinkedWindow));
         }
 
         private void OnDeleteClicked(object sender, EventArgs e)
         {
-            if (_selEntity == null)
-                return;
-
-            InspWindow linkedWindow = _selEntity.LinkedWindow;
-            if (linkedWindow is null)
-                return;
-
-            InspWindow group = linkedWindow.Parent;
-            if (group != null)
-                linkedWindow = group;
-
-            ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Delete, linkedWindow, _newRoiType, _roiRect, new Point()));
+            DeleteSelEntity();
         }
 
+        private void OnTeachingClicked(object sender, EventArgs e)
+        {
+            if (_selEntity is null)
+                return;
+
+            InspWindow window = _selEntity.LinkedWindow;
+
+            if (window is null)
+                return;
+
+        //    window.IsTeach = true;
+            _selEntity.IsHold = true;
+        }
+
+        private void OnUnlockClicked(object sender, EventArgs e)
+        {
+            if (_selEntity is null)
+                return;
+
+            InspWindow window = _selEntity.LinkedWindow;
+
+            if (window is null)
+                return;
+
+            _selEntity.IsHold = false;
+        }
+
+        private void DeleteSelEntity()
+        {
+            List<InspWindow> selected = _multiSelectedEntities
+                .Where(d => d.LinkedWindow != null)
+                .Select(d => d.LinkedWindow)
+                .ToList();
+
+            if (selected.Count > 0)
+            {
+                DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.DeleteList, selected));
+                return;
+            }
+
+            if (_selEntity != null)
+            {
+                InspWindow linkedWindow = _selEntity.LinkedWindow;
+                if (linkedWindow is null)
+                    return;
+
+                InspWindow group = linkedWindow.Parent;
+                if (group != null)
+                    linkedWindow = group;
+
+                DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Delete, linkedWindow));
+            }
+        }
 
         #endregion
 
@@ -963,10 +1099,16 @@ namespace JidamVision
         public EntityActionType ActionType { get; private set; }
         public InspWindow InspWindow { get; private set; }
         public InspWindowType WindowType { get; private set; }
+        public List<InspWindow> InspWindowList { get; private set; }
 
         public OpenCvSharp.Rect Rect { get; private set; }
 
         public OpenCvSharp.Point OffsetMove { get; private set; }
+        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow)
+        {
+            ActionType = actionType;
+            InspWindow = inspWindow;
+        }
 
         public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow, InspWindowType windowType, Rectangle rect, Point offsetMove)
         {
@@ -976,32 +1118,16 @@ namespace JidamVision
             Rect = new OpenCvSharp.Rect(rect.X, rect.Y, rect.Width, rect.Height);
             OffsetMove = new OpenCvSharp.Point(offsetMove.X, offsetMove.Y);
         }
-    }
 
-    //#GROUP ROI#3-2 그룹 생성 이벤트
-    public class GroupWindowEventArgs : EventArgs
-    {
-        public EntityActionType ActionType { get; private set; }
-        public InspWindow InspWindow { get; private set; }
-        public List<InspWindow> InspWindowList { get; private set; }
-        public InspWindowType WindowType { get; private set; }
-
-        public GroupWindowEventArgs(EntityActionType actionType, List<InspWindow> inspWindowList, InspWindowType windowType)
+        public DiagramEntityEventArgs(EntityActionType actionType, List<InspWindow> inspWindowList, InspWindowType windowType = InspWindowType.None)
         {
             ActionType = actionType;
             InspWindow = null;
             InspWindowList = inspWindowList;
             WindowType = windowType;
         }
-
-        public GroupWindowEventArgs(EntityActionType actionType, InspWindow inspWindow)
-        {
-            ActionType = actionType;
-            InspWindow = inspWindow;
-            InspWindowList = null;
-            WindowType = InspWindowType.Group;
-        }
     }
+
     #endregion
 
 }

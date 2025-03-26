@@ -96,6 +96,37 @@ namespace JidamVision.Algorithm
             //        return false;
             //}
 
+
+            //카운트 체크박스 선택시 count되게?
+
+
+            //전선 개수 count -> 윤곽선으로 검사
+            Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            _findArea = new List<Rect>();
+            foreach (var contour in contours)
+            {
+                Rect rect = Cv2.BoundingRect(contour);
+                if (rect.Width * rect.Height >= AreaFilter)  // 영역 필터 적용
+                {
+                    _findArea.Add(rect);
+                }
+            }
+
+            // 3️⃣ 검출된 전선 개수 반환
+            int wireCount = _findArea.Count;
+            Console.WriteLine($"검출된 전선 개수: {wireCount}");
+
+
+            //검출된 전선에 사각형 표시 (디버깅용)
+            foreach (var rect in _findArea)
+            {
+                Cv2.Rectangle(_srcImage, rect, new Scalar(0, 255, 0), 2);  // 초록색 테두리 표시
+            }
+
+
             IsInspected = true;
             return true;
         }

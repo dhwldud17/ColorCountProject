@@ -145,7 +145,8 @@ namespace JidamVision
             var logWindow = new LogForm();
             logWindow.Show(_dockPanel, DockState.DockRight);
 
-
+            var cameraWindow = new CameraForm();
+            cameraWindow.Show(_dockPanel, DockState.Document);
             ////검사 결과창 30% 비율로 추가
             //var resultWindow = new ResultForm();
             ////resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
