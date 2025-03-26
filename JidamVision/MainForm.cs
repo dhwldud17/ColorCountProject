@@ -154,9 +154,9 @@ namespace JidamVision
             //var modelTreeWindow = new ModelTreeForm();
             ////modelTreeWindow.Show( _teachWindow.Pane, DockAlignment.Right, 0.4);
 
-            ////속성창 추가
-            //var propWindow = new PropertiesForm();
-            //propWindow.Show(_dockPanel, DockState.DockRight);
+            //속성창 추가
+            var propWindow = new PropertiesForm();
+            propWindow.Show(_dockPanel, DockState.DockRight);
 
             ////속성창과 같은탭에 추가하기
             //var statisticWindow = new StatisticForm();
