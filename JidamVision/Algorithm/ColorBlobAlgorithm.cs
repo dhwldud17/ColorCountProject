@@ -33,8 +33,13 @@ namespace JidamVision.Algorithm
 
         private List<Rect> _findArea;
 
-        // 컬러 필터 설정값
-        public ColorThreshold ColorRange { get; set; } = new ColorThreshold();
+        // ColorThreshold는 ColorBlobAlgorithm의 필드로 설정
+        private ColorThreshold _colorRange;
+        public ColorThreshold ColorRange
+        {
+            get { return _colorRange; }
+            set { _colorRange = value; }
+        }
 
         // 픽셀 영역 필터링 (기본값 100)
         public int AreaFilter { get; set; } = 100;
@@ -42,6 +47,15 @@ namespace JidamVision.Algorithm
         public ColorBlobAlgorithm()
         {
             InspectType = InspectType.InspColorBinary; // 새로운 타입 추가
+        }
+
+        // HSV 값을 바탕으로 색상 범위를 설정
+        public void SetColorRange(int hCenter, int sMin, int vMin)
+        {
+            // 색상 범위 설정 (HSV)
+            _colorRange.lower = new Scalar(hCenter - 10, sMin - 50, vMin - 50); // 범위는 예시로 설정, 필요시 조정
+            _colorRange.upper = new Scalar(hCenter + 10, sMin + 50, vMin + 50);
+            _colorRange.invert = false; // 필요시 반전 여부 설정
         }
 
         public override bool DoInspect()
@@ -57,7 +71,7 @@ namespace JidamVision.Algorithm
 
 
             Mat mask = new Mat();
-            Cv2.InRange(hsvImage, ColorRange.lower, ColorRange.upper, mask);
+            Cv2.InRange(hsvImage, _colorRange.lower, _colorRange.upper, mask);
             //입력된 HSV 값과 비교하여 마스크 생성. -> ColorRange.lower ~ ColorRange.upper 사이 색상만 남기고 나머지는 검정색으로 변환 
             //-> 우리가 찾고자 하는 영역은 흰색.(255)
 
