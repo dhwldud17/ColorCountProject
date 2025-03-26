@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using JidamVision.Algorithm;
 using OpenCvSharp;
 using WeifenLuo.WinFormsUI.Docking;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace JidamVision
 {
@@ -135,5 +136,35 @@ namespace JidamVision
             }
         }
 
+        private void InspectionForm_Resize(object sender, EventArgs e)
+        {
+            int margin = 80;
+
+            // 오른쪽 UI 요소들의 X 위치 조정
+            int xPos =  this.Width - dgvMetric.Width - margin;
+
+            dtpStartTime.Location = new System.Drawing.Point(dtpStartTime.Location.X, dtpStartTime.Location.Y);
+            lbStartTime.Location = new System.Drawing.Point(lbStartTime.Location.X, lbStartTime.Location.Y);
+            dtpCurrenttime.Location = new System.Drawing.Point(dtpCurrenttime.Location.X, dtpCurrenttime.Location.Y);
+            lbCurrenttime.Location = new System.Drawing.Point(lbCurrenttime.Location.X, lbCurrenttime.Location.Y);
+
+
+            bntStart.Location = new System.Drawing.Point(xPos-bntStart.Width-30, bntStart.Location.Y);
+            bntStop.Location = new System.Drawing.Point(xPos- bntStop.Width-30, bntStop.Location.Y);
+            rtbTotalnumber.Location = new System.Drawing.Point(xPos- rtbTotalnumber.Width-30, rtbTotalnumber.Location.Y);
+            lbTotalnumber.Location = new System.Drawing.Point(xPos - lbTotalnumber.Width - 120, lbTotalnumber.Location.Y);
+            rtbGood.Location = new System.Drawing.Point(xPos, rtbGood.Location.Y);
+            lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 5, lbGood.Location.Y);
+            rtbFaulty.Location = new System.Drawing.Point(xPos, rtbFaulty.Location.Y);
+            lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 5, lbFaulty.Location.Y);
+            dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
+            rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
+            lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 5, lbPercent.Location.Y);
+
+            // pictureBox1 크기 조정 (좌측 상단에 고정)
+            pictureBox1.Width = xPos - margin * 2; // UI 요소들과 겹치지 않도록 조정
+            pictureBox1.Height = this.Height - margin * 2;
+            pictureBox1.Location = new System.Drawing.Point(margin, margin);
+        }
     }
 }
