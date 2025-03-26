@@ -64,6 +64,7 @@
             this.bntStart.TabIndex = 1;
             this.bntStart.Text = "시작";
             this.bntStart.UseVisualStyleBackColor = true;
+            this.bntStart.Click += new System.EventHandler(this.bntStart_Click);
             // 
             // bntStop
             // 
@@ -73,6 +74,7 @@
             this.bntStop.TabIndex = 2;
             this.bntStop.Text = "정지";
             this.bntStop.UseVisualStyleBackColor = true;
+            this.bntStop.Click += new System.EventHandler(this.bntStop_Click);
             // 
             // rtbTotalnumber
             // 
@@ -188,7 +190,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(984, 698);
+            this.ClientSize = new System.Drawing.Size(955, 618);
             this.Controls.Add(this.lbTotalnumber);
             this.Controls.Add(this.lbPercent);
             this.Controls.Add(this.lbFaulty);

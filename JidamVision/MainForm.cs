@@ -21,6 +21,7 @@ namespace JidamVision
         private static DockPanel _dockPanel;
         private TeachForm _teachWindow;
         private InspectionForm _inspectionWindow; // 기존 검사 실행 창
+        private CameraForm _cameraWindow;
 
         private bool _isInspectionUIShown = false;
         private bool _isTeachUIShown = false;
@@ -141,6 +142,12 @@ namespace JidamVision
             _teachWindow.CloseButtonVisible = false;
             _teachWindow.Show(_dockPanel, DockState.Document);
 
+            _cameraWindow = new CameraForm(); //  카메라 폼 생성
+            _cameraWindow.Text = "카메라";
+            _cameraWindow.CloseButton = false;
+            _cameraWindow.CloseButtonVisible = false;
+            _cameraWindow.Show(_dockPanel, DockState.Document); // 3왼쪽에 도킹
+
             ////로그창 50% 비율로 추가
             var logWindow = new LogForm();
             logWindow.Show(_dockPanel, DockState.DockRight);
@@ -166,14 +173,6 @@ namespace JidamVision
 
 
         }
-
-
-
-
-
-
-
-
         //제네릭 함수 사용를 이용해 입력된 타입의 폼 객체 얻기
         public static T GetDockForm<T>() where T : DockContent
         {
