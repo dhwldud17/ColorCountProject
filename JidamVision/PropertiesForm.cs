@@ -30,7 +30,8 @@ namespace JidamVision
         InspBinary,
         InspColorBinary,
         InspFilter,
-        InspCount
+        InspCount,
+        InspColorBinary //컬러 이진화 추가
     }
 
     public partial class PropertiesForm : DockContent
