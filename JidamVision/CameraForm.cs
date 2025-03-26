@@ -29,7 +29,8 @@ namespace JidamVision
 
             this.FormClosed += CameraForm_FormClosed;
 
-            imageViewer.DiagramEntityEvent += ImageViewer_ModifyROI;
+            imageViewer.ModifyROI += ImageViewer_ModifyROI;
+            imageViewer.GroupWindowEvent += ImageViewer_GroupWindowEvent;
             rbtnColor.Checked = true;
         }
 
@@ -49,14 +50,19 @@ namespace JidamVision
                 case EntityActionType.Delete:
                     Global.Inst.InspStage.DelInspWindow(e.InspWindow);
                     break;
-                case EntityActionType.DeleteList:
-                    Global.Inst.InspStage.DelInspWindow(e.InspWindowList);
-                    break;
-                case EntityActionType.AddGroup:
-                    Global.Inst.InspStage.CreateGroupWindow(e.InspWindowList);
-                    break;
                 case EntityActionType.Break:
-                    Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
+                    Global.Inst.InspStage.BreakGroupWindow((GroupWindow)e.InspWindow);
+                    break;
+            }
+        }
+
+        //그룹 생성 이벤트 발생시 처리
+        private void ImageViewer_GroupWindowEvent(object sender, GroupWindowEventArgs e)
+        {
+            switch (e.ActionType)
+            {
+                case EntityActionType.Add:
+                    Global.Inst.InspStage.CreateGroupWindow(e.InspWindowList);
                     break;
             }
         }
@@ -145,7 +151,6 @@ namespace JidamVision
 
         }
 
-        #region Select Channel
         private void rbtnColor_CheckedChanged(object sender, EventArgs e)
         {
             UpdateDisplay();
@@ -170,7 +175,6 @@ namespace JidamVision
         {
             UpdateDisplay();
         }
-        #endregion
 
         /*
          #SAVE ROI# - <<<ROI 영역 이미지 파일 저장>>> 
@@ -180,7 +184,7 @@ namespace JidamVision
         {
             //# SAVE ROI#5 현재 채널 이미지에서, 설정된 ROI 영역을 파일로 저장
             OpenCvSharp.Mat currentImage = Global.Inst.InspStage.GetMat(0, _currentImageChannel);
-            if(currentImage != null )
+            if (currentImage != null)
             {
                 //현재 설정된 ROI 영역을 가져옴
                 Rectangle roiRect = imageViewer.GetRoiRect();
@@ -204,7 +208,7 @@ namespace JidamVision
             //아래 코드를 이용해, Rect -> Rectangle로 변환하는 람다식
             var rectangles = rects.Select(r => new Rectangle(r.X, r.Y, r.Width, r.Height)).ToList();
             imageViewer.AddRect(rectangles);
-            
+
         }
 
         //#INSP WORKER#8 CaearaForm에 검사 버튼을 추가하고, 전체 검사 함수 추가
@@ -222,6 +226,10 @@ namespace JidamVision
         public void UpdateDiagramEntity()
         {
             Model model = Global.Inst.InspStage.CurModel;
+            List<InspWindow> windowList = model.InspWindowList;
+            if (windowList.Count <= 0)
+                return;
+
             List<DiagramEntity> diagramEntityList = new List<DiagramEntity>();
 
             foreach (InspWindow window in model.InspWindowList)
@@ -262,9 +270,15 @@ namespace JidamVision
         }
         private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            imageViewer.DiagramEntityEvent -= ImageViewer_ModifyROI;
+            imageViewer.ModifyROI -= ImageViewer_ModifyROI;
+            imageViewer.GroupWindowEvent -= ImageViewer_GroupWindowEvent;
 
             this.FormClosed -= CameraForm_FormClosed;
+        }
+
+        private void imageViewer_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
