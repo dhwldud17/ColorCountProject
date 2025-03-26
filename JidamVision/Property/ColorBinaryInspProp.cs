@@ -99,8 +99,17 @@ namespace JidamVision.Property
 
         private void UpdateColorBinary()
         {
-            bool highlight = chkHighlight.Checked;
-            ShowColorBinaryMode showMode = highlight ? ShowColorBinaryMode.ShowColorBinaryHighlight : ShowColorBinaryMode.ShowColorBinaryNone;
+            if (colorBlobAlgorithm == null)
+                return;
+
+            ShowColorBinaryMode showMode = chkHighlight.Checked ? ShowColorBinaryMode.ShowColorBinaryHighlight : ShowColorBinaryMode.ShowColorBinaryNone;
+
+            Mat processedImage = colorBlobAlgorithm.ProcessColor(colorBlobAlgorithm.SourceImage, HCenter, SMin, VMin, showMode);
+
+            if (processedImage != null)
+            {
+                pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(processedImage);
+            }
 
             ThresholdChanged?.Invoke(this, new RangeChangedEventArgs(HCenter, SMin, VMin, showMode));
         }
@@ -120,7 +129,13 @@ namespace JidamVision.Property
                 ShowColorBinMode = showColorBinaryMode;
             }
 
-            public Mat ProcessColor(Mat inputImage, Color targetColor, int threshold = 30)
+            /*ProcessColor작업 : 
+              ThresholdChanged 이벤트가 발생할 때 ProcessColor를 호출하여 필터링 적용
+
+              colorBlobAlgorithm을 통해 HCenter, SMin, VMin 값을 동적으로 업데이트
+
+              ShowColorBinaryMode 옵션을 적용하여 이진화된 이미지를 UI에서 확인할 수 있도록 개선*/
+            public Mat ProcessColor(Mat inputImage, int hCenter, int sMin, int vMin, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
             {
                 if (inputImage.Empty())
                     return null;
@@ -128,15 +143,33 @@ namespace JidamVision.Property
                 Mat hsvImage = new Mat();
                 Cv2.CvtColor(inputImage, hsvImage, ColorConversionCodes.BGR2HSV);
 
-                Scalar lowerBound = new Scalar(targetColor.R - threshold, targetColor.G - threshold, targetColor.B - threshold);
-                Scalar upperBound = new Scalar(targetColor.R + threshold, targetColor.G + threshold, targetColor.B + threshold);
+                // HSV 범위 설정
+                Scalar lowerBound = new Scalar(hCenter - thresholdH, Math.Max(sMin - thresholdS, 0), Math.Max(vMin - thresholdV, 0));
+                Scalar upperBound = new Scalar(hCenter + thresholdH, Math.Min(sMin + thresholdS, 255), Math.Min(vMin + thresholdV, 255));
 
                 Mat binaryMask = new Mat();
                 Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
 
-                return binaryMask;
+                if (mode == ShowColorBinaryMode.ShowColorBinaryHighlight)
+                {
+                    Mat highlightedImage = new Mat();
+                    inputImage.CopyTo(highlightedImage); // 원본 이미지 복사
+
+                    // 빨간색(또는 원하는 색)으로 강조 (bitwise 연산 활용)
+                    Mat redHighlight = new Mat(inputImage.Size(), inputImage.Type(), new Scalar(0, 0, 255));
+                    redHighlight.CopyTo(highlightedImage, binaryMask);
+
+                    return highlightedImage;
+                }
+                else if (mode == ShowColorBinaryMode.ShowColorBinaryOnly)
+                {
+                    return binaryMask; // 컬러 이진화된 이미지 반환
+                }
+
+                return inputImage; // 기본적으로 원본 유지
             }
 
+            
             public Mat ProcessColor(Mat inputImage, Color targetColor)
             {
                 // 색상을 기준으로 이진화하는 알고리즘 추가
