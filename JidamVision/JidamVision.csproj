@@ -257,6 +257,9 @@
     <EmbeddedResource Include="ImageViewCCtrl.resx">
       <DependentUpon>ImageViewCCtrl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="InspectionForm.resx">
+      <DependentUpon>InspectionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LogForm.resx">
       <DependentUpon>LogForm.cs</DependentUpon>
     </EmbeddedResource>
