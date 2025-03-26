@@ -28,18 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             this.SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(12, 40);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(776, 398);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
             // 
             // label1
             // 
@@ -50,24 +41,33 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "Reference Image";
             // 
+            // imageViewCCtrl1
+            // 
+            this.imageViewCCtrl1.AutoSize = true;
+            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewCCtrl1.Location = new System.Drawing.Point(30, 42);
+            this.imageViewCCtrl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
+            this.imageViewCCtrl1.Size = new System.Drawing.Size(768, 465);
+            this.imageViewCCtrl1.TabIndex = 5;
+            // 
             // TeachForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1146, 697);
+            this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pictureBox1);
             this.Name = "TeachForm";
             this.Text = "TeachForm";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
+        private ImageViewCCtrl imageViewCCtrl1;
     }
 }
