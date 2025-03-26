@@ -330,10 +330,6 @@
       <DependentUpon>TeachForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="libOpenCvSharpExtern.so" />
-    <None Include="OpenCvSharp.Blob.dll.config" />
-    <None Include="OpenCvSharp.CPlusPlus.dll.config" />
-    <None Include="OpenCvSharp.dll.config" />
-    <None Include="OpenCvSharp.MachineLearning.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -365,11 +361,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="OpenCvSharpExtern.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
