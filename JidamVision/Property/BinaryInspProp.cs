@@ -2,6 +2,7 @@
 using JidamVision.Core;
 using JidamVision.Teach;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -80,6 +81,13 @@ namespace JidamVision.Property
 
             int filterArea = _blobAlgo.AreaFilter;
             txtArea.Text = filterArea.ToString();
+
+            Mat teachImage = _blobAlgo.GetTemplateImage();
+            if (teachImage != null)
+            {
+                Bitmap bmpImage = BitmapConverter.ToBitmap(teachImage);
+                picTeachImage.Image = bmpImage;
+            }
         }
 
         public void GetProperty()

@@ -20,6 +20,9 @@ namespace JidamVision.Algorithm
 
     public class BlobAlgorithm : InspAlgorithm
     {
+        //템플릿 매칭용 이미지(찾을 이미지)
+        private Mat _templateImage = null;
+
         // HSV 임계값 추가
         public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
         public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
@@ -38,7 +41,16 @@ namespace JidamVision.Algorithm
             InspectType = InspectType.InspBinary;
         }
 
-       
+        public void SetTemplateImage(Mat templateImage)
+        {
+            _templateImage = templateImage;
+        }
+
+        public Mat GetTemplateImage()
+        {
+            return _templateImage;
+        }
+
 
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음 
 

@@ -37,6 +37,12 @@ namespace JidamVision
         {
             switch (e.ActionType)
             {
+                case EntityActionType.Select:
+                    Global.Inst.InspStage.SelectInspWindow(e.InspWindow);
+                    break;
+                case EntityActionType.Inspect:
+                    Global.Inst.InspStage.TryInspection(e.InspWindow);
+                    break;
                 case EntityActionType.Add:
                     Global.Inst.InspStage.AddInspWindow(e.WindowType, e.Rect);
                     break;
