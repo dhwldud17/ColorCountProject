@@ -41,17 +41,6 @@ namespace JidamVision.Algorithm
             InspectType = InspectType.InspBinary;
         }
 
-        public void SetTemplateImage(Mat templateImage)
-        {
-            _templateImage = templateImage;
-        }
-
-        public Mat GetTemplateImage()
-        {
-            return _templateImage;
-        }
-
-
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음 
 
         //#ABSTRACT ALGORITHM#6 

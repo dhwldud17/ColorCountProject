@@ -263,5 +263,11 @@ namespace JidamVision
         {
 
         }
+
+        // 현재 화면의 Mat 이미지 반환
+        public Mat GetCurrentImage()
+        {
+            return Global.Inst.InspStage.GetMat(); // 또는 이미지 채널이 있을 경우: GetMat(0, eImageChannel.Color)
+        }
     }
 }

@@ -39,6 +39,8 @@ namespace JidamVision
 
     public partial class PropertiesForm : DockContent
     {
+        Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
+
         // HSV 임계값 추가
         public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
         public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
@@ -164,22 +166,22 @@ namespace JidamVision
                 {
                     UserControl uc = tabPage.Controls[0] as UserControl;
 
-                    //if (uc is MatchInspProp matchProp)
-                    //{
-                    //    MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
-                    //    if (matchAlgo is null)
-                    //        continue;
+                    if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
 
-                    //    matchProp.SetAlgorithm(matchAlgo);
-                    //}
-                    //else if (uc is BinaryInspProp binaryProp)
-                    //{
-                    //    BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
-                    //    if (blobAlgo is null)
-                    //        continue;
+                        matchProp.SetAlgorithm(matchAlgo);
+                    }
+                    else if (uc is BinaryInspProp binaryProp)
+                    {
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
 
-                    //    binaryProp.SetAlgorithm(blobAlgo);
-                    //}
+                        binaryProp.SetAlgorithm(blobAlgo);
+                    }
                 }
             }
         }

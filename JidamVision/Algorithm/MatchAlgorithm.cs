@@ -43,6 +43,11 @@ namespace JidamVision.Algorithm
             _templateImage = templateImage;
         }
 
+        public Mat GetTemplateImage()
+        {
+            return _templateImage;
+        }
+
         /// <summary>
         /// 하나의 최적 매칭 위치만 찾기
         /// </summary>

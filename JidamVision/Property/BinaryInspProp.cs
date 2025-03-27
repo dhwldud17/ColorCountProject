@@ -81,13 +81,6 @@ namespace JidamVision.Property
 
             int filterArea = _blobAlgo.AreaFilter;
             txtArea.Text = filterArea.ToString();
-
-            Mat teachImage = _blobAlgo.GetTemplateImage();
-            if (teachImage != null)
-            {
-                Bitmap bmpImage = BitmapConverter.ToBitmap(teachImage);
-                picTeachImage.Image = bmpImage;
-            }
         }
 
         public void GetProperty()

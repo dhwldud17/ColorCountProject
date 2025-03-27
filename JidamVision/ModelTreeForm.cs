@@ -29,6 +29,8 @@ namespace JidamVision
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private Button btnCountWires;  // 전역으로 선언
+
         public ModelTreeForm()
         {
             InitializeComponent();
@@ -39,18 +41,23 @@ namespace JidamVision
             // ROI 리셋 버튼 생성
             Button btnResetROI = new Button();
             btnResetROI.Text = "ROI 리셋";  // 버튼에 표시될 텍스트
-            btnResetROI.Location = new System.Drawing.Point(370, 10);  // X 값을 150으로 증가 (오른쪽 이동)
+            btnResetROI.Location = new System.Drawing.Point(370, 10);
             btnResetROI.Click += BtnResetROI_Click;  // 클릭 이벤트 추가
 
+            this.Controls.Add(btnResetROI); // 폼에 버튼 추가
+
             // 전선 카운트 버튼 생성
-            Button btnCountWires = new Button();
+            btnCountWires = new Button();
             btnCountWires.Text = "전선 카운트";  // 버튼 텍스트
+            btnCountWires.Font = new System.Drawing.Font("맑은 고딕", 8);
             btnCountWires.Location = new System.Drawing.Point(370, 50);  // 위치 조정
+            btnCountWires.Enabled = false;
             btnCountWires.Click += BtnCountWires_Click;  // 클릭 이벤트 추가
 
-            this.Controls.Add(btnCountWires);  // 폼에 버튼 추가
+            // 처음엔 비활성화 상태로 시작
+            btnCountWires.Enabled = false;
 
-            this.Controls.Add(btnResetROI); // 폼에 버튼 추가
+            this.Controls.Add(btnCountWires);  // 폼에 버튼 추가
 
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
@@ -103,7 +110,14 @@ namespace JidamVision
             if (cameraForm != null)
             {
                 cameraForm.AddRoi(inspWindowType);
+
+                if (inspWindowType == InspWindowType.Base)
+                {
+                    btnCountWires.Enabled = true;
+                }
             }
+
+            
         }
 
         //#MODEL#14 현재 모델 전체의 ROI를 트리 모델에 업데이트
@@ -177,7 +191,7 @@ namespace JidamVision
 
             // Base ROI 가져오기
             Model model = Global.Inst.InspStage.CurModel;
-            InspWindow baseROI = model.InspWindowList.FirstOrDefault(w => w.Type == InspWindowType.Base);
+            InspWindow baseROI = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
 
             if (baseROI == null)
             {
@@ -186,7 +200,7 @@ namespace JidamVision
             }
 
             // ROI 영역 추출
-            Rect roiRect = new Rect(baseROI.Rect.X, baseROI.Rect.Y, baseROI.Rect.Width, baseROI.Rect.Height);
+            Rect roiRect = new Rect(baseROI.WindowArea.X, baseROI.WindowArea.Y, baseROI.WindowArea.Width, baseROI.WindowArea.Height);
             Mat roiImage = new Mat(image, roiRect); // ROI 영역만 추출
 
             // 전선 감지를 위한 전처리 수행
@@ -209,5 +223,6 @@ namespace JidamVision
             int wireCount = CountWiresInBaseROI();
             MessageBox.Show($"감지된 전선 개수: {wireCount}", "전선 카운트 결과", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
     }
 }
