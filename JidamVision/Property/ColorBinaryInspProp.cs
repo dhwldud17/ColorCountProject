@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using JidamVision.Algorithm;
 using JidamVision.Core;
 using JidamVision.Teach;
+using log4net.Repository.Hierarchy;
 using OpenCvSharp;
 using static System.Windows.Forms.MonthCalendar;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -21,6 +22,8 @@ namespace JidamVision.Property
     입력된 H, S, V 임계값을 이용해, 레퍼런스이미지를 컬러이진화한 후, Filter(area)등을 이용해, 원하는 영역을 찾는다.
      */
 
+
+    //#COLOR BINARY FILTER#7 이진화 하이라이트, 이외에, 이진화 이미지를 보기 위한 옵션
     //컬러이진화 하이라이트, 이외에, 이진화 이미지를 보기 위한 옵션
     public enum ShowColorBinaryMode
     {

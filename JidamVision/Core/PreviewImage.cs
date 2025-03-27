@@ -133,6 +133,55 @@ namespace JidamVision.Core
             cameraForm.UpdateDisplay(bmpImage);
         }
 
+        public void SetColorBinary(int lowerValue, int upperValue, bool invert, ShowColorBinaryMode showColorBinMode)
+        {
+            if (_orinalImage == null)
+                return;
+
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm == null)
+                return;
+
+            Bitmap bmpImage;
+            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryNone)
+            {
+                bmpImage = BitmapConverter.ToBitmap(_orinalImage);
+                cameraForm.UpdateDisplay(bmpImage);
+                return;
+            }
+
+            // 1️⃣ RGB → HSV 변환
+            Mat hsvImage = new Mat();
+            Cv2.CvtColor(_orinalImage, hsvImage, ColorConversionCodes.BGR2HSV);
+
+            // 2️⃣ 특정 색 범위 이진화
+            Mat colorBinaryMask = new Mat();
+            Cv2.InRange(hsvImage, lowerHSV, upperHSV, colorBinaryMask);
+
+            // 3️⃣ 반전 옵션 적용
+            if (invert)
+                colorBinaryMask = ~colorBinaryMask;
+
+            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryOnly)
+            {
+                bmpImage = BitmapConverter.ToBitmap(colorBinaryMask);
+                cameraForm.UpdateDisplay(bmpImage);
+                return;
+            }
+
+            // 4️⃣ 원본 이미지에서 선택한 색상의 부분만 강조
+            Mat overlayImage = _orinalImage.Clone();
+            overlayImage.SetTo(new Scalar(0, 0, 255), colorBinaryMask); // 빨간색으로 강조
+
+            // 5️⃣ 원본과 합성 (투명도 적용)
+            Cv2.AddWeighted(_orinalImage, 0.7, overlayImage, 0.3, 0, _previewImage);
+
+            // 6️⃣ 결과 이미지 업데이트
+            bmpImage = BitmapConverter.ToBitmap(_previewImage);
+            cameraForm.UpdateDisplay(bmpImage);
+        }
+        
+
 
         static void ApplyImageOperation(ImageOperation operation, Mat src1, string op_value, out Mat resultImage) // 이미지 연산 코드
                                                                                                                   // 아래 코드는 이미지 연산을 수행하는 코드로, 두 이미지를 연산하여 결과를 보여주는 방식

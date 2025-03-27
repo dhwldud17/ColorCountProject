@@ -53,6 +53,7 @@
             this.select_effect = new System.Windows.Forms.ComboBox();
             this.btnApplyHSV = new System.Windows.Forms.Button();
             this.chkInvert = new System.Windows.Forms.CheckBox();
+            this.chkShowColorBinaryOnly = new System.Windows.Forms.CheckBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
@@ -62,6 +63,7 @@
             // 
             // grpHSV
             // 
+            this.grpHSV.Controls.Add(this.chkShowColorBinaryOnly);
             this.grpHSV.Controls.Add(this.chkInvert);
             this.grpHSV.Controls.Add(this.btnApplyHSV);
             this.grpHSV.Controls.Add(this.txtV);
@@ -304,6 +306,17 @@
             this.chkInvert.Text = "반전";
             this.chkInvert.UseVisualStyleBackColor = true;
             this.chkInvert.CheckedChanged += new System.EventHandler(this.chkInvert_CheckedChanged);
+            // 
+            // chkShowColorBinaryOnly
+            // 
+            this.chkShowColorBinaryOnly.AutoSize = true;
+            this.chkShowColorBinaryOnly.Location = new System.Drawing.Point(141, 354);
+            this.chkShowColorBinaryOnly.Name = "chkShowColorBinaryOnly";
+            this.chkShowColorBinaryOnly.Size = new System.Drawing.Size(124, 22);
+            this.chkShowColorBinaryOnly.TabIndex = 29;
+            this.chkShowColorBinaryOnly.Text = "컬러이진화";
+            this.chkShowColorBinaryOnly.UseVisualStyleBackColor = true;
+            this.chkShowColorBinaryOnly.CheckedChanged += new System.EventHandler(this.chkShowColorBinaryOnly_CheckedChanged);
             // 
             // ColorBinaryInspProp
             // 
