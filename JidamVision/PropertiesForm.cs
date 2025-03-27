@@ -31,7 +31,7 @@ namespace JidamVision
         InspColorBinary,   //컬러 이진화 추가
         InspFilter,
         InspCount,
-     
+
     }
 
     public partial class PropertiesForm : DockContent
@@ -63,7 +63,7 @@ namespace JidamVision
 
             // 새로운 UserControl 생성
             UserControl _inspProp = CreateUserControl(inspType);
-            if (_inspProp == null) 
+            if (_inspProp == null)
                 return;
 
             // 새 탭 추가
@@ -108,7 +108,7 @@ namespace JidamVision
             return _inspProp;
         }
 
-        
+
 
         public void AddInspType(InspectType inspPropType)
         {

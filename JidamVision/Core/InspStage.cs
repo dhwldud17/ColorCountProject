@@ -149,7 +149,7 @@ namespace JidamVision.Core
 
             SetBuffer(bufferCount);
 
-            if(_camType == CameraType.HikRobotCam)
+            if (_camType == CameraType.HikRobotCam)
             {
                 _grabManager.SetExposureTime(20000);
                 _grabManager.SetGain(1.4f);
@@ -157,7 +157,7 @@ namespace JidamVision.Core
 
                 _grabManager.SetWhiteBalance(true);
             }
-            
+
         }
         public void SetImageBuffer(string filePath)
         {
@@ -176,7 +176,7 @@ namespace JidamVision.Core
 
             imageWidth = (matImage.Width + 3) / 4 * 4;
             imageHeight = matImage.Height;
-            
+
             // 4바이트 정렬된 새로운 Mat 생성
             Mat alignedMat = new Mat();
             Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
@@ -288,6 +288,7 @@ namespace JidamVision.Core
                 SelBufferIndex = bufferIndex;
 
             //#BINARY FILTER#13 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
+            //#COLOR BINARY FILTER#13 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
             if (imageChannel != eImageChannel.None)
                 SelImageChannel = imageChannel;
 
@@ -302,6 +303,7 @@ namespace JidamVision.Core
                 SelBufferIndex = bufferIndex;
 
             //#BINARY FILTER#14 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
+            //#COLOR BINARY FILTER#14 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
             if (imageChannel != eImageChannel.None)
                 SelImageChannel = imageChannel;
 
@@ -325,7 +327,7 @@ namespace JidamVision.Core
 
         //#MODEL#9 ImageViwer에서 ROI를 추가하여, InspWindow생성하는 함수
         public void AddInspWindow(InspWindowType windowType, Rect rect)
-        { 
+        {
             InspWindow inspWindow = _model.AddInspWindow(windowType);
             if (inspWindow is null)
                 return;
@@ -397,7 +399,7 @@ namespace JidamVision.Core
                 group = (GroupWindow)window.Parent;
             }
 
-            if(group == null)
+            if (group == null)
             {
                 MessageBox.Show("그룹윈도우가 아닙니다!");
                 return;

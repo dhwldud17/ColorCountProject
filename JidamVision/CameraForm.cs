@@ -25,9 +25,9 @@ namespace JidamVision
 
         public CameraForm()
         {
-            InitializeComponent();           
-        imageViewer.Dock = DockStyle.Fill;
-        Controls.Add(imageViewer);
+            InitializeComponent();
+            imageViewer.Dock = DockStyle.Fill;
+            Controls.Add(imageViewer);
             this.FormClosed += CameraForm_FormClosed;
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;

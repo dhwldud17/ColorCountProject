@@ -8,6 +8,8 @@ using JidamVision.Property;
 
 namespace JidamVision.Algorithm
 {
+    //#BINARY FILTER#1 컬러이진화 필터를 위한 클래스
+
     //HUE, SATURATION, VALUE 범위에 맞는 픽셀만 남기고 나머지는 제거하는 방식
     //->이진화된 결과는 흑백(0, 255) 마스크 형태로 출력
     /*1.입력 이미지 → HSV 변환
@@ -22,8 +24,8 @@ namespace JidamVision.Algorithm
     */
     public struct ColorThreshold  //UI에서 이값 넣어서 보내주세요~ //BinaryInsProp에 btnFilter_Click 부분에서 알고리즘에 값 보내는 부분 참조 부탁
     {
-        public Scalar lower; // HSV 최소값 (H,S,V)
-        public Scalar upper; // HSV 최대값
+        public int lower; // HSV 최소값 (H,S,V)
+        public int upper; // HSV 최대값
         public bool invert;  // 결과 반전 여부
     }
 
@@ -68,11 +70,17 @@ namespace JidamVision.Algorithm
             Sat = sat;
             Val = val;
             // 색상 범위 설정 (HSV)
-            _colorRange.lower = new Scalar(hue - 10, sat - 50, val - 50); // 범위는 예시로 설정, 필요시 조정
-            _colorRange.upper = new Scalar(hue + 10, sat + 50, val + 50);
+            _colorRange.lower = (int)new Scalar(hue - 10, sat - 50, val - 50); // 범위 조정가능
+            _colorRange.upper = (int)new Scalar(hue + 10, sat + 50, val + 50); // 범위 조정가능
             _colorRange.invert = false; // 필요시 반전 여부 설정
-        }     
+        }
 
+
+        //#COLOR BINARY FILTER#2 컬러이진화 후, 필터를 이용해 원하는 영역을 얻음 
+
+        //#ABSTRACT ALGORITHM#6 
+        //InspAlgorithm을 상속받아, 구현하고, 인자로 입력받던 것을 부모의 _srcImage 이미지 사용
+        //검사 시작전 IsInspected = false로 초기화하고, 검사가 정상적으로 완료되면,IsInspected = true로 설정
         public override bool DoInspect()
         {
             IsInspected = false;
@@ -115,6 +123,8 @@ namespace JidamVision.Algorithm
             //카운트 체크박스 선택시 count되게?
 
 
+            //#COLOR BINARY FILTER#3 컬러이진화 영역필터처리 함수
+
             //전선 개수 count -> 윤곽선으로 검사
             Point[][] contours;
             HierarchyIndex[] hierarchy;
@@ -130,6 +140,7 @@ namespace JidamVision.Algorithm
                 }
             }
 
+            //#COLOR BINARY FILTER#4 이진화 영역 전선 개수 반환
             // 3️⃣ 검출된 전선 개수 반환
             int wireCount = _findArea.Count;
             Console.WriteLine($"검출된 전선 개수: {wireCount}");
@@ -147,9 +158,9 @@ namespace JidamVision.Algorithm
         }
 
 
-       
 
-       
+
+
 
 
     }

@@ -35,12 +35,12 @@ namespace JidamVision.Property
 
     public partial class ColorBinaryInspProp : UserControl
 
-    {
+    {   //콤보박스 필터   효과1,2번 선택 이벤트 추가
         public event EventHandler<FilterSelectedEventArgs> FilterSelected;
         private String _selected_effect;
         private int _selected_effect2 = -1;
 
-        public event EventHandler<RangeChangedEventArgs> ThresholdChanged; //이벤트 추가
+        public event EventHandler<RangeChangedEventArgs> RangeChanged; //HSV임계값 이벤트 추가
         private ColorBlobAlgorithm colorBlobAlgorithm;
 
         /* NOTE
@@ -52,42 +52,74 @@ namespace JidamVision.Property
         */
 
         // 속성값을 이용하여 이진화 임계값 설정
-        public Scalar HueValue => new Scalar(hTrackBar.Value, 0, 0); // Hue 값만 설정
-        public Scalar SatValue => new Scalar(0, sTrackBar.Value, 0); // Saturation 값만 설정
-        public Scalar ValValue => new Scalar(0, 0, vTrackBar.Value); // Value 값만 설정
+        public int HueValue => hTrackBar.Value; // Hue 값만 설정
+        public int SatValue => sTrackBar.Value; // Saturation 값만 설정
+        public int ValValue => vTrackBar.Value; // Value 값만 설정
 
         public ColorBinaryInspProp()
         {
             InitializeComponent();
-        }      
+        }
 
+        //컬러 이진화 검사 속성값을 GUI에 설정
         public void LoadInspParam()
         {
             if (colorBlobAlgorithm == null)
                 return;
 
-            hTrackBar.Value = colorBlobAlgorithm.Hue;
-            sTrackBar.Value = colorBlobAlgorithm.Sat;
-            vTrackBar.Value = colorBlobAlgorithm.Val;
 
-            txtH.Text = HueValue.ToString();
-            txtS.Text = SatValue.ToString();
-            txtV.Text = ValValue.ToString();
+            // TrackBar 초기 설정
+            hTrackBar.ValueChanged += OnValueChanged;
+            sTrackBar.ValueChanged += OnValueChanged;
+            vTrackBar.ValueChanged += OnValueChanged;
+
+            hTrackBar.Value = 0;
+            sTrackBar.Value = 0;
+            vTrackBar.Value = 0;
+
+
+
+            //#COLOR BINARY FILTER#8 컬러이진화 필터값을 GUI에 로딩
+            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
+            if (inspWindow != null)
+            {
+                //#INSP WORKER#13 inspWindow에서 컬러이진화 알고리즘 찾는 코드
+                ColorBlobAlgorithm colorBlobAlgo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+                if (colorBlobAlgo != null)
+                {
+                    int filterArea = colorBlobAlgo.AreaFilter;
+                    txtH.Text = HueValue.ToString();
+                    txtS.Text = SatValue.ToString();
+                    txtV.Text = ValValue.ToString();
+                }
+            }
         }
 
-        private void OnValueChanged(object sender, EventArgs e)
+
+        //#COLOR BINARY FILTER#10 컬러이진화 옵션을 선택할때마다, 컬러이진화 이미지가 갱신되도록 하는 함수
+        private void UpdateColorBinary()
         {
-            if (colorBlobAlgorithm != null)
+            bool invert = chkInvert.Checked;
+            bool highlight = chkHighlight.Checked;
+
+            ShowColorBinaryMode showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryNone;
+            if (highlight)
             {
-                colorBlobAlgorithm.Hue = hTrackBar.Value;
-                colorBlobAlgorithm.Sat = sTrackBar.Value;
-                colorBlobAlgorithm.Val = vTrackBar.Value;
+                showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryHighlight;
+
+                bool showColorBinary = chkShowColorBinaryOnly.Checked;
+
+                if (showColorBinary)
+                    showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryOnly;
             }
 
-            txtH.Text = hTrackBar.Value.ToString();
-            txtS.Text = sTrackBar.Value.ToString();
-            txtV.Text = vTrackBar.Value.ToString();
+            RangeChanged?.Invoke(this, new RangeChangedEventArgs(HueValue, SatValue, ValValue, invert, showColorBinaryMode));
+        }
 
+
+        //#COLOR BINARY FILTER#11 GUI 이벤트와 UpdateColorBinary함수 연동
+        private void OnValueChanged(object sender, EventArgs e)
+        {
             UpdateColorBinary();
         }
 
@@ -103,43 +135,28 @@ namespace JidamVision.Property
             UpdateColorBinary();
         }
 
-        private void UpdateColorBinary()
+        private void chkShowColorBinaryOnly_CheckedChanged(object sender, EventArgs e)
         {
-            if (colorBlobAlgorithm == null)
-                return;
-
-            ShowColorBinaryMode showMode = chkHighlight.Checked ? ShowColorBinaryMode.ShowColorBinaryHighlight : ShowColorBinaryMode.ShowColorBinaryNone;
-        
-            ThresholdChanged?.Invoke(this, new RangeChangedEventArgs(HueValue, SatValue, ValValue, showMode));
+            UpdateColorBinary();
         }
 
+
+        //#COLOR BINARY FILTER#9 컬러이진화 관련 이벤트 발생시, 전달할 값 추가
         public class RangeChangedEventArgs : EventArgs
         {
-            private Scalar hue;
-            private Scalar sat;
-            private Scalar val;
-            private ShowColorBinaryMode showMode;
-
             public int Hue { get; }
             public int Sat { get; }
             public int Val { get; }
             public ShowColorBinaryMode ShowColorBinMode { get; }
 
-            public RangeChangedEventArgs(int hue, int sat, int val, ShowColorBinaryMode showColorBinaryMode)
+            public RangeChangedEventArgs(int hueValue, int satValue, int valValue, bool invert, ShowColorBinaryMode showColorBinaryMode)
             {
-                Hue = hue;
-                Sat = sat;
-                Val = val;
+                Hue = hueValue;
+                Sat = satValue;
+                Val = valValue;
                 ShowColorBinMode = showColorBinaryMode;
             }
 
-            public RangeChangedEventArgs(Scalar hue, Scalar sat, Scalar val, ShowColorBinaryMode showMode)
-            {
-                this.hue = hue;
-                this.sat = sat;
-                this.val = val;
-                this.showMode = showMode;
-            }
 
             public Mat ProcessColor(Mat inputImage, int hue, int sat, int val, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
             {
@@ -250,10 +267,10 @@ namespace JidamVision.Property
             threshold.lower = SatValue;
             threshold.lower = ValValue;
 
-            
+
             threshold.invert = chkInvert.Checked;
 
-            ColorblobAlgo.ColorBinThreshold = threshold;         
+            ColorblobAlgo.ColorBinThreshold = threshold;
             int hueArea = int.Parse(txtH.Text);
             int satArea = int.Parse(txtS.Text);
             int valArea = int.Parse(txtV.Text);
@@ -261,10 +278,11 @@ namespace JidamVision.Property
             ColorblobAlgo.AreaFilter = satArea;
             ColorblobAlgo.AreaFilter = valArea;
 
-            //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
+            //이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspColorBinary);
         }
-       
-    }    
-    
+
+
+    }
+
 }

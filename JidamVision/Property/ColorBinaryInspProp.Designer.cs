@@ -363,5 +363,6 @@
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.Button btnApplyHSV;
         private System.Windows.Forms.CheckBox chkInvert;
+        private System.Windows.Forms.CheckBox chkShowColorBinaryOnly;
     }
 }

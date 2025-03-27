@@ -180,7 +180,7 @@ namespace JidamVision.Core
             bmpImage = BitmapConverter.ToBitmap(_previewImage);
             cameraForm.UpdateDisplay(bmpImage);
         }
-        
+
 
 
         static void ApplyImageOperation(ImageOperation operation, Mat src1, string op_value, out Mat resultImage) // 이미지 연산 코드
@@ -340,7 +340,7 @@ namespace JidamVision.Core
         }
 
         //필터 효과 기능
-        public void ApplyFilter(String selected_filter1,int selected_filter2)
+        public void ApplyFilter(String selected_filter1, int selected_filter2)
         {
             if (_orinalImage == null)
                 return;
@@ -365,13 +365,13 @@ namespace JidamVision.Core
                     break;
                 case "블러링":
                     ImageFilter filter = (ImageFilter)selected_filter2;
-                    ApplyImageFiltering(filter,_orinalImage,out filteredImage);
+                    ApplyImageFiltering(filter, _orinalImage, out filteredImage);
                     break;
                 case "Edge":
                     ImageEdge edge = (ImageEdge)selected_filter2;
                     ApplyEdgeDetection(edge, _orinalImage, out filteredImage);
                     break;
-                
+
                 default:
                     return;
             }
