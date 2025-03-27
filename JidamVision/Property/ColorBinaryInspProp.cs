@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,6 +42,10 @@ namespace JidamVision.Property
         public event EventHandler<RangeChangedEventArgs> RangeChanged; //HSV임계값 이벤트 추가
         private ColorBlobAlgorithm colorBlobAlgorithm;
 
+        private Point startPoint;
+        private Rectangle selectedArea;
+        private bool isSelecting = false;
+
         /* NOTE
         public int LowerValue
         {
@@ -77,6 +80,13 @@ namespace JidamVision.Property
             sTrackBar.Value = 0;
             vTrackBar.Value = 0;
 
+            // 필터 적용 버튼 클릭 이벤트
+            btnApply.Click += btnApply_Click;
+            btnApplyHSV.Click += btnApplyHSV_Click;
+
+            // 필터 선택 콤보박스 이벤트
+            select_effect.SelectedIndexChanged += select_effect_SelectedIndexChanged;
+
 
 
             //#COLOR BINARY FILTER#8 컬러이진화 필터값을 GUI에 로딩
@@ -101,6 +111,7 @@ namespace JidamVision.Property
         {
             bool invert = chkInvert.Checked;
             bool highlight = chkHighlight.Checked;
+
 
             ShowColorBinaryMode showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryNone;
             if (highlight)
@@ -144,16 +155,25 @@ namespace JidamVision.Property
         //#COLOR BINARY FILTER#9 컬러이진화 관련 이벤트 발생시, 전달할 값 추가
         public class RangeChangedEventArgs : EventArgs
         {
-            public int Hue { get; }
-            public int Sat { get; }
-            public int Val { get; }
+            public int LowerHue { get; }
+            public int UpperHue { get; }
+            public int LowerSaturation { get; }
+            public int UpperSaturation { get; }
+            public int LowerValue { get; }
+            public int UpperValue { get; }
+
+            public int HueValue { get; }
+            public int SatValue { get; }
+            public int ValValue { get; }
+            public bool Invert { get; }
             public ShowColorBinaryMode ShowColorBinMode { get; }
 
             public RangeChangedEventArgs(int hueValue, int satValue, int valValue, bool invert, ShowColorBinaryMode showColorBinaryMode)
             {
-                Hue = hueValue;
-                Sat = satValue;
-                Val = valValue;
+                HueValue = hueValue;
+                SatValue = satValue;
+                ValValue = valValue;
+                Invert = invert;
                 ShowColorBinMode = showColorBinaryMode;
             }
 
@@ -258,19 +278,20 @@ namespace JidamVision.Property
             if (ColorblobAlgo is null)
                 return;
 
-            ColorThreshold threshold = new ColorThreshold();
-            threshold.upper = HueValue;
-            threshold.upper = SatValue;
-            threshold.upper = ValValue;
+            HsvRange threshold = new HsvRange();
+            threshold.HueUpper = HueValue;
+            threshold.SaturationUpper = SatValue;
+            threshold.ValueUpper = ValValue;
 
-            threshold.lower = HueValue;
-            threshold.lower = SatValue;
-            threshold.lower = ValValue;
+            threshold.HueLower = HueValue;
+            threshold.SaturationLower = SatValue;
+            threshold.ValueLower = ValValue;
 
 
-            threshold.invert = chkInvert.Checked;
+            threshold.Invert = chkInvert.Checked;
 
-            ColorblobAlgo.ColorBinThreshold = threshold;
+            ColorblobAlgo.ColorRange = threshold;
+
             int hueArea = int.Parse(txtH.Text);
             int satArea = int.Parse(txtS.Text);
             int valArea = int.Parse(txtV.Text);
@@ -282,7 +303,40 @@ namespace JidamVision.Property
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspColorBinary);
         }
 
+        private void btnTeachinColor_Click(object sender, EventArgs e)
+        {
+            isSelecting = true;
+            this.Cursor = Cursors.Cross; // 펜 모양으로 변경
+        }
+
+        private void ColorBinaryInspProp_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (isSelecting)
+            {
+                // 마우스 클릭 위치 저장
+                Point point = new Point(e.X, e.Y);
+                // 마우스 클릭 위치에 대한 색상값 저장
+                System.Drawing.Color color = System.Drawing.Color.FromArgb(255, point.X, point.Y);
+                // 색상값을 HSV로 변환
+                Hsv hsv = new Hsv(color.R, color.G, color.B);
+                // HSV값을 텍스트박스에 출력
+                txtH.Text = hsv.H.ToString();
+                txtS.Text = hsv.S.ToString();
+                txtV.Text = hsv.V.ToString();
+                isSelecting = false;
+                this.Cursor = Cursors.Default; // 기본 커서로 변경
+            }
+        }
+
+        //imageViewer에 ROI 추가 기능 실행
+        private void ColorBinaryInspProp_MouseClick(InspWindowType inspWindowType)
+        {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.AddRoi(inspWindowType);
+            }
+        }
 
     }
-
 }

@@ -85,19 +85,16 @@ namespace JidamVision
             {
                 case InspectType.InspBinary:
                     BinaryInspProp blobProp = new BinaryInspProp();
-                    blobProp.LoadInspParam();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
-                    ColorBinaryInspProp colorBinProp = new ColorBinaryInspProp();
-                    colorBinProp.LoadInspParam();
-                    colorBinProp.RangeChanged += RangeSlider_RangeChanged;
-                    _inspProp = colorBinProp;
+                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
+                    colorBlobProp.RangeChanged += RangeSlider_RangeChanged;
+                    _inspProp = colorBlobProp;
                     break;
                 case InspectType.InspFilter:
                     FilterInspProp filterProp = new FilterInspProp();
-                    //filterProp.LoadInspParam();
                     filterProp.FilterSelected += FilterSelect_FilterChanged;
                     _inspProp = filterProp;
                     break;
@@ -117,16 +114,16 @@ namespace JidamVision
         private void RangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
         {
             // 이벤트 인자에서 H, S, V 값과 ShowColorBinaryMode 값을 가져옴
-            int hCenter = e.Hue;
-            int sMin = e.Sat;
-            int vMin = e.Val;
+            int hCenter = e.HueValue;
+            int sMin = e.SatValue;
+            int vMin = e.ValValue;
             ShowColorBinaryMode showColorBinMode = e.ShowColorBinMode;
 
             // 업데이트된 값을 사용하여 필터 업데이트
-            UpdateBinaryImageFilter(hCenter, sMin, vMin, showColorBinMode);
+            UpdateColorBinaryImageFilter(hCenter, sMin, vMin, showColorBinMode);
         }
 
-        public void UpdateBinaryImageFilter(int hCenter, int sMin, int vMin, ShowColorBinaryMode showMode)
+        public void UpdateColorBinaryImageFilter(int hCenter, int sMin, int vMin, ShowColorBinaryMode showMode)
         {
             this.HCenter = hCenter;
             this.SMin = sMin;
@@ -147,6 +144,8 @@ namespace JidamVision
             bool invert = e.Invert;
             ShowBinaryMode showBinMode = e.ShowBinMode;
             Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+
+
         }
 
         private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
@@ -158,24 +157,8 @@ namespace JidamVision
 
         }
 
-        //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
-        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
-        {
-            // 속성값을 이용하여 이진화 임계값 설정
-            int lowerValue = e.LowerValue;
-            int upperValue = e.UpperValue;
-            bool invert = e.Invert;
-            ShowBinaryMode showBinMode = e.ShowBinMode;
-            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
-        }
+        
 
-        private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
-        {
-            //선택된 필터값 PrieviewImage의 ApplyFilter로 보냄
-            string filter1 = e.FilterSelected1;
-            int filter2 = e.FilterSelected2;
-            Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
 
-        }
     }
 }

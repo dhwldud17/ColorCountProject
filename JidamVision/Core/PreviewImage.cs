@@ -133,7 +133,10 @@ namespace JidamVision.Core
             cameraForm.UpdateDisplay(bmpImage);
         }
 
-        public void SetColorBinary(int lowerValue, int upperValue, bool invert, ShowColorBinaryMode showColorBinMode)
+        
+
+        //#COLOR BINARY FILTER#15 기존 이진화 프리뷰에, 배경없이 이진화 이미지만 보이는 모드 추가
+        public void SetColorBinary(int hueLower, int hueUpper, int saturationLower, int saturationUpper, int valueLower, int valueUpper, bool invert, ShowColorBinaryMode showColorBinMode)
         {
             if (_orinalImage == null)
                 return;
@@ -156,7 +159,10 @@ namespace JidamVision.Core
 
             // 2️⃣ 특정 색 범위 이진화
             Mat colorBinaryMask = new Mat();
-            Cv2.InRange(hsvImage, lowerHSV, upperHSV, colorBinaryMask);
+            Scalar lowerBound = new Scalar(hueLower, saturationLower, valueLower);
+            Scalar upperBound = new Scalar(hueUpper, saturationUpper, valueUpper);
+
+            Cv2.InRange(hsvImage, lowerBound, upperBound, colorBinaryMask);
 
             // 3️⃣ 반전 옵션 적용
             if (invert)
@@ -180,8 +186,6 @@ namespace JidamVision.Core
             bmpImage = BitmapConverter.ToBitmap(_previewImage);
             cameraForm.UpdateDisplay(bmpImage);
         }
-
-
 
         static void ApplyImageOperation(ImageOperation operation, Mat src1, string op_value, out Mat resultImage) // 이미지 연산 코드
                                                                                                                   // 아래 코드는 이미지 연산을 수행하는 코드로, 두 이미지를 연산하여 결과를 보여주는 방식
