@@ -48,9 +48,11 @@
             this.sTrackBar = new System.Windows.Forms.TrackBar();
             this.hTrackBar = new System.Windows.Forms.TrackBar();
             this.grpFilter = new System.Windows.Forms.GroupBox();
-            this.select_effect = new System.Windows.Forms.ComboBox();
-            this.select_effect2 = new System.Windows.Forms.ComboBox();
             this.btnApply = new System.Windows.Forms.Button();
+            this.select_effect2 = new System.Windows.Forms.ComboBox();
+            this.select_effect = new System.Windows.Forms.ComboBox();
+            this.btnApplyHSV = new System.Windows.Forms.Button();
+            this.chkInvert = new System.Windows.Forms.CheckBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
@@ -60,6 +62,8 @@
             // 
             // grpHSV
             // 
+            this.grpHSV.Controls.Add(this.chkInvert);
+            this.grpHSV.Controls.Add(this.btnApplyHSV);
             this.grpHSV.Controls.Add(this.txtV);
             this.grpHSV.Controls.Add(this.txtS);
             this.grpHSV.Controls.Add(this.txtH);
@@ -131,6 +135,7 @@
             this.chkHighlight.TabIndex = 21;
             this.chkHighlight.Text = "Highlight in Camera viewer";
             this.chkHighlight.UseVisualStyleBackColor = true;
+            this.chkHighlight.CheckedChanged += new System.EventHandler(this.chkHighlight_CheckedChanged_1);
             // 
             // label10
             // 
@@ -233,7 +238,6 @@
             this.hTrackBar.Name = "hTrackBar";
             this.hTrackBar.Size = new System.Drawing.Size(367, 69);
             this.hTrackBar.TabIndex = 0;
-            this.hTrackBar.Scroll += new System.EventHandler(this.hTrackBar_Scroll);
             // 
             // grpFilter
             // 
@@ -247,17 +251,15 @@
             this.grpFilter.TabStop = false;
             this.grpFilter.Text = "필터";
             // 
-            // select_effect
+            // btnApply
             // 
-            this.select_effect.AutoCompleteCustomSource.AddRange(new string[] {
-            "비트연산"});
-            this.select_effect.FormattingEnabled = true;
-            this.select_effect.Location = new System.Drawing.Point(103, 60);
-            this.select_effect.Name = "select_effect";
-            this.select_effect.Size = new System.Drawing.Size(121, 26);
-            this.select_effect.TabIndex = 0;
-            this.select_effect.Text = "선택1";
-            this.select_effect.SelectedIndexChanged += new System.EventHandler(this.select_effect_SelectedIndexChanged);
+            this.btnApply.Location = new System.Drawing.Point(287, 62);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(121, 82);
+            this.btnApply.TabIndex = 2;
+            this.btnApply.Text = "적용";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // select_effect2
             // 
@@ -270,15 +272,38 @@
             this.select_effect2.TabIndex = 1;
             this.select_effect2.Text = "선택2";
             // 
-            // btnApply
+            // select_effect
             // 
-            this.btnApply.Location = new System.Drawing.Point(287, 62);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(121, 82);
-            this.btnApply.TabIndex = 2;
-            this.btnApply.Text = "적용";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.select_effect.AutoCompleteCustomSource.AddRange(new string[] {
+            "비트연산"});
+            this.select_effect.FormattingEnabled = true;
+            this.select_effect.Location = new System.Drawing.Point(103, 60);
+            this.select_effect.Name = "select_effect";
+            this.select_effect.Size = new System.Drawing.Size(121, 26);
+            this.select_effect.TabIndex = 0;
+            this.select_effect.Text = "선택1";
+            this.select_effect.SelectedIndexChanged += new System.EventHandler(this.select_effect_SelectedIndexChanged);
+            // 
+            // btnApplyHSV
+            // 
+            this.btnApplyHSV.Location = new System.Drawing.Point(329, 382);
+            this.btnApplyHSV.Name = "btnApplyHSV";
+            this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
+            this.btnApplyHSV.TabIndex = 27;
+            this.btnApplyHSV.Text = "HSV적용";
+            this.btnApplyHSV.UseVisualStyleBackColor = true;
+            this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
+            // 
+            // chkInvert
+            // 
+            this.chkInvert.AutoSize = true;
+            this.chkInvert.Location = new System.Drawing.Point(20, 354);
+            this.chkInvert.Name = "chkInvert";
+            this.chkInvert.Size = new System.Drawing.Size(70, 22);
+            this.chkInvert.TabIndex = 28;
+            this.chkInvert.Text = "반전";
+            this.chkInvert.UseVisualStyleBackColor = true;
+            this.chkInvert.CheckedChanged += new System.EventHandler(this.chkInvert_CheckedChanged);
             // 
             // ColorBinaryInspProp
             // 
@@ -323,5 +348,7 @@
         private System.Windows.Forms.ComboBox select_effect;
         private System.Windows.Forms.ComboBox select_effect2;
         private System.Windows.Forms.Button btnApply;
+        private System.Windows.Forms.Button btnApplyHSV;
+        private System.Windows.Forms.CheckBox chkInvert;
     }
 }

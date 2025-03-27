@@ -117,9 +117,9 @@ namespace JidamVision
         private void RangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
         {
             // 이벤트 인자에서 H, S, V 값과 ShowColorBinaryMode 값을 가져옴
-            int hCenter = e.HCenter;
-            int sMin = e.SMin;
-            int vMin = e.VMin;
+            int hCenter = e.Hue;
+            int sMin = e.Sat;
+            int vMin = e.Val;
             ShowColorBinaryMode showColorBinMode = e.ShowColorBinMode;
 
             // 업데이트된 값을 사용하여 필터 업데이트

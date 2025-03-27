@@ -40,6 +40,8 @@ namespace JidamVision.Algorithm
         }
         private List<Rect> _findArea;
 
+        public ColorThreshold ColorBinThreshold { get; set; } = new ColorThreshold();
+
         // ColorThreshold는 ColorBlobAlgorithm의 필드로 설정
         private ColorThreshold _colorRange;
         public ColorThreshold ColorRange
@@ -50,9 +52,9 @@ namespace JidamVision.Algorithm
 
         // 픽셀 영역 필터링 (기본값 100)
         public int AreaFilter { get; set; } = 100;
-        public int HCenter { get; set; } // HCenter 속성 추가
-        public int SMin { get; set; } // SMin 속성 추가
-        public int VMin { get; set; } // VMin 속성 추가
+        public int Hue { get; set; } // Hue 속성 추가
+        public int Sat { get; set; } // Sat 속성 추가
+        public int Val { get; set; } // Val 속성 추가
 
         public ColorBlobAlgorithm()
         {
@@ -60,33 +62,16 @@ namespace JidamVision.Algorithm
         }
 
         // HSV 값을 바탕으로 색상 범위를 설정
-        public void SetColorRange(int hCenter, int sMin, int vMin)
+        public void SetColorRange(int hue, int sat, int val)
         {
-            HCenter = hCenter;
-            SMin = sMin;
-            VMin = vMin;
+            Hue = hue;
+            Sat = sat;
+            Val = val;
             // 색상 범위 설정 (HSV)
-            _colorRange.lower = new Scalar(hCenter - 10, sMin - 50, vMin - 50); // 범위는 예시로 설정, 필요시 조정
-            _colorRange.upper = new Scalar(hCenter + 10, sMin + 50, vMin + 50);
+            _colorRange.lower = new Scalar(hue - 10, sat - 50, val - 50); // 범위는 예시로 설정, 필요시 조정
+            _colorRange.upper = new Scalar(hue + 10, sat + 50, val + 50);
             _colorRange.invert = false; // 필요시 반전 여부 설정
-        }
-
-        // 색상 필터링 및 이진화 처리
-        public Mat ProcessColor(Mat image, int hCenter, int sMin, int vMin, ShowColorBinaryMode mode)
-        {
-            SetColorRange(hCenter, sMin, vMin);
-
-            Mat hsvImage = new Mat();
-            Cv2.CvtColor(image, hsvImage, ColorConversionCodes.BGR2HSV);
-
-            Mat mask = new Mat();
-            Cv2.InRange(hsvImage, _colorRange.lower, _colorRange.upper, mask);
-
-            if (ColorRange.invert)
-                mask = ~mask;
-
-            return mask; // 기본적으로 이진화된 마스크를 반환
-        }
+        }     
 
         public override bool DoInspect()
         {
