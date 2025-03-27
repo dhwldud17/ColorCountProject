@@ -140,7 +140,10 @@ namespace JidamVision.Property
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspBinary);
         }
 
-        
+        private void trackBarLower_Scroll(object sender, EventArgs e)
+        {
+
+        }
     }
 
     //#BINARY FILTER#9 이진화 관련 이벤트 발생시, 전달할 값 추가

@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.grpHSV = new System.Windows.Forms.GroupBox();
+            this.chkInvert = new System.Windows.Forms.CheckBox();
+            this.btnApplyHSV = new System.Windows.Forms.Button();
             this.txtV = new System.Windows.Forms.TextBox();
             this.txtS = new System.Windows.Forms.TextBox();
             this.txtH = new System.Windows.Forms.TextBox();
@@ -51,8 +53,6 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.select_effect2 = new System.Windows.Forms.ComboBox();
             this.select_effect = new System.Windows.Forms.ComboBox();
-            this.btnApplyHSV = new System.Windows.Forms.Button();
-            this.chkInvert = new System.Windows.Forms.CheckBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
@@ -89,6 +89,27 @@
             this.grpHSV.TabStop = false;
             this.grpHSV.Text = "HSV";
             // 
+            // chkInvert
+            // 
+            this.chkInvert.AutoSize = true;
+            this.chkInvert.Location = new System.Drawing.Point(20, 354);
+            this.chkInvert.Name = "chkInvert";
+            this.chkInvert.Size = new System.Drawing.Size(70, 22);
+            this.chkInvert.TabIndex = 28;
+            this.chkInvert.Text = "반전";
+            this.chkInvert.UseVisualStyleBackColor = true;
+            this.chkInvert.CheckedChanged += new System.EventHandler(this.chkInvert_CheckedChanged);
+            // 
+            // btnApplyHSV
+            // 
+            this.btnApplyHSV.Location = new System.Drawing.Point(329, 382);
+            this.btnApplyHSV.Name = "btnApplyHSV";
+            this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
+            this.btnApplyHSV.TabIndex = 27;
+            this.btnApplyHSV.Text = "HSV적용";
+            this.btnApplyHSV.UseVisualStyleBackColor = true;
+            this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
+            // 
             // txtV
             // 
             this.txtV.Location = new System.Drawing.Point(9, 297);
@@ -109,6 +130,7 @@
             this.txtH.Name = "txtH";
             this.txtH.Size = new System.Drawing.Size(88, 28);
             this.txtH.TabIndex = 24;
+            this.txtH.TextChanged += new System.EventHandler(this.txtH_TextChanged);
             // 
             // panelColorPreview
             // 
@@ -234,7 +256,7 @@
             // 
             // hTrackBar
             // 
-            this.hTrackBar.Location = new System.Drawing.Point(96, 24);
+            this.hTrackBar.Location = new System.Drawing.Point(96, 18);
             this.hTrackBar.Name = "hTrackBar";
             this.hTrackBar.Size = new System.Drawing.Size(367, 69);
             this.hTrackBar.TabIndex = 0;
@@ -283,27 +305,6 @@
             this.select_effect.TabIndex = 0;
             this.select_effect.Text = "선택1";
             this.select_effect.SelectedIndexChanged += new System.EventHandler(this.select_effect_SelectedIndexChanged);
-            // 
-            // btnApplyHSV
-            // 
-            this.btnApplyHSV.Location = new System.Drawing.Point(329, 382);
-            this.btnApplyHSV.Name = "btnApplyHSV";
-            this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
-            this.btnApplyHSV.TabIndex = 27;
-            this.btnApplyHSV.Text = "HSV적용";
-            this.btnApplyHSV.UseVisualStyleBackColor = true;
-            this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
-            // 
-            // chkInvert
-            // 
-            this.chkInvert.AutoSize = true;
-            this.chkInvert.Location = new System.Drawing.Point(20, 354);
-            this.chkInvert.Name = "chkInvert";
-            this.chkInvert.Size = new System.Drawing.Size(70, 22);
-            this.chkInvert.TabIndex = 28;
-            this.chkInvert.Text = "반전";
-            this.chkInvert.UseVisualStyleBackColor = true;
-            this.chkInvert.CheckedChanged += new System.EventHandler(this.chkInvert_CheckedChanged);
             // 
             // ColorBinaryInspProp
             // 

@@ -31,13 +31,8 @@ namespace JidamVision.Algorithm
 
     public class ColorBlobAlgorithm : InspAlgorithm
     {
-        private Mat _srcImage; // 원본 이미지 저장
-
-        public Mat SourceImage
-        {
-            get { return _srcImage; }
-            set { _srcImage = value; }
-        }
+       
+      
         private List<Rect> _findArea;
 
         public ColorThreshold ColorBinThreshold { get; set; } = new ColorThreshold();

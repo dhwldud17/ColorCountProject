@@ -104,7 +104,7 @@ namespace JidamVision.Teach
                     inspAlgo = new BlobAlgorithm();
                     break;
                 case InspectType.InspColorBinary:
-                    inspAlgo = new BlobAlgorithm();
+                    inspAlgo = new ColorBlobAlgorithm();
                     break;
                     //case InspectType.InspMatch:
                     //    inspAlgo = new MatchAlgorithm();
@@ -123,11 +123,11 @@ namespace JidamVision.Teach
         //#ABSTRACT ALGORITHM#11 알고리즘을 리스트로 관리하므로, 필요한 타입의 알고리즘을 찾는 함수
         public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
-            //foreach (var algorithm in AlgorithmList)
-            //{
-            //    if (algorithm.InspectType == inspType)
-            //        return algorithm;
-            //}
+            foreach (var algorithm in AlgorithmList)
+            {
+                if (algorithm.InspectType == inspType)
+                    return algorithm;
+            }
             //return null;
 
             return AlgorithmList.Find(algo => algo.InspectType == inspType);

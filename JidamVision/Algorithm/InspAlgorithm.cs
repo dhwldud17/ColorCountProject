@@ -19,6 +19,7 @@ namespace JidamVision.Algorithm
     //XmlSerialize는 추상화된 상태를 알수 없어, 상속된 클래스를 명시적으로 포함해야 함.
     //[XmlInclude(typeof(MatchAlgorithm))]
     [XmlInclude(typeof(BlobAlgorithm))]
+    [XmlInclude(typeof(ColorBlobAlgorithm))]
     public abstract class InspAlgorithm
     {
         //#ABSTRACT ALGORITHM#1 검사 알고리즘을 추상화하여, 공통된 값이나, 함수 정의

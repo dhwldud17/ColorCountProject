@@ -134,6 +134,57 @@ namespace JidamVision.Core
         }
 
 
+        //컬러이진화 프리뷰 이미지에 뿌리는 함수 추가
+        //이 함수는 UI에서 받은 값을 사용해 컬러 이진화를 수행하고, 결과를 화면에 출력하는 역할을 해. 즉, UI와 알고리즘을 연결하는 역할
+        public void SetColorBinary(int hue,int sat,int val, ShowColorBinaryMode showColorBinMode)
+        {
+            if (_orinalImage == null)
+                return;
+
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm == null)
+                return;
+
+            Bitmap bmpImage;
+            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryNone)
+            {
+                bmpImage = BitmapConverter.ToBitmap(_orinalImage);
+                cameraForm.UpdateDisplay(bmpImage);
+                return;
+            }
+
+            // BGR 이미지를 HSV로 변환
+            Mat hsvImage = new Mat();
+            Cv2.CvtColor(_orinalImage, hsvImage, ColorConversionCodes.BGR2HSV);
+
+            // HSV 범위 설정 (lower는 0, upper는 트랙바 값 기반)
+            Scalar lowerBound = new Scalar(0, 0, 0);
+            Scalar upperBound = new Scalar(hue, sat, val);
+
+            Mat binaryMask = new Mat();
+            Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
+
+            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryOnly)
+            {
+                bmpImage = BitmapConverter.ToBitmap(binaryMask);
+                cameraForm.UpdateDisplay(bmpImage);
+                return;
+            }
+
+            // 원본 이미지에 컬러 마스킹 적용
+            Mat overlayImage = _orinalImage.Clone();
+            overlayImage.SetTo(new Scalar(0, 0, 255), binaryMask); // 빨간색으로 마스킹
+
+            // 원본과 합성 (투명도 적용)
+            Cv2.AddWeighted(_orinalImage, 0.7, overlayImage, 0.3, 0, _previewImage);
+
+            bmpImage = BitmapConverter.ToBitmap(_previewImage);
+            cameraForm.UpdateDisplay(bmpImage);
+        }
+
+
+
+
         static void ApplyImageOperation(ImageOperation operation, Mat src1, string op_value, out Mat resultImage) // 이미지 연산 코드
                                                                                                                   // 아래 코드는 이미지 연산을 수행하는 코드로, 두 이미지를 연산하여 결과를 보여주는 방식
                                                                                                                   // 예시: 덧셈, 뺄셈, 곱셈, 나눗셈, 최대값, 최소값 등을 계산할 수 있음

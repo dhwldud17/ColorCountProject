@@ -117,12 +117,13 @@
             // 
             // trackBarLower
             // 
-            this.trackBarLower.Location = new System.Drawing.Point(33, 34);
+            this.trackBarLower.Location = new System.Drawing.Point(24, 34);
             this.trackBarLower.Margin = new System.Windows.Forms.Padding(4);
             this.trackBarLower.Maximum = 255;
             this.trackBarLower.Name = "trackBarLower";
             this.trackBarLower.Size = new System.Drawing.Size(313, 69);
             this.trackBarLower.TabIndex = 0;
+            this.trackBarLower.Scroll += new System.EventHandler(this.trackBarLower_Scroll);
             // 
             // grpFilter
             // 

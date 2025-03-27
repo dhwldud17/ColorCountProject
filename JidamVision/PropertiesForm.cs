@@ -36,11 +36,7 @@ namespace JidamVision
 
     public partial class PropertiesForm : DockContent
     {
-        // HSV 임계값 추가
-        public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
-        public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
-        public int VMin { get; set; } = 50;    // 최소 명도 (Value)
-
+      
         public PropertiesForm()
         {
             InitializeComponent();
@@ -114,26 +110,23 @@ namespace JidamVision
         {
             LoadOptionControl(inspPropType);
         }
+
+
         private void RangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
         {
             // 이벤트 인자에서 H, S, V 값과 ShowColorBinaryMode 값을 가져옴
-            int hCenter = e.Hue;
-            int sMin = e.Sat;
-            int vMin = e.Val;
+            int hue = e.Hue;
+            int sat = e.Sat;
+            int val = e.Val;
             ShowColorBinaryMode showColorBinMode = e.ShowColorBinMode;
 
             // 업데이트된 값을 사용하여 필터 업데이트
-            UpdateBinaryImageFilter(hCenter, sMin, vMin, showColorBinMode);
+            Global.Inst.InspStage.PreView?.SetColorBinary(hue, sat,val,showColorBinMode);
+
+            
         }
 
-        public void UpdateBinaryImageFilter(int hCenter, int sMin, int vMin, ShowColorBinaryMode showMode)
-        {
-            this.HCenter = hCenter;
-            this.SMin = sMin;
-            this.VMin = vMin;
-
-            // 여기에 showMode에 따른 추가 로직을 작성할 수 있습니다.
-        }
+       
 
 
 
