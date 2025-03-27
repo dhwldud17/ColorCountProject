@@ -31,7 +31,13 @@ namespace JidamVision.Algorithm
 
     public class ColorBlobAlgorithm : InspAlgorithm
     {
+        private Mat _srcImage; // 원본 이미지 저장
 
+        public Mat SourceImage
+        {
+            get { return _srcImage; }
+            set { _srcImage = value; }
+        }
         private List<Rect> _findArea;
 
         // ColorThreshold는 ColorBlobAlgorithm의 필드로 설정
@@ -63,6 +69,23 @@ namespace JidamVision.Algorithm
             _colorRange.lower = new Scalar(hCenter - 10, sMin - 50, vMin - 50); // 범위는 예시로 설정, 필요시 조정
             _colorRange.upper = new Scalar(hCenter + 10, sMin + 50, vMin + 50);
             _colorRange.invert = false; // 필요시 반전 여부 설정
+        }
+
+        // 색상 필터링 및 이진화 처리
+        public Mat ProcessColor(Mat image, int hCenter, int sMin, int vMin, ShowColorBinaryMode mode)
+        {
+            SetColorRange(hCenter, sMin, vMin);
+
+            Mat hsvImage = new Mat();
+            Cv2.CvtColor(image, hsvImage, ColorConversionCodes.BGR2HSV);
+
+            Mat mask = new Mat();
+            Cv2.InRange(hsvImage, _colorRange.lower, _colorRange.upper, mask);
+
+            if (ColorRange.invert)
+                mask = ~mask;
+
+            return mask; // 기본적으로 이진화된 마스크를 반환
         }
 
         public override bool DoInspect()

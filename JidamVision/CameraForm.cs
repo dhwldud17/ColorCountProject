@@ -26,7 +26,9 @@ namespace JidamVision
         public CameraForm()
         {
             InitializeComponent();
-
+            imageViewer = new PictureBox();  // PictureBox 객체 생성
+        imageViewer.Dock = DockStyle.Fill;
+        Controls.Add(imageViewer);
             this.FormClosed += CameraForm_FormClosed;
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;

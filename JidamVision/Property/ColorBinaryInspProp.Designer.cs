@@ -47,10 +47,15 @@
             this.lblHue = new System.Windows.Forms.Label();
             this.sTrackBar = new System.Windows.Forms.TrackBar();
             this.hTrackBar = new System.Windows.Forms.TrackBar();
+            this.grpFilter = new System.Windows.Forms.GroupBox();
+            this.select_effect = new System.Windows.Forms.ComboBox();
+            this.select_effect2 = new System.Windows.Forms.ComboBox();
+            this.btnApply = new System.Windows.Forms.Button();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBar)).BeginInit();
+            this.grpFilter.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpHSV
@@ -224,23 +229,71 @@
             // 
             // hTrackBar
             // 
-            this.hTrackBar.Location = new System.Drawing.Point(96, 42);
+            this.hTrackBar.Location = new System.Drawing.Point(96, 24);
             this.hTrackBar.Name = "hTrackBar";
             this.hTrackBar.Size = new System.Drawing.Size(367, 69);
             this.hTrackBar.TabIndex = 0;
+            this.hTrackBar.Scroll += new System.EventHandler(this.hTrackBar_Scroll);
+            // 
+            // grpFilter
+            // 
+            this.grpFilter.Controls.Add(this.btnApply);
+            this.grpFilter.Controls.Add(this.select_effect2);
+            this.grpFilter.Controls.Add(this.select_effect);
+            this.grpFilter.Location = new System.Drawing.Point(27, 572);
+            this.grpFilter.Name = "grpFilter";
+            this.grpFilter.Size = new System.Drawing.Size(476, 181);
+            this.grpFilter.TabIndex = 1;
+            this.grpFilter.TabStop = false;
+            this.grpFilter.Text = "필터";
+            // 
+            // select_effect
+            // 
+            this.select_effect.AutoCompleteCustomSource.AddRange(new string[] {
+            "비트연산"});
+            this.select_effect.FormattingEnabled = true;
+            this.select_effect.Location = new System.Drawing.Point(103, 60);
+            this.select_effect.Name = "select_effect";
+            this.select_effect.Size = new System.Drawing.Size(121, 26);
+            this.select_effect.TabIndex = 0;
+            this.select_effect.Text = "선택1";
+            this.select_effect.SelectedIndexChanged += new System.EventHandler(this.select_effect_SelectedIndexChanged);
+            // 
+            // select_effect2
+            // 
+            this.select_effect2.FormattingEnabled = true;
+            this.select_effect2.Items.AddRange(new object[] {
+            "NOT 연산"});
+            this.select_effect2.Location = new System.Drawing.Point(103, 118);
+            this.select_effect2.Name = "select_effect2";
+            this.select_effect2.Size = new System.Drawing.Size(121, 26);
+            this.select_effect2.TabIndex = 1;
+            this.select_effect2.Text = "선택2";
+            // 
+            // btnApply
+            // 
+            this.btnApply.Location = new System.Drawing.Point(287, 62);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(121, 82);
+            this.btnApply.TabIndex = 2;
+            this.btnApply.Text = "적용";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // ColorBinaryInspProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.grpFilter);
             this.Controls.Add(this.grpHSV);
             this.Name = "ColorBinaryInspProp";
-            this.Size = new System.Drawing.Size(518, 570);
+            this.Size = new System.Drawing.Size(539, 969);
             this.grpHSV.ResumeLayout(false);
             this.grpHSV.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBar)).EndInit();
+            this.grpFilter.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -266,5 +319,9 @@
         private System.Windows.Forms.TextBox txtV;
         private System.Windows.Forms.TextBox txtS;
         private System.Windows.Forms.TextBox txtH;
+        private System.Windows.Forms.GroupBox grpFilter;
+        private System.Windows.Forms.ComboBox select_effect;
+        private System.Windows.Forms.ComboBox select_effect2;
+        private System.Windows.Forms.Button btnApply;
     }
 }
