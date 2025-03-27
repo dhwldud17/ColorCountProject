@@ -44,6 +44,7 @@
             this.lbPercent = new System.Windows.Forms.Label();
             this.lbTotalnumber = new System.Windows.Forms.Label();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
+            this.btImageLode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,7 +52,7 @@
             // 
             this.bntStart.Location = new System.Drawing.Point(559, 112);
             this.bntStart.Name = "bntStart";
-            this.bntStart.Size = new System.Drawing.Size(184, 70);
+            this.bntStart.Size = new System.Drawing.Size(184, 50);
             this.bntStart.TabIndex = 1;
             this.bntStart.Text = "시작";
             this.bntStart.UseVisualStyleBackColor = true;
@@ -59,9 +60,9 @@
             // 
             // bntStop
             // 
-            this.bntStop.Location = new System.Drawing.Point(559, 226);
+            this.bntStop.Location = new System.Drawing.Point(558, 168);
             this.bntStop.Name = "bntStop";
-            this.bntStop.Size = new System.Drawing.Size(184, 70);
+            this.bntStop.Size = new System.Drawing.Size(184, 57);
             this.bntStop.TabIndex = 2;
             this.bntStop.Text = "정지";
             this.bntStop.UseVisualStyleBackColor = true;
@@ -162,7 +163,7 @@
             // lbPercent
             // 
             this.lbPercent.AutoSize = true;
-            this.lbPercent.Location = new System.Drawing.Point(759, 512);
+            this.lbPercent.Location = new System.Drawing.Point(758, 511);
             this.lbPercent.Name = "lbPercent";
             this.lbPercent.Size = new System.Drawing.Size(62, 18);
             this.lbPercent.TabIndex = 14;
@@ -185,14 +186,25 @@
             this.imageViewer.Location = new System.Drawing.Point(27, 112);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(510, 493);
+            this.imageViewer.Size = new System.Drawing.Size(506, 482);
             this.imageViewer.TabIndex = 16;
+            // 
+            // btImageLode
+            // 
+            this.btImageLode.Location = new System.Drawing.Point(559, 231);
+            this.btImageLode.Name = "btImageLode";
+            this.btImageLode.Size = new System.Drawing.Size(181, 57);
+            this.btImageLode.TabIndex = 17;
+            this.btImageLode.Text = "불러오기";
+            this.btImageLode.UseVisualStyleBackColor = true;
+            this.btImageLode.Click += new System.EventHandler(this.btImageLode_Click);
             // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
+            this.Controls.Add(this.btImageLode);
             this.Controls.Add(this.imageViewer);
             this.Controls.Add(this.lbTotalnumber);
             this.Controls.Add(this.lbPercent);
@@ -235,5 +247,6 @@
         private System.Windows.Forms.Label lbPercent;
         private System.Windows.Forms.Label lbTotalnumber;
         private ImageViewCCtrl imageViewer;
+        private System.Windows.Forms.Button btImageLode;
     }
 }

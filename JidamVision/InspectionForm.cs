@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using OpenCvSharp.Flann;
 using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
@@ -25,12 +27,24 @@ namespace JidamVision
         private int totalCount = 0;  // 총 검사 개수
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
+        private string[] imageFiles; // 이미지 파일 목록
+
+        // ✅검사할 색상 정의 (추가된 부분)
+        private readonly List<Color> expectedColors = new List<Color>
+        {
+            Color.Red,   // 빨강
+            Color.Yellow, // 노랑
+            Color.Blue,  // 파랑
+            Color.Black // 검정
+        };
         public InspectionForm()
         {
             InitializeComponent();
             InitializeInspection();
             InitializeTimers();  // 현재 시간 갱신 타이머 초기화
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
+            ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
+            InitializeDataGridView();  // DataGridView 초기화
         }
         private void InitializeInspection()
         {
@@ -41,6 +55,14 @@ namespace JidamVision
             // 사용할 검사 알고리즘 인스턴스 생성 (예제: MatchAlgorithm)
             inspector = new MatchAlgorithm();
         }
+        private void InitializeDataGridView()
+        {
+            dgvMetric.ColumnCount = 3;
+            dgvMetric.Columns[0].Name = "이미지 번호";
+            dgvMetric.Columns[1].Name = "기준 색상";
+            dgvMetric.Columns[2].Name = "검사 결과";
+        }
+      
         private void InitializeTimers()
         {
             // 현재 시간 자동 갱신 타이머 설정
@@ -134,8 +156,59 @@ namespace JidamVision
                 // 검사 결과 출력
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
             }
+            // ✅ 이미지 색상 검사 추가
+            CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
+        // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
+        private void CheckColorsInImage(Mat image, int imageIndex)
+        {
+            Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
+
+            // 초기화 (모든 색상을 false로 설정)
+            foreach (var color in expectedColors)
+            {
+                colorResults[color] = false;
+            }
+
+            for (int x = 0; x < image.Width; x++)
+            {
+                for (int y = 0; y < image.Height; y++)
+                {
+                    Color pixelColor = GetPixelColor(image, x, y);
+
+                    foreach (var expectedColor in expectedColors)
+                    {
+                        if (IsSimilarColor(pixelColor, expectedColor))
+                        {
+                            colorResults[expectedColor] = true;
+                        }
+                    }
+                }
+            }
+
+            // 검사 결과를 DataGridView에 추가
+            foreach (var kvp in colorResults)
+            {
+                string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
+                dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
+            }
+        }
+
+        // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
+        private Color GetPixelColor(Mat image, int x, int y)
+        {
+            Vec3b pixel = image.At<Vec3b>(y, x);
+            return Color.FromArgb(pixel[2], pixel[1], pixel[0]); // OpenCV는 BGR 순서이므로 RGB로 변환
+        }
+
+        // ✅ 색상 유사성 검사 (약간의 오차 허용)
+        private bool IsSimilarColor(Color color1, Color color2, int tolerance = 30)
+        {
+            return Math.Abs(color1.R - color2.R) <= tolerance &&
+                   Math.Abs(color1.G - color2.G) <= tolerance &&
+                   Math.Abs(color1.B - color2.B) <= tolerance;
+        }
         private void InspectionForm_Resize(object sender, EventArgs e)
         {
             int margin = 80;
@@ -153,16 +226,66 @@ namespace JidamVision
             bntStop.Location = new System.Drawing.Point(xPos- bntStop.Width-30, bntStop.Location.Y);
             rtbTotalnumber.Location = new System.Drawing.Point(xPos- rtbTotalnumber.Width-30, rtbTotalnumber.Location.Y);
             lbTotalnumber.Location = new System.Drawing.Point(xPos - lbTotalnumber.Width - 120, lbTotalnumber.Location.Y);
-            rtbGood.Location = new System.Drawing.Point(xPos, rtbGood.Location.Y);
-            lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 5, lbGood.Location.Y);
-            rtbFaulty.Location = new System.Drawing.Point(xPos, rtbFaulty.Location.Y);
-            lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 5, lbFaulty.Location.Y);
+            rtbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, rtbGood.Location.Y);
+            lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, lbGood.Location.Y);
+            rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y);
+            lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y);
             dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
             rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
-            lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 5, lbPercent.Location.Y);
+            lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
+            btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
 
-            // pictureBox1 크기 조정 (좌측 상단에 고정)
-           
+            // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
+            imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
+            imageViewer.Height = this.Height - margin * 2;
+            imageViewer.Location = new System.Drawing.Point(margin-50, margin);
         }
+
+        private void btImageLode_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "이미지가 있는 폴더를 선택하세요.";
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFolder = folderDialog.SelectedPath;
+
+                    // 선택한 폴더 내의 이미지 파일(.jpg, .png, .bmp) 목록 가져오기
+                    imageFiles = Directory.GetFiles(selectedFolder, "*.*")
+                                          .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                                      f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                                      f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+                                          .ToArray();
+
+                    // 이미지가 있으면 첫 번째 이미지 표시
+                    if (imageFiles.Length > 0)
+                    {
+                        currentImageIndex = 0;
+                        ShowImage(currentImageIndex);
+                    }
+                    else
+                    {
+                        MessageBox.Show("선택한 폴더에 이미지가 없습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+
+        }
+
+        private void ShowImage(int index)
+        {
+            if (imageFiles != null && imageFiles.Length > 0 && index >= 0 && index < imageFiles.Length)
+            {
+                string imagePath = imageFiles[index];
+
+                // 파일 경로에서 Bitmap을 생성
+                Bitmap bitmap = new Bitmap(imagePath);
+
+                // imageViewCCtrl에 표시 (imageViewer와 같은 방식 적용)
+                imageViewer.LoadBitmap(bitmap);
+            }
+        }
+
     }
 }
