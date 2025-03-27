@@ -6,6 +6,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -197,21 +198,33 @@ namespace Common.Util.Helpers
 		public static void SaveXml<T>(string fileName, T obj)
 		{
             //XmlSerializer를 사용하여 객체 → XML 변환(직렬화) 후, FileStream을 통해 파일로 저장
+            try
+            {
+                // 🔍 1️⃣ 디렉터리 존재 여부 확인 후 생성
+                string directory = Path.GetDirectoryName(fileName) ?? "";
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
 
-            using (Stream stream = new FileStream(fileName, FileMode.Create))
-			{
-				try
-				{
-					//	XmlSerializer serializer = new XmlSerializer(obj.GetType());
-					XmlSerializer serializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];
-					serializer.Serialize(stream, obj);
-				}
-				catch
-				{
-					throw;
-				}
-			}
-		}
+                // 🔍 2️⃣ 올바른 파일 경로인지 확인
+                if (Directory.Exists(fileName))
+                {
+                    throw new IOException($"잘못된 파일 경로: '{fileName}'. 파일 대신 폴더 경로일 가능성이 있습니다.");
+                }
+
+                // 🔍 3️⃣ XML 직렬화 및 저장
+                using (Stream stream = new FileStream(fileName, FileMode.Create))
+                {
+                    XmlSerializer serializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];
+                    serializer.Serialize(stream, obj);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"XML 저장 중 오류 발생: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 		#endregion
 
 		/// <summary>

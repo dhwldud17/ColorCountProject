@@ -162,9 +162,7 @@ namespace JidamVision
             lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 5, lbPercent.Location.Y);
 
             // pictureBox1 크기 조정 (좌측 상단에 고정)
-            pictureBox1.Width = xPos - margin * 2; // UI 요소들과 겹치지 않도록 조정
-            pictureBox1.Height = this.Height - margin * 2;
-            pictureBox1.Location = new System.Drawing.Point(margin, margin);
+           
         }
     }
 }
