@@ -43,7 +43,7 @@
             this.lbFaulty = new System.Windows.Forms.Label();
             this.lbPercent = new System.Windows.Forms.Label();
             this.lbTotalnumber = new System.Windows.Forms.Label();
-            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
+            this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.btImageLode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
@@ -178,16 +178,16 @@
             this.lbTotalnumber.TabIndex = 15;
             this.lbTotalnumber.Text = "총개수";
             // 
-            // imageViewCCtrl1
+            // imageViewer
             // 
-            this.imageViewCCtrl1.AutoSize = true;
-            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewCCtrl1.Location = new System.Drawing.Point(27, 112);
-            this.imageViewCCtrl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
-            this.imageViewCCtrl1.Size = new System.Drawing.Size(506, 482);
-            this.imageViewCCtrl1.TabIndex = 16;
+            this.imageViewer.AutoSize = true;
+            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewer.Location = new System.Drawing.Point(27, 112);
+            this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(506, 482);
+            this.imageViewer.TabIndex = 16;
             // 
             // btImageLode
             // 
@@ -197,6 +197,7 @@
             this.btImageLode.TabIndex = 17;
             this.btImageLode.Text = "불러오기";
             this.btImageLode.UseVisualStyleBackColor = true;
+            this.btImageLode.Click += new System.EventHandler(this.btImageLode_Click);
             // 
             // InspectionForm
             // 
@@ -204,7 +205,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
             this.Controls.Add(this.btImageLode);
-            this.Controls.Add(this.imageViewCCtrl1);
+            this.Controls.Add(this.imageViewer);
             this.Controls.Add(this.lbTotalnumber);
             this.Controls.Add(this.lbPercent);
             this.Controls.Add(this.lbFaulty);
@@ -245,7 +246,7 @@
         private System.Windows.Forms.Label lbFaulty;
         private System.Windows.Forms.Label lbPercent;
         private System.Windows.Forms.Label lbTotalnumber;
-        private ImageViewCCtrl imageViewCCtrl1;
+        private ImageViewCCtrl imageViewer;
         private System.Windows.Forms.Button btImageLode;
     }
 }

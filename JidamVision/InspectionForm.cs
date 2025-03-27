@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using JidamVision.Algorithm;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using OpenCvSharp.Flann;
 using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
@@ -26,6 +27,7 @@ namespace JidamVision
         private int totalCount = 0;  // 총 검사 개수
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
+        private string[] imageFiles; // 이미지 파일 목록
 
         // ✅검사할 색상 정의 (추가된 부분)
         private readonly List<Color> expectedColors = new List<Color>
@@ -234,9 +236,56 @@ namespace JidamVision
             btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
 
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
-            imageViewCCtrl1.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
-            imageViewCCtrl1.Height = this.Height - margin * 2;
-            imageViewCCtrl1.Location = new System.Drawing.Point(margin-50, margin);
+            imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
+            imageViewer.Height = this.Height - margin * 2;
+            imageViewer.Location = new System.Drawing.Point(margin-50, margin);
         }
+
+        private void btImageLode_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "이미지가 있는 폴더를 선택하세요.";
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFolder = folderDialog.SelectedPath;
+
+                    // 선택한 폴더 내의 이미지 파일(.jpg, .png, .bmp) 목록 가져오기
+                    imageFiles = Directory.GetFiles(selectedFolder, "*.*")
+                                          .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                                      f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                                      f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
+                                          .ToArray();
+
+                    // 이미지가 있으면 첫 번째 이미지 표시
+                    if (imageFiles.Length > 0)
+                    {
+                        currentImageIndex = 0;
+                        ShowImage(currentImageIndex);
+                    }
+                    else
+                    {
+                        MessageBox.Show("선택한 폴더에 이미지가 없습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+
+        }
+
+        private void ShowImage(int index)
+        {
+            if (imageFiles != null && imageFiles.Length > 0 && index >= 0 && index < imageFiles.Length)
+            {
+                string imagePath = imageFiles[index];
+
+                // 파일 경로에서 Bitmap을 생성
+                Bitmap bitmap = new Bitmap(imagePath);
+
+                // imageViewCCtrl에 표시 (imageViewer와 같은 방식 적용)
+                imageViewer.LoadBitmap(bitmap);
+            }
+        }
+
     }
 }
