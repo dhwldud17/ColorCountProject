@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using log4net.Repository.Hierarchy;
 using OpenCvSharp;
 using static System.Windows.Forms.MonthCalendar;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Point = System.Drawing.Point;
 
 namespace JidamVision.Property
 {
@@ -42,7 +44,7 @@ namespace JidamVision.Property
         public event EventHandler<RangeChangedEventArgs> RangeChanged; //HSV임계값 이벤트 추가
         private ColorBlobAlgorithm colorBlobAlgorithm;
 
-        private Point startPoint;
+        private System.Drawing.Point startPoint;
         private Rectangle selectedArea;
         private bool isSelecting = false;
 
@@ -336,6 +338,73 @@ namespace JidamVision.Property
             {
                 cameraForm.AddRoi(inspWindowType);
             }
+        }
+
+        private void ExtractColorFromSelection()
+        {
+            if (selectedArea.Width == 0 || selectedArea.Height == 0)
+                return;
+
+            // 이미지에서 선택된 영역 추출
+            Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
+            Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
+
+            // 영역의 색상 추출
+            Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
+
+            // 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
+            for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
+            {
+                for (int x = selectedArea.Left; x < selectedArea.Right; x++)
+                {
+                    Color pixelColor = selectedBitmap.GetPixel(x, y);
+                    if (IsColorMatch(pixelColor, averageColor))
+                    {
+                        maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
+                    }
+                    else
+                    {
+                        maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
+                    }
+                }
+            }
+
+            // 화면 갱신: 마스크 이미지 갱신
+            pictureBox.Image = maskBitmap;
+        }
+
+        // 평균 색상 계산
+        private Color GetAverageColor(Bitmap bitmap, Rectangle area)
+        {
+            long r = 0, g = 0, b = 0;
+            int pixelCount = 0;
+
+            for (int y = area.Top; y < area.Bottom; y++)
+            {
+                for (int x = area.Left; x < area.Right; x++)
+                {
+                    Color pixelColor = bitmap.GetPixel(x, y);
+                    r += pixelColor.R;
+                    g += pixelColor.G;
+                    b += pixelColor.B;
+                    pixelCount++;
+                }
+            }
+
+            r /= pixelCount;
+            g /= pixelCount;
+            b /= pixelCount;
+
+            return Color.FromArgb((int)r, (int)g, (int)b);
+        }
+
+        // 색상 비교 (상당히 유사한 색상만 선택)
+        private bool IsColorMatch(Color color, Color targetColor)
+        {
+            int tolerance = 30; // 색상 차이를 허용하는 범위
+            return Math.Abs(color.R - targetColor.R) < tolerance &&
+                   Math.Abs(color.G - targetColor.G) < tolerance &&
+                   Math.Abs(color.B - targetColor.B) < tolerance;
         }
 
     }

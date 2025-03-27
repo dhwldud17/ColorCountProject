@@ -148,6 +148,19 @@ namespace JidamVision
 
         }
 
+        //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
+        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        {
+            // 속성값을 이용하여 이진화 임계값 설정
+            int lowerValue = e.LowerValue;
+            int upperValue = e.UpperValue;
+            bool invert = e.Invert;
+            ShowBinaryMode showBinMode = e.ShowBinMode;
+            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+
+
+        }
+
         private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
         {
             //선택된 필터값 PrieviewImage의 ApplyFilter로 보냄
