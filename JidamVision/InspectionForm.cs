@@ -34,7 +34,7 @@ namespace JidamVision
         {
             Color.Red,   // 빨강
             Color.Yellow, // 노랑
-            Color.Blue,  // 파랑
+           // Color.Blue,  // 파랑
             Color.Black // 검정
         };
         public InspectionForm()
@@ -134,10 +134,10 @@ namespace JidamVision
         }
         private void InspectionTimer_Tick(object sender, EventArgs e)
         {
-            currentImageIndex++;
             if (currentImageIndex < receivedImages.Count)
             {
                 StartInspection();
+                currentImageIndex++; // 다음 이미지로 이동
             }
             else
             {
@@ -155,9 +155,13 @@ namespace JidamVision
 
                 // 검사 결과 출력
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
+
+                // ✅ 이미지 색상 검사 추가
+                CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
+
+                // 현재 검사 중인 이미지 UI에 표시
+                ShowImage(currentImageIndex);
             }
-            // ✅ 이미지 색상 검사 추가
-            CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
         // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
@@ -258,8 +262,16 @@ namespace JidamVision
                                                       f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
                                           .ToArray();
 
-                    // 이미지가 있으면 첫 번째 이미지 표시
-                    if (imageFiles.Length > 0)
+                    receivedImages.Clear(); // 기존 이미지 목록 초기화
+
+                    foreach (var imagePath in imageFiles)
+                    {
+                        Mat matImage = Cv2.ImRead(imagePath); // OpenCV로 이미지 읽기
+                        receivedImages.Add(matImage);
+                    }
+
+                    // 첫 번째 이미지 표시
+                    if (receivedImages.Count > 0)
                     {
                         currentImageIndex = 0;
                         ShowImage(currentImageIndex);
