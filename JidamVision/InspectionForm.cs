@@ -61,6 +61,17 @@ namespace JidamVision
             dgvMetric.Columns[0].Name = "이미지 번호";
             dgvMetric.Columns[1].Name = "기준 색상";
             dgvMetric.Columns[2].Name = "검사 결과";
+
+            // 열 크기 자동 조정
+            dgvMetric.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            // 특정 열이 너무 작아지지 않도록 최소 너비 설정
+            dgvMetric.Columns[0].MinimumWidth = 10;  // 이미지 번호
+            dgvMetric.Columns[1].MinimumWidth = 10; // 기준 색상
+            dgvMetric.Columns[2].MinimumWidth = 10; // 검사 결과
+
+            // 행 높이 자동 조정 (필요한 경우)
+            dgvMetric.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
         }
       
         private void InitializeTimers()
@@ -99,24 +110,32 @@ namespace JidamVision
         {
             if (receivedImages.Count > 0)
             {
-                currentImageIndex = 0;
+                //  처음 시작하는 경우만 초기화 (이미 진행된 경우에는 초기화하지 않음)
+                if (!inspectionTimer.Enabled)
+                {
+                    if (currentImageIndex >= receivedImages.Count)
+                    {
+                        // 모든 검사가 완료되었으면 처음부터 다시 시작
+                        currentImageIndex = 0;
+                        totalCount = 0;
+                        goodCount = 0;
+                        faultyCount = 0;
+                        UpdateInspectionResults();
+                    }
 
-                // 시작할 때 개수 초기화
-                totalCount = 0;
-                goodCount = 0;
-                faultyCount = 0;
-                UpdateInspectionResults();
+                    dtpStartTime.Value = DateTime.Now; // 시작 시간 기록
+                }
 
+                // 현재 이미지부터 검사 시작
                 StartInspection();
                 inspectionTimer.Start();
-
-                dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
             }
             else
             {
                 MessageBox.Show("이미지가 없습니다.");
             }
         }
+        //나중에 확인 필요
         private void UpdateInspectionResults()
         {
             rtbTotalnumber.Text = totalCount.ToString();
@@ -153,8 +172,17 @@ namespace JidamVision
                 inspector.SetInspData(receivedImages[currentImageIndex]);
                 bool result = inspector.DoInspect();
 
+                // ✅ 총 검사 개수 증가
+                totalCount++;
+
                 // 검사 결과 출력
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
+
+                // ✅ 이미지 색상 검사 실행
+                CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
+
+                // ✅ UI 업데이트 (총 개수 표시)
+                UpdateInspectionResults();
 
                 // ✅ 이미지 색상 검사 추가
                 CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
@@ -220,6 +248,13 @@ namespace JidamVision
             // 오른쪽 UI 요소들의 X 위치 조정
             int xPos =  this.Width - dgvMetric.Width - margin;
 
+            // DataGridView 크기 자동 조정
+            dgvMetric.Width = this.Width / 4;  // 폼 너비의 1/3 크기로 설정 (조정 가능)
+            dgvMetric.Height = this.Height - 100; // 폼 높이에 맞게 조정
+
+            // DataGridView 위치 조정 (오른쪽 정렬)
+            dgvMetric.Location = new System.Drawing.Point(this.Width - dgvMetric.Width - margin, dgvMetric.Location.Y);
+
             dtpStartTime.Location = new System.Drawing.Point(dtpStartTime.Location.X, dtpStartTime.Location.Y);
             lbStartTime.Location = new System.Drawing.Point(lbStartTime.Location.X, lbStartTime.Location.Y);
             dtpCurrenttime.Location = new System.Drawing.Point(dtpCurrenttime.Location.X, dtpCurrenttime.Location.Y);
@@ -230,14 +265,14 @@ namespace JidamVision
             bntStop.Location = new System.Drawing.Point(xPos- bntStop.Width-30, bntStop.Location.Y);
             rtbTotalnumber.Location = new System.Drawing.Point(xPos- rtbTotalnumber.Width-30, rtbTotalnumber.Location.Y);
             lbTotalnumber.Location = new System.Drawing.Point(xPos - lbTotalnumber.Width - 120, lbTotalnumber.Location.Y);
-            rtbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, rtbGood.Location.Y);
-            lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, lbGood.Location.Y);
-            rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y);
-            lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y);
+            rtbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, rtbGood.Location.Y +5);
+            lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, lbGood.Location.Y + 5);
+            rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y +5);
+            lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y + 5);
             dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
-            rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
-            lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
-            btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
+            rtbPercent.Location = new System.Drawing.Point(xPos - rtbPercent.Width - 30, rtbPercent.Location.Y +10);
+            lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 120, lbPercent.Location.Y +10);
+            btImageLode.Location = new System.Drawing.Point(xPos - btImageLode.Width -30, bntStop.Location.Y + 40);
 
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
             imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
