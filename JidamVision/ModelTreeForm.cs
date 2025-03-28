@@ -29,6 +29,8 @@ namespace JidamVision
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private Label lblWireCount;
+
         private Button btnCountWires;
         public ModelTreeForm()
         {
@@ -53,6 +55,13 @@ namespace JidamVision
             btnCountWires.Enabled = false;  // 초기엔 비활성화
             btnCountWires.Click += BtnCountWires_Click;
             this.Controls.Add(btnCountWires);
+
+            // 전선 개수 표시용 라벨
+            lblWireCount = new Label();
+            lblWireCount.Text = "전선 개수: 0";
+            lblWireCount.Location = new System.Drawing.Point(470, 50);
+            lblWireCount.AutoSize = true;
+            this.Controls.Add(lblWireCount);
 
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
@@ -184,7 +193,7 @@ namespace JidamVision
         private void BtnCountWires_Click(object sender, EventArgs e)
         {
             int count = CountWiresInBaseROI();
-            MessageBox.Show($"감지된 전선 개수: {count}개", "전선 카운트 결과", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            lblWireCount.Text = $"전선 개수: {count}";
         }
 
         private int CountWiresInBaseROI()
