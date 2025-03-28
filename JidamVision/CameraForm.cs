@@ -90,6 +90,7 @@ namespace JidamVision
             return eImageChannel.Color;
         }
 
+
         public void UpdateDisplay(Bitmap bitmap = null)
         {
             if (bitmap == null)
@@ -150,7 +151,7 @@ namespace JidamVision
 
         private void CameraForm_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         #region Select Channel
@@ -179,6 +180,40 @@ namespace JidamVision
             UpdateDisplay();
         }
         #endregion
+
+        // ROI를 가져오는 공통 함수 
+        public bool TryGetROI(out Mat roiImage, out Rect roiRect)
+        {
+            roiImage = null;
+            roiRect = new Rect(); // 기본값
+
+            OpenCvSharp.Mat currentImage = Global.Inst.InspStage.GetMat(0, _currentImageChannel);
+            if (currentImage == null)
+                return false;
+
+            Rectangle roi = imageViewer.GetRoiRect();
+            if (roi.Width == 0 || roi.Height == 0)
+                return false;
+
+            roiRect = new Rect(roi.X, roi.Y, roi.Width, roi.Height);
+            roiImage = new Mat(currentImage, roiRect);
+            return true;
+        }
+
+        /*
+         #SETROI# - <<<ROI 설정 개발>>> 
+        이미지 상에서 ROI(Region of Interest)를 설정하는 기능
+         */
+        private void btnApplyFilter(object sender, EventArgs e)
+        {
+            //#SETROI#2 ROI 모드 토글 설정
+            imageViewer.RoiMode = !imageViewer.RoiMode;
+            imageViewer.Invalidate();
+        }
+
+        /*
+         
+
 
         //#MATCH PROP#14 템플릿 매칭 위치 입력 받는 함수
         public void AddRect(List<Rect> rects)

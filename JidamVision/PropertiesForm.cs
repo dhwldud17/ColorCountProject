@@ -85,16 +85,19 @@ namespace JidamVision
             {
                 case InspectType.InspBinary:
                     BinaryInspProp blobProp = new BinaryInspProp();
+                    blobProp.LoadInspParam();
                     blobProp.RangeChanged += BinaryRangeSlider_RangeChanged;
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
                     ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
+                    colorBlobProp.LoadInspParam();
                     colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
                     _inspProp = colorBlobProp;
                     break;
                 case InspectType.InspFilter:
                     FilterInspProp filterProp = new FilterInspProp();
+                    //filterInspProp.LoadInspParam();
                     filterProp.FilterSelected += FilterSelect_FilterChanged;
                     _inspProp = filterProp;
                     break;
@@ -111,6 +114,7 @@ namespace JidamVision
         {
             LoadOptionControl(inspPropType);
         }
+
         private void ColorRangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
         {
             // 이벤트 인자에서 H, S, V 값과 ShowBinaryMode 값을 가져옴
@@ -121,17 +125,7 @@ namespace JidamVision
 
         }
 
-        public void UpdateColorBinaryImageFilter(int hCenter, int sMin, int vMin, ShowBinaryMode showMode)
-        {
-            this.HCenter = hCenter;
-            this.SMin = sMin;
-            this.VMin = vMin;
-
-            // 여기에 showMode에 따른 추가 로직을 작성할 수 있습니다.
-        }
-
-
-
+        
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void BinaryRangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
@@ -146,18 +140,7 @@ namespace JidamVision
 
         }
 
-        //#COLOR BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
-        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
-        {
-            // 속성값을 이용하여 이진화 임계값 설정
-            int lowerValue = e.LowerValue;
-            int upperValue = e.UpperValue;
-            bool invert = e.Invert;
-            ShowBinaryMode showBinMode = e.ShowBinMode;
-            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
-
-
-        }
+        
 
         private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
         {

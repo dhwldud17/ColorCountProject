@@ -95,7 +95,7 @@ namespace JidamVision.Property
         {
             _selected_effect2 = Convert.ToInt32(select_effect2.SelectedIndex);// 선택된 인덱스를 저장
         }
-
+        
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.grpHSV = new System.Windows.Forms.GroupBox();
+            this.panelColor = new System.Windows.Forms.Panel();
             this.label8 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.hTrackBarUpper = new System.Windows.Forms.TrackBar();
@@ -43,7 +44,6 @@
             this.txtV = new System.Windows.Forms.TextBox();
             this.txtS = new System.Windows.Forms.TextBox();
             this.txtH = new System.Windows.Forms.TextBox();
-            this.panelColorPreview = new System.Windows.Forms.Panel();
             this.btnTeachinColor = new System.Windows.Forms.Button();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -63,6 +63,7 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.select_effect2 = new System.Windows.Forms.ComboBox();
             this.select_effect = new System.Windows.Forms.ComboBox();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarUpper)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBarUpper)).BeginInit();
@@ -75,6 +76,7 @@
             // 
             // grpHSV
             // 
+            this.grpHSV.Controls.Add(this.panelColor);
             this.grpHSV.Controls.Add(this.label8);
             this.grpHSV.Controls.Add(this.label11);
             this.grpHSV.Controls.Add(this.hTrackBarUpper);
@@ -89,7 +91,6 @@
             this.grpHSV.Controls.Add(this.txtV);
             this.grpHSV.Controls.Add(this.txtS);
             this.grpHSV.Controls.Add(this.txtH);
-            this.grpHSV.Controls.Add(this.panelColorPreview);
             this.grpHSV.Controls.Add(this.btnTeachinColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
             this.grpHSV.Controls.Add(this.label10);
@@ -107,24 +108,33 @@
             this.grpHSV.Controls.Add(this.sTrackBarLower);
             this.grpHSV.Location = new System.Drawing.Point(20, 19);
             this.grpHSV.Name = "grpHSV";
-            this.grpHSV.Size = new System.Drawing.Size(483, 729);
+            this.grpHSV.Size = new System.Drawing.Size(483, 564);
             this.grpHSV.TabIndex = 0;
             this.grpHSV.TabStop = false;
             this.grpHSV.Text = "HSV";
             // 
+            // panelColor
+            // 
+            this.panelColor.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.panelColor.Location = new System.Drawing.Point(226, 488);
+            this.panelColor.Name = "panelColor";
+            this.panelColor.Size = new System.Drawing.Size(68, 47);
+            this.panelColor.TabIndex = 39;
+            this.panelColor.Click += new System.EventHandler(this.panelColor_Click);
+            // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(400, 150);
+            this.label8.Location = new System.Drawing.Point(191, 85);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(64, 18);
             this.label8.TabIndex = 38;
-            this.label8.Text = "360.00";
+            this.label8.Text = "128.00";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(100, 139);
+            this.label11.Location = new System.Drawing.Point(284, 85);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(44, 18);
             this.label11.TabIndex = 37;
@@ -132,25 +142,26 @@
             // 
             // hTrackBarUpper
             // 
-            this.hTrackBarUpper.Location = new System.Drawing.Point(103, 99);
-            this.hTrackBarUpper.Maximum = 255;
+            this.hTrackBarUpper.Location = new System.Drawing.Point(284, 13);
+            this.hTrackBarUpper.Maximum = 128;
             this.hTrackBarUpper.Name = "hTrackBarUpper";
-            this.hTrackBarUpper.Size = new System.Drawing.Size(367, 69);
+            this.hTrackBarUpper.Size = new System.Drawing.Size(189, 69);
             this.hTrackBarUpper.TabIndex = 36;
+            this.hTrackBarUpper.Value = 128;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(399, 351);
+            this.label3.Location = new System.Drawing.Point(400, 218);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(64, 18);
             this.label3.TabIndex = 35;
-            this.label3.Text = "360.00";
+            this.label3.Text = "255.00";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(107, 351);
+            this.label5.Location = new System.Drawing.Point(310, 218);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(44, 18);
             this.label5.TabIndex = 34;
@@ -159,16 +170,16 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(398, 534);
+            this.label1.Location = new System.Drawing.Point(405, 341);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 18);
             this.label1.TabIndex = 32;
-            this.label1.Text = "360.00";
+            this.label1.Text = "255.00";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(116, 534);
+            this.label2.Location = new System.Drawing.Point(306, 341);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(44, 18);
             this.label2.TabIndex = 31;
@@ -176,16 +187,17 @@
             // 
             // vTrackBarUpper
             // 
-            this.vTrackBarUpper.Location = new System.Drawing.Point(110, 483);
+            this.vTrackBarUpper.Location = new System.Drawing.Point(289, 278);
             this.vTrackBarUpper.Maximum = 255;
             this.vTrackBarUpper.Name = "vTrackBarUpper";
-            this.vTrackBarUpper.Size = new System.Drawing.Size(367, 69);
+            this.vTrackBarUpper.Size = new System.Drawing.Size(184, 69);
             this.vTrackBarUpper.TabIndex = 30;
+            this.vTrackBarUpper.Value = 255;
             // 
             // chkShowColorBinaryOnly
             // 
             this.chkShowColorBinaryOnly.AutoSize = true;
-            this.chkShowColorBinaryOnly.Location = new System.Drawing.Point(140, 581);
+            this.chkShowColorBinaryOnly.Location = new System.Drawing.Point(141, 406);
             this.chkShowColorBinaryOnly.Name = "chkShowColorBinaryOnly";
             this.chkShowColorBinaryOnly.Size = new System.Drawing.Size(124, 22);
             this.chkShowColorBinaryOnly.TabIndex = 29;
@@ -196,7 +208,7 @@
             // chkInvert
             // 
             this.chkInvert.AutoSize = true;
-            this.chkInvert.Location = new System.Drawing.Point(19, 581);
+            this.chkInvert.Location = new System.Drawing.Point(20, 406);
             this.chkInvert.Name = "chkInvert";
             this.chkInvert.Size = new System.Drawing.Size(70, 22);
             this.chkInvert.TabIndex = 28;
@@ -206,7 +218,7 @@
             // 
             // btnApplyHSV
             // 
-            this.btnApplyHSV.Location = new System.Drawing.Point(328, 609);
+            this.btnApplyHSV.Location = new System.Drawing.Point(329, 434);
             this.btnApplyHSV.Name = "btnApplyHSV";
             this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
             this.btnApplyHSV.TabIndex = 27;
@@ -216,35 +228,28 @@
             // 
             // txtV
             // 
-            this.txtV.Location = new System.Drawing.Point(9, 483);
+            this.txtV.Location = new System.Drawing.Point(5, 333);
             this.txtV.Name = "txtV";
             this.txtV.Size = new System.Drawing.Size(86, 28);
             this.txtV.TabIndex = 26;
             // 
             // txtS
             // 
-            this.txtS.Location = new System.Drawing.Point(9, 270);
+            this.txtS.Location = new System.Drawing.Point(14, 209);
             this.txtS.Name = "txtS";
             this.txtS.Size = new System.Drawing.Size(86, 28);
             this.txtS.TabIndex = 25;
             // 
             // txtH
             // 
-            this.txtH.Location = new System.Drawing.Point(9, 129);
+            this.txtH.Location = new System.Drawing.Point(1, 85);
             this.txtH.Name = "txtH";
             this.txtH.Size = new System.Drawing.Size(88, 28);
             this.txtH.TabIndex = 24;
             // 
-            // panelColorPreview
-            // 
-            this.panelColorPreview.Location = new System.Drawing.Point(223, 663);
-            this.panelColorPreview.Name = "panelColorPreview";
-            this.panelColorPreview.Size = new System.Drawing.Size(72, 40);
-            this.panelColorPreview.TabIndex = 23;
-            // 
             // btnTeachinColor
             // 
-            this.btnTeachinColor.Location = new System.Drawing.Point(19, 663);
+            this.btnTeachinColor.Location = new System.Drawing.Point(20, 488);
             this.btnTeachinColor.Name = "btnTeachinColor";
             this.btnTeachinColor.Size = new System.Drawing.Size(187, 40);
             this.btnTeachinColor.TabIndex = 22;
@@ -255,7 +260,7 @@
             // chkHighlight
             // 
             this.chkHighlight.AutoSize = true;
-            this.chkHighlight.Location = new System.Drawing.Point(19, 609);
+            this.chkHighlight.Location = new System.Drawing.Point(20, 434);
             this.chkHighlight.Name = "chkHighlight";
             this.chkHighlight.Size = new System.Drawing.Size(246, 22);
             this.chkHighlight.TabIndex = 21;
@@ -266,16 +271,16 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(398, 443);
+            this.label10.Location = new System.Drawing.Point(206, 341);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(64, 18);
             this.label10.TabIndex = 18;
-            this.label10.Text = "360.00";
+            this.label10.Text = "255.00";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(116, 443);
+            this.label12.Location = new System.Drawing.Point(99, 341);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(44, 18);
             this.label12.TabIndex = 16;
@@ -284,16 +289,16 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(400, 242);
+            this.label7.Location = new System.Drawing.Point(229, 218);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(64, 18);
             this.label7.TabIndex = 13;
-            this.label7.Text = "360.00";
+            this.label7.Text = "255.00";
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(108, 242);
+            this.label9.Location = new System.Drawing.Point(125, 218);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(44, 18);
             this.label9.TabIndex = 11;
@@ -302,16 +307,16 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(400, 75);
+            this.label6.Location = new System.Drawing.Point(400, 88);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(64, 18);
             this.label6.TabIndex = 8;
-            this.label6.Text = "360.00";
+            this.label6.Text = "128.00";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(100, 64);
+            this.label4.Location = new System.Drawing.Point(102, 85);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(44, 18);
             this.label4.TabIndex = 6;
@@ -319,16 +324,16 @@
             // 
             // vTrackBarLower
             // 
-            this.vTrackBarLower.Location = new System.Drawing.Point(110, 392);
+            this.vTrackBarLower.Location = new System.Drawing.Point(91, 278);
             this.vTrackBarLower.Maximum = 255;
             this.vTrackBarLower.Name = "vTrackBarLower";
-            this.vTrackBarLower.Size = new System.Drawing.Size(367, 69);
+            this.vTrackBarLower.Size = new System.Drawing.Size(169, 69);
             this.vTrackBarLower.TabIndex = 5;
             // 
             // lblValue
             // 
             this.lblValue.AutoSize = true;
-            this.lblValue.Location = new System.Drawing.Point(30, 443);
+            this.lblValue.Location = new System.Drawing.Point(17, 278);
             this.lblValue.Name = "lblValue";
             this.lblValue.Size = new System.Drawing.Size(52, 18);
             this.lblValue.TabIndex = 4;
@@ -337,7 +342,7 @@
             // lblSaturation
             // 
             this.lblSaturation.AutoSize = true;
-            this.lblSaturation.Location = new System.Drawing.Point(6, 221);
+            this.lblSaturation.Location = new System.Drawing.Point(15, 146);
             this.lblSaturation.Name = "lblSaturation";
             this.lblSaturation.Size = new System.Drawing.Size(89, 18);
             this.lblSaturation.TabIndex = 3;
@@ -346,7 +351,7 @@
             // lblHue
             // 
             this.lblHue.AutoSize = true;
-            this.lblHue.Location = new System.Drawing.Point(30, 52);
+            this.lblHue.Location = new System.Drawing.Point(30, 36);
             this.lblHue.Name = "lblHue";
             this.lblHue.Size = new System.Drawing.Size(39, 18);
             this.lblHue.TabIndex = 2;
@@ -354,26 +359,27 @@
             // 
             // sTrackBarUpper
             // 
-            this.sTrackBarUpper.Location = new System.Drawing.Point(109, 279);
+            this.sTrackBarUpper.Location = new System.Drawing.Point(293, 146);
             this.sTrackBarUpper.Maximum = 255;
             this.sTrackBarUpper.Name = "sTrackBarUpper";
-            this.sTrackBarUpper.Size = new System.Drawing.Size(367, 69);
+            this.sTrackBarUpper.Size = new System.Drawing.Size(184, 69);
             this.sTrackBarUpper.TabIndex = 1;
+            this.sTrackBarUpper.Value = 255;
             // 
             // hTrackBarLower
             // 
-            this.hTrackBarLower.Location = new System.Drawing.Point(96, 24);
-            this.hTrackBarLower.Maximum = 255;
+            this.hTrackBarLower.Location = new System.Drawing.Point(106, 13);
+            this.hTrackBarLower.Maximum = 128;
             this.hTrackBarLower.Name = "hTrackBarLower";
-            this.hTrackBarLower.Size = new System.Drawing.Size(367, 69);
+            this.hTrackBarLower.Size = new System.Drawing.Size(159, 69);
             this.hTrackBarLower.TabIndex = 0;
             // 
             // sTrackBarLower
             // 
-            this.sTrackBarLower.Location = new System.Drawing.Point(110, 191);
+            this.sTrackBarLower.Location = new System.Drawing.Point(128, 146);
             this.sTrackBarLower.Maximum = 255;
             this.sTrackBarLower.Name = "sTrackBarLower";
-            this.sTrackBarLower.Size = new System.Drawing.Size(367, 69);
+            this.sTrackBarLower.Size = new System.Drawing.Size(159, 69);
             this.sTrackBarLower.TabIndex = 33;
             // 
             // grpFilter
@@ -381,7 +387,7 @@
             this.grpFilter.Controls.Add(this.btnApply);
             this.grpFilter.Controls.Add(this.select_effect2);
             this.grpFilter.Controls.Add(this.select_effect);
-            this.grpFilter.Location = new System.Drawing.Point(20, 754);
+            this.grpFilter.Location = new System.Drawing.Point(25, 589);
             this.grpFilter.Name = "grpFilter";
             this.grpFilter.Size = new System.Drawing.Size(476, 181);
             this.grpFilter.TabIndex = 1;
@@ -396,7 +402,7 @@
             this.btnApply.TabIndex = 2;
             this.btnApply.Text = "적용";
             this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.btnApply.Click += new System.EventHandler(this.btnApplyFilter_Click);
             // 
             // select_effect2
             // 
@@ -408,6 +414,7 @@
             this.select_effect2.Size = new System.Drawing.Size(121, 26);
             this.select_effect2.TabIndex = 1;
             this.select_effect2.Text = "선택2";
+            this.select_effect2.SelectedIndexChanged += new System.EventHandler(this.select_effect2_SelectedIndexChanged_1);
             // 
             // select_effect
             // 
@@ -445,7 +452,7 @@
         }
 
         #endregion
-
+        private ImageViewCCtrl imageViewer;
         private System.Windows.Forms.GroupBox grpHSV;
         private System.Windows.Forms.TrackBar hTrackBarLower;
         private System.Windows.Forms.Label lblHue;
@@ -460,7 +467,6 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox chkHighlight;
         private System.Windows.Forms.Button btnTeachinColor;
-        private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBarUpper;
         private System.Windows.Forms.TextBox txtV;
         private System.Windows.Forms.TextBox txtS;
@@ -481,5 +487,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TrackBar hTrackBarUpper;
+        private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.Panel panelColor;
     }
 }

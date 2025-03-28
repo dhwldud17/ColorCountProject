@@ -115,7 +115,7 @@ namespace JidamVision
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
-        private bool _isPickColor = false;
+        public bool _isPickColor = false;
         private Rectangle _pickColorRect;
         public ImageViewCCtrl()
         {
