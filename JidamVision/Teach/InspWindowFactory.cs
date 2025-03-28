@@ -53,10 +53,27 @@ namespace JidamVision.Teach
             inspWindow.UID = string.Format("{0}_{1:D6}", prefix, curID);
 
             _windowTypeNo[name] = curID;
-
+            AddInspAlgorithm(inspWindow);
             return inspWindow;
         }
+        private bool AddInspAlgorithm(InspWindow inspWindow)
+        {
+            switch (inspWindow.InspWindowType)
+            {
+                case InspWindowType.Base:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspColorBinary);
+                    break;
+                case InspWindowType.Cabel:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspColorBinary);
+                    break;
+            }
 
+            return true;
+        }
         //타입을 입력하면, 해당 타입의 이름과 UID 이름 반환
         private bool GetWindowName(InspWindowType windowType, out string name, out string prefix)
         {

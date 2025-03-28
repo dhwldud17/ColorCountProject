@@ -23,22 +23,42 @@ namespace JidamVision.Property
     //컬러이진화 하이라이트, 이외에, 이진화 이미지를 보기 위한 옵션
     public enum ShowColorBinaryMode
     {
-        ShowColorBinaryNone = 0,             //컬러이진화 하이라이트 끄기
-        ShowColorBinaryHighlight,            //컬러이진화 하이라이트 보기
-        ShowColorBinaryOnly                  //배경 없이 컬러이진화 이미지만 보기
+        ShowColorBinaryNone = 0, //이진화 컬러 하이라이트 끄기
+        ShowColorBinaryHighlight, //이진화 컬러 하이라이트 보기
+        ShowColorBinary, //이진화 컬러 이미지만 보기
+        ShowColorBinaryOnly //배경 없이 이진화 컬러 이미지만 보기
     }
+
     public partial class ColorBinaryInspProp : UserControl
     {
-        public event EventHandler<RangeChangedEventArgs> ThresholdChanged;
+        public event EventHandler<FilterSelectedEventArgs> FilterSelected;
+        private String _selected_effect;
+        private int _selected_effect2 = -1;
 
-        public int HCenter => hTrackBar.Value;
-        public int SMin => sTrackBar.Value;
-        public int VMin => vTrackBar.Value;
+        public event EventHandler<RangeChangedEventArgs> ThresholdChanged; //이벤트 추가
+      
+        ColorBlobAlgorithm _colorblobAlgo = null;
+        // 속성값을 이용하여 이진화 임계값 설정
+        public int HueValue => hTrackBar.Value; // Hue 값만 설정
+        public int SatValue => sTrackBar.Value; // Saturation 값만 설정
+        public int ValValue => vTrackBar.Value; // Value 값만 설정
         public ColorBinaryInspProp()
         {
             InitializeComponent();
         }
 
+        public void SetAlgorithm(ColorBlobAlgorithm colorblobAlgo)
+        {
+            _colorblobAlgo = colorblobAlgo;
+            SetProperty();
+        }
+        public void SetProperty()
+        {
+           
+
+
+            UpdateColorBinary();
+        }
         //#BIN PROP# 이진화 검사 속성값을 GUI에 설정
         public void LoadInspParam()
         {
@@ -47,36 +67,19 @@ namespace JidamVision.Property
             sTrackBar.ValueChanged += OnValueChanged;
             vTrackBar.ValueChanged += OnValueChanged;
 
+            //초기설정 
             hTrackBar.Value = 0;
             sTrackBar.Value = 0;
             vTrackBar.Value = 0;
-
-
-            //#BINARY FILTER#8 이진화 필터값을 GUI에 로딩
-            //InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            //if (inspWindow != null)
-            //{
-            //    //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
-            //    BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
-            //    if (blobAlgo != null)
-            //    {
-            //        int filterArea = blobAlgo.AreaFilter;
-            //        // HSV 값에 대응하는 텍스트박스 추가
-            //        txtH.Text = HCenter.ToString();
-            //        txtS.Text = SMin.ToString();
-            //        txtV.Text = VMin.ToString();
-            //    }
-            //}
+    
+          
         }
 
         // 트랙바 값이 바뀔 때 텍스트박스도 업데이트
         private void OnValueChanged(object sender, EventArgs e)
         {
-            txtH.Text = hTrackBar.Value.ToString();
-            txtS.Text = sTrackBar.Value.ToString();
-            txtV.Text = vTrackBar.Value.ToString();
-
             UpdateColorBinary();
+           
         }
         private void chkHighlight_CheckedChanged(object sender, EventArgs e)
         {
@@ -87,8 +90,7 @@ namespace JidamVision.Property
         {
             bool highlight = chkHighlight.Checked;
             ShowColorBinaryMode showMode = highlight ? ShowColorBinaryMode.ShowColorBinaryHighlight : ShowColorBinaryMode.ShowColorBinaryNone;
-
-            ThresholdChanged?.Invoke(this, new RangeChangedEventArgs(HCenter, SMin, VMin, showMode));
+ 
         }
 
         //버튼 클릭 시 색 선택하는 코드
@@ -127,17 +129,18 @@ namespace JidamVision.Property
         //컬러 이진화 관련 이벤트 발생시, 전달할 값 추가
         public class RangeChangedEventArgs : EventArgs
         {
-            public int HCenter { get; }
-            public int SMin { get; }
-            public int VMin { get; }
-
+            public int Hue { get; }
+            public int Sat { get; }
+            public int Val { get; }
+            public bool Invert { get; }
             public ShowColorBinaryMode ShowColorBinMode { get; }
 
-            public RangeChangedEventArgs(int hCenter, int sMin, int vMin, ShowColorBinaryMode showColorBinaryMode)
+            public RangeChangedEventArgs(int hue, int sat, int val, bool invert, ShowColorBinaryMode showColorBinaryMode)
             {
-                HCenter = hCenter;
-                SMin = sMin;
-                VMin = vMin;
+                Hue = hue;
+                Sat = sat;
+                Val = val;
+                Invert = invert;
                 ShowColorBinMode = showColorBinaryMode;
             }
         }

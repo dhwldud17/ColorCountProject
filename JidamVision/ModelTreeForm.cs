@@ -63,6 +63,17 @@ namespace JidamVision
             _contextMenu.Items.Add(addBaseRoiItem);
             _contextMenu.Items.Add(addCabelRoiItem);
 
+
+
+
+
+
+
+
+
+
+
+
         }
 
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)

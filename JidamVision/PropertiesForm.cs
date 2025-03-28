@@ -149,22 +149,30 @@ namespace JidamVision
                 {
                     UserControl uc = tabPage.Controls[0] as UserControl;
 
-                    //if (uc is MatchInspProp matchProp)
-                    //{
-                    //    MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
-                    //    if (matchAlgo is null)
-                    //        continue;
+                    if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
 
-                    //    matchProp.SetAlgorithm(matchAlgo);
-                    //}
-                    //else if (uc is BinaryInspProp binaryProp)
-                    //{
-                    //    BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
-                    //    if (blobAlgo is null)
-                    //        continue;
+                        matchProp.SetAlgorithm(matchAlgo);
+                    }
+                    else if (uc is BinaryInspProp binaryProp)
+                    {
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
 
-                    //    binaryProp.SetAlgorithm(blobAlgo);
-                    //}
+                        binaryProp.SetAlgorithm(blobAlgo);
+                    }
+                    else if(uc is ColorBinaryInspProp colorBinProp)
+                    {
+                        ColorBlobAlgorithm colorBlobAlgo = (ColorBlobAlgorithm)window.FindInspAlgorithm(InspectType.InspColorBinary);
+                        if (colorBlobAlgo is null)
+                            continue;
+                        colorBinProp.SetAlgorithm(colorBlobAlgo);
+                    }
+                   
                 }
             }
         }

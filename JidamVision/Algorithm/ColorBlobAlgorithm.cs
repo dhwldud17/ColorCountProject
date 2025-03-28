@@ -57,7 +57,7 @@ namespace JidamVision.Algorithm
             _colorRange.upper = new Scalar(hCenter + 10, sMin + 50, vMin + 50);
             _colorRange.invert = false; // 필요시 반전 여부 설정
         }
-
+        
         public override bool DoInspect()
         {
             IsInspected = false;
