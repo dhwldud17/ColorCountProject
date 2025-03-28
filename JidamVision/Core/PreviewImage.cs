@@ -57,11 +57,27 @@ namespace JidamVision.Core
         private Mat _orinalImage = null;
         private Mat _previewImage = null;
         private InspWindow _inspWindow = null;
+        private bool _usePreview = false;
 
         public void SetImage(Mat image)
         {
             _orinalImage = image;
             _previewImage = new Mat();
+        }
+
+        public void SetPreview(bool usePreview)
+        {
+            _usePreview = usePreview;
+            if (usePreview == false)
+            {
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm == null)
+                    return;
+
+                Bitmap bmpImage = BitmapConverter.ToBitmap(_orinalImage);
+                cameraForm.UpdateDisplay(bmpImage);
+                return;
+            }
         }
 
         public void SetInspWindow(InspWindow inspwindow)
@@ -72,6 +88,9 @@ namespace JidamVision.Core
         //#BINARY FILTER#15 기존 이진화 프리뷰에, 배경없이 이진화 이미지만 보이는 모드 추가
         public void SetBinary(int lowerValue, int upperValue, bool invert, ShowBinaryMode showBinMode)
         {
+            if (_usePreview == false)
+                return;
+
             if (_orinalImage == null)
                 return;
 

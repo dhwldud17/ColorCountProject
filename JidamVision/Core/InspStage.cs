@@ -541,7 +541,7 @@ namespace JidamVision.Core
                 return false;
             }
 
-            string inspImagePath = _model.InspectImagePath;
+           string inspImagePath = _model.InspectImagePath;
             if (File.Exists(inspImagePath))
             {
                 Global.Inst.InspStage.SetImageBuffer(inspImagePath);

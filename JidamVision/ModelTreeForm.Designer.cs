@@ -33,9 +33,10 @@
             // 
             // tvModelTree
             // 
-            this.tvModelTree.Location = new System.Drawing.Point(13, 13);
+            this.tvModelTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvModelTree.Location = new System.Drawing.Point(0, 0);
             this.tvModelTree.Name = "tvModelTree";
-            this.tvModelTree.Size = new System.Drawing.Size(345, 283);
+            this.tvModelTree.Size = new System.Drawing.Size(370, 308);
             this.tvModelTree.TabIndex = 0;
             this.tvModelTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvModelTree_MouseDown);
             // 

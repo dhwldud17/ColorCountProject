@@ -55,11 +55,19 @@ namespace JidamVision.Property
             trackBarLower.ValueChanged += OnValueChanged;
             trackBarUpper.ValueChanged += OnValueChanged;
 
-            txtArea.Leave += OnAreaLeave;
+            txtAreaMin.Leave += OnFilterChanged;
+            txtAreaMax.Leave += OnFilterChanged;
+
+            txtWidthMin.Leave += OnFilterChanged;
+            txtWidthMax.Leave += OnFilterChanged;
+
+            txtHeightMin.Leave += OnFilterChanged;
+            txtHeightMax.Leave += OnFilterChanged;
+
+            txtCount.Leave += OnFilterChanged;
 
             trackBarLower.Value = 0;
             trackBarUpper.Value = 128;
-
         }
 
         public void SetAlgorithm(BlobAlgorithm blobAlgo)
@@ -78,8 +86,13 @@ namespace JidamVision.Property
             trackBarUpper.Value = threshold.upper;
             chkInvert.Checked = threshold.invert;
 
-            int filterArea = _blobAlgo.AreaFilter;
-            txtArea.Text = filterArea.ToString();
+            txtAreaMin.Text = _blobAlgo.AreaMin.ToString();
+            txtAreaMax.Text = _blobAlgo.AreaMax.ToString();
+            txtWidthMin.Text = _blobAlgo.WidthMin.ToString();
+            txtWidthMax.Text = _blobAlgo.WidthMax.ToString();
+            txtHeightMin.Text = _blobAlgo.HeightMin.ToString();
+            txtHeightMax.Text = _blobAlgo.HeightMax.ToString();
+            txtCount.Text = _blobAlgo.BlobCount.ToString();
         }
 
         public void GetProperty()
@@ -94,10 +107,43 @@ namespace JidamVision.Property
 
             _blobAlgo.BinThreshold = threshold;
 
-            if (txtArea.Text != "")
+            if (txtAreaMin.Text != "")
             {
-                int filterArea = int.Parse(txtArea.Text);
-                _blobAlgo.AreaFilter = filterArea;
+                int areaMin = int.Parse(txtAreaMin.Text);
+                _blobAlgo.AreaMin = areaMin;
+            }
+            if (txtAreaMax.Text != "")
+            {
+                int areaMax = int.Parse(txtAreaMax.Text);
+                _blobAlgo.AreaMax = areaMax;
+            }
+
+            if (txtWidthMin.Text != "")
+            {
+                int widthMin = int.Parse(txtWidthMin.Text);
+                _blobAlgo.WidthMin = widthMin;
+            }
+            if (txtWidthMax.Text != "")
+            {
+                int widthMax = int.Parse(txtWidthMax.Text);
+                _blobAlgo.WidthMax = widthMax;
+            }
+
+            if (txtHeightMin.Text != "")
+            {
+                int heightMin = int.Parse(txtHeightMin.Text);
+                _blobAlgo.HeightMin = heightMin;
+            }
+            if (txtHeightMax.Text != "")
+            {
+                int heightMax = int.Parse(txtHeightMax.Text);
+                _blobAlgo.HeightMax = heightMax;
+            }
+
+            if (txtCount.Text != "")
+            {
+                int blobCount = int.Parse(txtCount.Text);
+                _blobAlgo.BlobCount = blobCount;
             }
         }
 
@@ -144,20 +190,75 @@ namespace JidamVision.Property
             UpdateBinary();
         }
 
-        private void OnAreaLeave(object sender, EventArgs e)
+        private void OnFilterChanged(object sender, EventArgs e)
         {
             if (_blobAlgo == null)
                 return;
 
-            if (int.TryParse(txtArea.Text, out int area))
+            if (int.TryParse(txtAreaMin.Text, out int areaMin))
             {
-                _blobAlgo.AreaFilter = area;
+                _blobAlgo.AreaMin = areaMin;
                 PropertyChanged?.Invoke(this, null);
             }
             else
             {
                 MessageBox.Show("숫자만 입력 가능합니다.");
-                txtArea.Text = _blobAlgo.AreaFilter.ToString(); // 기존 값 복원
+                txtAreaMin.Text = _blobAlgo.AreaMin.ToString(); // 기존 값 복원
+            }
+
+            if (int.TryParse(txtAreaMax.Text, out int areaMax))
+            {
+                _blobAlgo.AreaMax = areaMax;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtAreaMax.Text = _blobAlgo.AreaMax.ToString(); // 기존 값 복원
+            }
+
+            if (int.TryParse(txtWidthMin.Text, out int widthMin))
+            {
+                _blobAlgo.WidthMin = widthMin;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtWidthMin.Text = _blobAlgo.WidthMin.ToString(); // 기존 값 복원
+            }
+
+            if (int.TryParse(txtWidthMax.Text, out int widthMax))
+            {
+                _blobAlgo.WidthMax = widthMax;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtWidthMax.Text = _blobAlgo.WidthMax.ToString(); // 기존 값 복원
+            }
+
+            if (int.TryParse(txtHeightMin.Text, out int heightMin))
+            {
+                _blobAlgo.HeightMin = heightMin;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtHeightMin.Text = _blobAlgo.HeightMin.ToString(); // 기존 값 복원
+            }
+
+            if (int.TryParse(txtHeightMax.Text, out int heightMax))
+            {
+                _blobAlgo.HeightMax = heightMax;
+                PropertyChanged?.Invoke(this, null);
+            }
+            else
+            {
+                MessageBox.Show("숫자만 입력 가능합니다.");
+                txtHeightMax.Text = _blobAlgo.HeightMax.ToString(); // 기존 값 복원
             }
         }
     }

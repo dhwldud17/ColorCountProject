@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace JidamVision.Core
 {
+    public enum MachineType
+    {
+        None = 0,
+        SMT,
+        PCB,
+        CABLE
+    }
+
     //#MODEL#1 InspWindowType 정의
     public enum InspWindowType
     {

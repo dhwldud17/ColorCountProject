@@ -261,18 +261,10 @@ namespace JidamVision
                 saveFileDialog.Title = "모델 파일 선택";
                 saveFileDialog.Filter = "Model Files|*.xml;";
                 saveFileDialog.DefaultExt = "xml";
-                saveFileDialog.AddExtension = true; // 자동 확장자 추가 옵션 활성화
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = saveFileDialog.FileName;
-
-                    // 사용자가 .xml을 포함해서 입력했는지 확인
-                    if (Path.GetExtension(filePath).ToLower() != ".xml")
-                    {
-                        filePath += ".xml"; // 확장자가 없으면 .xml 추가
-                    }
-
                     Global.Inst.InspStage.SaveModel(filePath);
                 }
             }
@@ -289,6 +281,7 @@ namespace JidamVision
                 {
                     string filePath = openFileDialog.FileName;
                     Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
                 }
             }
         }
@@ -316,10 +309,11 @@ namespace JidamVision
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            Global.Inst.Dispose();
 
+            this.FormClosed -= MainForm_FormClosed;
         }
 
         private void tabPage3_Click(object sender, EventArgs e)

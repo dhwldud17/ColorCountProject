@@ -1,16 +1,21 @@
 ﻿using JidamVision.Algorithm;
 using JidamVision.Core;
 using JidamVision.Teach;
+using JidamVision.Util;
 using OpenCvSharp;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using static JidamVision.Core.ImageSpace;
 
 namespace JidamVision.Inspect
-{ 
+{
     /*
     #INSP WORKER# - <<<검사 알고리즘 통합 및 검사 관리 클래스 추가>>> 
     검사 관리 클래스 : 전체 검사 또는 개별 검사 동작
@@ -20,29 +25,106 @@ namespace JidamVision.Inspect
     //검사 관련 처리 클래스
     public class InspWorker
     {
+        private readonly ConcurrentQueue<InspWindow> _jobQueue = new ConcurrentQueue<InspWindow>();
+        private readonly List<Task> _workerTasks = new List<Task>();
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private int _threadCount = 1;
+        private SynchronizationContext _uiContext;
+
+        private InspectBoard _inspectBoard = new InspectBoard();
+
+        public InspWorker(int threadCount)
+        {
+            _threadCount = threadCount;
+        }
+
         public InspWorker()
         {
+        }
+
+        public void AddJob(InspWindow job)
+        {
+            _jobQueue.Enqueue(job);
+        }
+
+        public void StartAsync()
+        {
+            _cts = new CancellationTokenSource();
+
+            for (int i = 0; i < _threadCount; i++)
+            {
+                var task = Task.Run(() => DoWork(_cts.Token));
+                _workerTasks.Add(task);
+            }
+        }
+        public void Stop()
+        {
+            _cts.Cancel();
+            Task.WaitAll(_workerTasks.ToArray());
+            _workerTasks.Clear();
+        }
+
+        private void DoWork(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                if (_jobQueue.TryDequeue(out var inspWindow))
+                {
+                    RunInspWindow(inspWindow);
+                }
+                else
+                {
+                    Thread.Sleep(10); // 잠깐 대기
+                }
+            }
+        }
+
+        private void RunInspWindow(InspWindow inspWindow)
+        {
+            if (inspWindow == null)
+                return;
+
+            if (!UpdateInspData(inspWindow))
+                return;
+
+            inspWindow.DoInpsect(InspectType.InspNone);
+        }
+
+        public void StartCycleInspectImage()
+        {
+            _cts = new CancellationTokenSource();
+            _uiContext = SynchronizationContext.Current;
+
+            Task.Run(() => InspectionLoop(this, _cts.Token));
+        }
+
+        private void InspectionLoop(InspWorker inspWorker, CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Global.Inst.InspStage.OneCycle();
+
+                //Thread.Sleep(200); // 주기 설정
+            }
         }
 
         //#INSP WORKER#2 InspStage내의 모든 InspWindow들을 검사하는 함수
         public bool RunInspect()
         {
-            List<InspWindow> inspWindowList = Global.Inst.InspStage.InspWindowList;
+            Model curMode = Global.Inst.InspStage.CurModel;
+            List<InspWindow> inspWindowList = curMode.InspWindowList;
             foreach (var inspWindow in inspWindowList)
             {
                 if (inspWindow is null)
                     continue;
 
-                List<InspAlgorithm> inspAlgorithmList = inspWindow.AlgorithmList;
-                foreach (var algorithm in inspAlgorithmList)
-                {
-                    UpdateInspData(algorithm);
-                }
+                UpdateInspData(inspWindow);
             }
+
+            _inspectBoard.InspectWindowList(inspWindowList);
 
             foreach (var inspWindow in inspWindowList)
             {
-                inspWindow.DoInpsect(InspectType.InspNone);
                 DisplayResult(inspWindow, InspectType.InspNone);
             }
 
@@ -53,60 +135,86 @@ namespace JidamVision.Inspect
         //inspType이 있다면 그것만을 검사하고, 없다면 InpsWindow내의 모든 알고리즘 검사
         public bool TryInspect(InspWindow inspObj, InspectType inspType)
         {
-            if (inspObj is null)
-                return false;
+            if (inspObj != null)
+            {
+                if (!UpdateInspData(inspObj))
+                    return false;
 
-            InspAlgorithm inspAlgo = inspObj.FindInspAlgorithm(inspType);
-            if (inspAlgo is null)
-                return false;
+                _inspectBoard.Inspect(inspObj);
 
-            if (!UpdateInspData(inspAlgo))
-                return false;
+                DisplayResult(inspObj, inspType);
+            }
+            else
+            {
+                RunInspect();
+            }
 
-            if(!inspObj.DoInpsect(inspType))
-                return false;
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            if (resultForm != null)
+            {
+                if (inspObj != null)
+                    resultForm.AddWindowResult(inspObj);
+                else
+                {
+                    Model curMode = Global.Inst.InspStage.CurModel;
+                    resultForm.AddModelResult(curMode);
+                }
+            }
 
-            DisplayResult(inspObj, inspType);
             return true;
         }
 
         //#INSP WORKER#3 각 알고리즘 타입 별로 검사에 필요한 데이터를 입력하는 함수
-        private bool UpdateInspData(InspAlgorithm inspAlgo)
+        private bool UpdateInspData(InspWindow inspWindow)
         {
-            InspectType inspType = inspAlgo.InspectType;
+            if (inspWindow is null)
+                return false;
 
-            switch (inspType)
+            Rect windowArea = inspWindow.WindowArea;
+
+            inspWindow.PatternLearn();
+
+            foreach (var inspAlgo in inspWindow.AlgorithmList)
             {
-                case InspectType.InspBinary:
-                    {
-                        BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
+                //검사 영역 초기화
+                inspAlgo.TeachRect = windowArea;
+                inspAlgo.InspRect = windowArea;
 
-                        Mat srcImage = Global.Inst.InspStage.GetMat();
-                        blobAlgo.SetInspData(srcImage);
-                        break;
-                    }
-                case InspectType.InspColorBinary:
-                    {
-                        BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
+                InspectType inspType = inspAlgo.InspectType;
 
-                        Mat srcImage = Global.Inst.InspStage.GetMat();
-                        blobAlgo.SetInspData(srcImage);
-                        break;
-                    }
+                switch (inspType)
+                {
+                    case InspectType.InspBinary:
+                        {
+                            BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
 
-                //case InspectType.InspMatch:
-                //    {
-                //        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, blobAlgo.ImageChannel);
+                            blobAlgo.SetInspData(srcImage);
+                            break;
+                        }
 
-                //        Mat srcImage = Global.Inst.InspStage.GetMat();
-                //        matchAlgo.SetInspData(srcImage);
-                //        break;
-                //    }
-                default:
-                    {
-                        Console.WriteLine($"Not support inspection type : %s", inspType.ToString());
-                        return false;
-                    }
+                    //case InspectType.InspMatch:
+                    //    {
+                    //        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+
+                    //        Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
+                    //        matchAlgo.SetInspData(srcImage);
+                    //        break;
+                    //     }
+                    case InspectType.InspColorBinary:
+                        {
+                           ColorBlobAlgorithm ColorAlgo = (ColorBlobAlgorithm)inspAlgo;
+
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, ColorAlgo.ImageChannel);
+                            ColorAlgo.SetInspData(srcImage);
+                            break;
+                        }
+                    default:
+                        {
+                            SLogger.Write($"Not support inspection type : {inspType}", SLogger.LogType.Error);
+                            return false;
+                        }
+                }
             }
 
             return true;
@@ -116,7 +224,7 @@ namespace JidamVision.Inspect
         //인자가 None이면 모든 알고리즘의 검사 결과(Rect 영역)를 얻어, cameraForm에 출력한다.
         private bool DisplayResult(InspWindow inspObj, InspectType inspType)
         {
-            if(inspObj is null)
+            if (inspObj is null)
                 return false;
 
             List<Rect> totalArea = new List<Rect>();
@@ -124,7 +232,7 @@ namespace JidamVision.Inspect
             List<InspAlgorithm> inspAlgorithmList = inspObj.AlgorithmList;
             foreach (var algorithm in inspAlgorithmList)
             {
-                if (algorithm.InspectType != inspType && algorithm.InspectType != InspectType.InspNone)
+                if (algorithm.InspectType != inspType && inspType != InspectType.InspNone)
                     continue;
 
                 List<Rect> resultArea = new List<Rect>();
@@ -134,7 +242,7 @@ namespace JidamVision.Inspect
                     totalArea.AddRange(resultArea);
                 }
             }
-            
+
             if (totalArea.Count > 0)
             {
                 //찾은 위치를 이미지상에서 표시

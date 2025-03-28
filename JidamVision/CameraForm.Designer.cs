@@ -37,15 +37,17 @@
             this.rbtnBlueChannel = new System.Windows.Forms.RadioButton();
             this.rbtnRedChannel = new System.Windows.Forms.RadioButton();
             this.btnInspect = new System.Windows.Forms.Button();
-            this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.btnStop = new System.Windows.Forms.Button();
             this.chkCycle = new System.Windows.Forms.CheckBox();
+            this.chkPreview = new System.Windows.Forms.CheckBox();
+            this.chkShowROI = new System.Windows.Forms.CheckBox();
+            this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnGrab
             // 
-            this.btnGrab.Location = new System.Drawing.Point(350, 12);
+            this.btnGrab.Location = new System.Drawing.Point(388, 12);
             this.btnGrab.Name = "btnGrab";
             this.btnGrab.Size = new System.Drawing.Size(75, 23);
             this.btnGrab.TabIndex = 1;
@@ -55,7 +57,7 @@
             // 
             // btnLive
             // 
-            this.btnLive.Location = new System.Drawing.Point(350, 41);
+            this.btnLive.Location = new System.Drawing.Point(388, 41);
             this.btnLive.Name = "btnLive";
             this.btnLive.Size = new System.Drawing.Size(75, 23);
             this.btnLive.TabIndex = 3;
@@ -70,7 +72,7 @@
             this.groupBox1.Controls.Add(this.rbtnGreenChannel);
             this.groupBox1.Controls.Add(this.rbtnBlueChannel);
             this.groupBox1.Controls.Add(this.rbtnRedChannel);
-            this.groupBox1.Location = new System.Drawing.Point(351, 162);
+            this.groupBox1.Location = new System.Drawing.Point(389, 209);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
@@ -144,7 +146,7 @@
             // 
             // btnInspect
             // 
-            this.btnInspect.Location = new System.Drawing.Point(350, 70);
+            this.btnInspect.Location = new System.Drawing.Point(388, 70);
             this.btnInspect.Name = "btnInspect";
             this.btnInspect.Size = new System.Drawing.Size(75, 24);
             this.btnInspect.TabIndex = 6;
@@ -152,20 +154,9 @@
             this.btnInspect.UseVisualStyleBackColor = true;
             this.btnInspect.Click += new System.EventHandler(this.btnInspect_Click);
             // 
-            // imageViewer
-            // 
-            this.imageViewer.AutoSize = true;
-            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewer.Location = new System.Drawing.Point(12, 12);
-            this.imageViewer.Margin = new System.Windows.Forms.Padding(4);
-            this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(332, 272);
-            this.imageViewer.TabIndex = 2;
-            // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(350, 100);
+            this.btnStop.Location = new System.Drawing.Point(388, 100);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 27);
             this.btnStop.TabIndex = 7;
@@ -176,18 +167,55 @@
             // chkCycle
             // 
             this.chkCycle.AutoSize = true;
-            this.chkCycle.Location = new System.Drawing.Point(350, 133);
+            this.chkCycle.Location = new System.Drawing.Point(389, 133);
             this.chkCycle.Name = "chkCycle";
             this.chkCycle.Size = new System.Drawing.Size(57, 16);
             this.chkCycle.TabIndex = 8;
             this.chkCycle.Text = "Cycle";
             this.chkCycle.UseVisualStyleBackColor = true;
             // 
+            // chkPreview
+            // 
+            this.chkPreview.AutoSize = true;
+            this.chkPreview.Location = new System.Drawing.Point(388, 155);
+            this.chkPreview.Name = "chkPreview";
+            this.chkPreview.Size = new System.Drawing.Size(69, 16);
+            this.chkPreview.TabIndex = 9;
+            this.chkPreview.Text = "Preview";
+            this.chkPreview.UseVisualStyleBackColor = true;
+            this.chkPreview.CheckedChanged += new System.EventHandler(this.chkPreview_CheckedChanged);
+            // 
+            // chkShowROI
+            // 
+            this.chkShowROI.AutoSize = true;
+            this.chkShowROI.Checked = true;
+            this.chkShowROI.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkShowROI.Location = new System.Drawing.Point(388, 177);
+            this.chkShowROI.Name = "chkShowROI";
+            this.chkShowROI.Size = new System.Drawing.Size(80, 16);
+            this.chkShowROI.TabIndex = 9;
+            this.chkShowROI.Text = "Show ROI";
+            this.chkShowROI.UseVisualStyleBackColor = true;
+            this.chkShowROI.CheckedChanged += new System.EventHandler(this.chkShowROI_CheckedChanged);
+            // 
+            // imageViewer
+            // 
+            this.imageViewer.AutoSize = true;
+            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewer.Location = new System.Drawing.Point(12, 12);
+            this.imageViewer.Margin = new System.Windows.Forms.Padding(4);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(369, 319);
+            this.imageViewer.TabIndex = 2;
+            // 
             // CameraForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(432, 291);
+            this.ClientSize = new System.Drawing.Size(473, 342);
+            this.Controls.Add(this.chkShowROI);
+            this.Controls.Add(this.chkPreview);
             this.Controls.Add(this.chkCycle);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnInspect);
@@ -219,5 +247,7 @@
         private System.Windows.Forms.RadioButton rbtnColor;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.CheckBox chkCycle;
+        private System.Windows.Forms.CheckBox chkPreview;
+        private System.Windows.Forms.CheckBox chkShowROI;
     }
 }

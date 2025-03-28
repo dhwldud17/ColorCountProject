@@ -26,7 +26,6 @@ namespace JidamVision.Teach
 
         public InspWindowType InspWindowType { get; set; }
 
-
         //#MODEL SAVE#5 모델 저장을 위한 Serialize를 위해서, prvate set -> set으로 변경
         //public string Name {  get; private set; }
         public string Name { get; set; }
@@ -59,50 +58,49 @@ namespace JidamVision.Teach
 
         public InspWindow()
         {
-            //#ABSTRACT ALGORITHM#13 매칭 알고리즘과 이진화 알고리즘 추가
-            //AddInspAlgorithm(InspectType.InspMatch);
-            AddInspAlgorithm(InspectType.InspBinary);
-            AddInspAlgorithm(InspectType.InspColorBinary);
         }
 
         public InspWindow(InspWindowType windowType, string name)
         {
             InspWindowType = windowType;
             Name = name;
-           // AddInspAlgorithm(InspectType.InspMatch);
-            AddInspAlgorithm(InspectType.InspBinary);
-            AddInspAlgorithm(InspectType.InspColorBinary);
         }
 
         public bool SetTeachingImage(Mat image, System.Drawing.Rectangle rect)
         {
-            _rect = rect;
             _teachingImage = new Mat(image, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
             return true;
         }
 
-        ////#MATCH PROP#4 템플릿 매칭 이미지 로딩
-        //public bool PatternLearn()
-        //{
-        //    foreach (var algorithm in AlgorithmList)
-        //    {
-        //        if (algorithm.InspectType != InspectType.InspMatch)
-        //            continue;
+        //#MATCH PROP#4 템플릿 매칭 이미지 로딩
+        public bool PatternLearn()
+        {
+            if (IsPatternLearn == true)
+                return true;
 
-        //        MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
+            foreach (var algorithm in AlgorithmList)
+            {
+                if (algorithm.InspectType != InspectType.InspMatch)
+                    continue;
 
-        //        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
-        //        if (File.Exists(templatePath))
-        //        {
-        //            _teachingImage = Cv2.ImRead(templatePath);
+                MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
 
-        //            if (_teachingImage != null)
-        //                matchAlgo.SetTemplateImage(_teachingImage);
-        //        }
-        //    }
+                if (WindowImage != null)
+                {
+                    Mat tempImage = new Mat();
+                    if (WindowImage.Type() == MatType.CV_8UC3)
+                        Cv2.CvtColor(WindowImage, tempImage, ColorConversionCodes.BGR2GRAY);
+                    else
+                        tempImage = WindowImage;
 
-        //    return true;
-        //}
+                    matchAlgo.SetTemplateImage(tempImage);
+                }
+            }
+
+            IsPatternLearn = true;
+
+            return true;
+        }
 
         //#ABSTRACT ALGORITHM#10 타입에 따라 알고리즘을 추가하는 함수
         public bool AddInspAlgorithm(InspectType inspType)
@@ -114,12 +112,9 @@ namespace JidamVision.Teach
                 case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
                     break;
-                case InspectType.InspColorBinary:
-                    inspAlgo = new BlobAlgorithm();
+                case InspectType.InspMatch:
+                    inspAlgo = new MatchAlgorithm();
                     break;
-                    //case InspectType.InspMatch:
-                    //    inspAlgo = new MatchAlgorithm();
-                    //    break;
             }
 
             if (inspAlgo is null)
@@ -134,13 +129,6 @@ namespace JidamVision.Teach
         //#ABSTRACT ALGORITHM#11 알고리즘을 리스트로 관리하므로, 필요한 타입의 알고리즘을 찾는 함수
         public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
-            //foreach (var algorithm in AlgorithmList)
-            //{
-            //    if (algorithm.InspectType == inspType)
-            //        return algorithm;
-            //}
-            //return null;
-
             return AlgorithmList.Find(algo => algo.InspectType == inspType);
         }
 

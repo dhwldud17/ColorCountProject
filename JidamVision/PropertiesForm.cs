@@ -39,10 +39,7 @@ namespace JidamVision
 
     public partial class PropertiesForm : DockContent
     {
-        // HSV 임계값 추가
-        public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
-        public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
-        public int VMin { get; set; } = 50;    // 최소 명도 (Value)
+        Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
 
         public PropertiesForm()
         {
@@ -58,10 +55,14 @@ namespace JidamVision
             foreach (TabPage tabPage in tabPropControl.TabPages)
             {
                 if (tabPage.Text == tabName)
-                {
-                    tabPropControl.SelectedTab = tabPage;
                     return;
-                }
+            }
+
+            // 딕셔너리에 있으면 추가
+            if (_allTabs.TryGetValue(tabName, out TabPage page))
+            {
+                tabPropControl.TabPages.Add(page);
+                return;
             }
 
             // 새로운 UserControl 생성
@@ -78,6 +79,8 @@ namespace JidamVision
             newTab.Controls.Add(_inspProp);
             tabPropControl.TabPages.Add(newTab);
             tabPropControl.SelectedTab = newTab; // 새 탭 선택
+
+            _allTabs[tabName] = newTab;
         }
 
         //#PANEL TO TAB#2 속성탭 타입에 맞게 UseControl 생성하여 반환
@@ -95,7 +98,7 @@ namespace JidamVision
                 case InspectType.InspColorBinary:
                     ColorBinaryInspProp colorBinProp = new ColorBinaryInspProp();
                     colorBinProp.LoadInspParam();
-                    colorBinProp.ThresholdChanged += RangeSlider_RangeChanged;
+                    //colorBinProp.ThresholdChanged += RangeSlider_RangeChanged;
                     _inspProp = colorBinProp;
                     break;
                 case InspectType.InspFilter:
@@ -110,8 +113,7 @@ namespace JidamVision
             }
             return _inspProp;
         }
-
-
+        
         public void ShowProperty(InspWindow window)
         {
             foreach (InspAlgorithm algo in window.AlgorithmList)
@@ -131,26 +133,9 @@ namespace JidamVision
         {
             LoadOptionControl(inspPropType);
         }
-        private void RangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
-        {
-            // 이벤트 인자에서 H, S, V 값과 ShowColorBinaryMode 값을 가져옴
-            int hCenter = e.HCenter;
-            int sMin = e.SMin;
-            int vMin = e.VMin;
-            ShowColorBinaryMode showColorBinMode = e.ShowColorBinMode;
+      
 
-            // 업데이트된 값을 사용하여 필터 업데이트
-            UpdateBinaryImageFilter(hCenter, sMin, vMin, showColorBinMode);
-        }
-
-        public void UpdateBinaryImageFilter(int hCenter, int sMin, int vMin, ShowColorBinaryMode showMode)
-        {
-            this.HCenter = hCenter;
-            this.SMin = sMin;
-            this.VMin = vMin;
-
-            // 여기에 showMode에 따른 추가 로직을 작성할 수 있습니다.
-        }
+    
 
 
         public void UpdateProperty(InspWindow window)

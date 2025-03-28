@@ -1,4 +1,5 @@
 ﻿using JidamVision.Core;
+using JidamVision.Setting;
 using JidamVision.Teach;
 using OpenCvSharp;
 using System;
@@ -42,9 +43,18 @@ namespace JidamVision
             ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
            
 
-            _contextMenu.Items.Add(addBaseRoiItem);
-            _contextMenu.Items.Add(addCabelRoiItem);
-           
+            List<InspWindowType> windowTypeList;
+            if (MachineType.SMT == SettingXml.Inst.MachineType)
+            {
+                windowTypeList = new List<InspWindowType> { InspWindowType.Cabel  };
+            }
+            else
+            {
+                windowTypeList = new List<InspWindowType> { InspWindowType.Base};
+            }
+
+            foreach (InspWindowType windowType in windowTypeList)
+                _contextMenu.Items.Add(new ToolStripMenuItem(windowType.ToString(), null, AddNode_Click) { Tag = windowType });
         }
 
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
@@ -67,16 +77,8 @@ namespace JidamVision
             if (tvModelTree.SelectedNode != null & sender is ToolStripMenuItem)
             {
                 ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
-                string nodeType = menuItem.Tag?.ToString();
-                if (nodeType == "Base")
-                {
-                    AddNewROI(InspWindowType.Base);
-                }
-                else if (nodeType == "Cabel")
-                {
-                    AddNewROI(InspWindowType.Cabel);
-                }
-                
+                InspWindowType windowType = (InspWindowType)menuItem.Tag;
+                AddNewROI(windowType);
             }
         }
 

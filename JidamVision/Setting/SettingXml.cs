@@ -1,5 +1,6 @@
 ﻿using Common.Util.Helpers;
 using JidamVision.Grab;
+using JidamVision.Sequence;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using JidamVision.Core;
 
 namespace JidamVision.Setting
 {
@@ -57,7 +59,7 @@ namespace JidamVision.Setting
                 _setting = XmlHelper.LoadXml<SettingXml>(settingFilePath);
             }
 
-            if(_setting is null)
+            if (_setting is null)
             {
                 //환경설정 파일이 없다면 새로 생성
                 _setting = CreateDefaultInstance();
@@ -97,9 +99,16 @@ namespace JidamVision.Setting
 
         public SettingXml() { }
 
+        public string MachineName { get; set; } = "Jidam";
+
+        public MachineType MachineType { get; set; } = MachineType.SMT;
+
         public string ModelDir { get; set; } = "";
 
         public CameraType CamType { get; set; } = CameraType.WebCam;
+
+        public CommunicatorType CommType { get; set; }
+        public string CommIP { get; set; } = "127.0.0.1";
 
     }
 }

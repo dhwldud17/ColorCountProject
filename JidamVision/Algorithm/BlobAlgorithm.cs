@@ -1,5 +1,4 @@
 ﻿using JidamVision.Core;
-using JidamVision.Property;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 namespace JidamVision.Algorithm
 {
     //#BINARY FILTER#1 이진화 필터를 위한 클래스
-    
+
 
     //이진화 임계값 설정을 구조체로 만들기
     public struct BinaryThreshold
@@ -20,25 +19,28 @@ namespace JidamVision.Algorithm
 
     public class BlobAlgorithm : InspAlgorithm
     {
-        // HSV 임계값 추가
-        public int HCenter { get; set; } = 90;  // 색상 중앙 값 (Hue)
-        public int SMin { get; set; } = 50;    // 최소 채도 (Saturation)
-        public int VMin { get; set; } = 50;    // 최소 명도 (Value)
-
-
-        // 이진화 필터로 찾은 영역
+        //이진화 필터로 찾은 영역
         private List<Rect> _findArea;
 
-        //픽셀 영역으로 이진화 필터
-        public int AreaFilter { get; set; } = 100;
         public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
+
+        //픽셀 영역으로 이진화 필터
+        public int AreaMin { get; set; } = 50;
+        public int AreaMax { get; set; } = 500;
+
+        public int WidthMin { get; set; } = 0;
+        public int WidthMax { get; set; } = 0;
+
+        public int HeightMin { get; set; } = 0;
+        public int HeightMax { get; set; } = 0;
+        public int BlobCount { get; set; } = 0;
+        public int OutBlobCount { get; set; } = 0;
+
         public BlobAlgorithm()
         {
             //#ABSTRACT ALGORITHM#5 각 함수마다 자신의 알고리즘 타입 설정
             InspectType = InspectType.InspBinary;
         }
-
-       
 
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음 
 
@@ -47,28 +49,30 @@ namespace JidamVision.Algorithm
         //검사 시작전 IsInspected = false로 초기화하고, 검사가 정상적으로 완료되면,IsInspected = true로 설정
         public override bool DoInspect()
         {
-            IsInspected = false;
+            ResetResult();
+            OutBlobCount = 0;
 
             if (_srcImage == null)
                 return false;
 
-            // 이미지 변환
-            Mat hsvImage = new Mat();
-            if (_srcImage.Type() == MatType.CV_8UC3)
-                Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV);
-            else
-                hsvImage = _srcImage;
+            Mat targetImage = _srcImage[InspRect];
 
-            // HSV 범위에 맞는 마스크 생성
+            Mat grayImage = new Mat();
+            if (targetImage.Type() == MatType.CV_8UC3)
+                Cv2.CvtColor(targetImage, grayImage, ColorConversionCodes.BGR2GRAY);
+            else
+                grayImage = targetImage;
+
             Mat binaryImage = new Mat();
-            Cv2.InRange(hsvImage, new Scalar(HCenter - 10, SMin, VMin), new Scalar(HCenter + 10, 255, 255), binaryImage);
+            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
+            Cv2.InRange(grayImage, BinThreshold.lower, BinThreshold.upper, binaryImage);
 
             if (BinThreshold.invert)
                 binaryImage = ~binaryImage;
 
-            if(AreaFilter > 0)
+            if (AreaMin > 0 || AreaMax > 0 || WidthMin > 0 || WidthMax > 0 || HeightMin > 0 || HeightMax > 0)
             {
-                if (!BlobFilter(binaryImage, AreaFilter))
+                if (!BlobFilter(binaryImage, AreaMin, AreaMax, WidthMin, WidthMax, HeightMin, HeightMax))
                     return false;
             }
 
@@ -78,7 +82,7 @@ namespace JidamVision.Algorithm
         }
 
         //#BINARY FILTER#3 이진화 필터처리 함수
-        private bool BlobFilter(Mat binImage, int areaFilter)
+        private bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
         {
             // 컨투어 찾기
             Point[][] contours;
@@ -88,37 +92,70 @@ namespace JidamVision.Algorithm
             // 필터링된 객체를 담을 리스트
             Mat filteredImage = Mat.Zeros(binImage.Size(), MatType.CV_8UC1);
 
-            if(_findArea is null)
+            if (_findArea is null)
                 _findArea = new List<Rect>();
 
             _findArea.Clear();
 
+            int findBlobCount = 0;
+
             foreach (var contour in contours)
             {
                 double area = Cv2.ContourArea(contour);
-                if (area < areaFilter)
+                if (area <= 0)
                     continue;
 
-                // 필터링된 객체를 이미지에 그림
-                //Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
+                if (areaMin > 0 && area < areaMin)
+                    continue;
+
+                if (areaMax > 0 && area > areaMax)
+                    continue;
 
                 // RotatedRect 정보 계산
                 //RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
                 Rect boundingRect = Cv2.BoundingRect(contour);
 
-                _findArea.Add(boundingRect);
+                if (widthMin > 0 && boundingRect.Width < widthMin)
+                    continue;
 
-                // RotatedRect 정보 출력
-                //Console.WriteLine($"RotatedRect - Center: {rotatedRect.Center}, Size: {rotatedRect.Size}, Angle: {rotatedRect.Angle}");
+                if (widthMax > 0 && boundingRect.Width > widthMax)
+                    continue;
 
-                // BoundingRect 정보 출력
-                //Console.WriteLine($"BoundingRect - X: {boundingRect.X}, Y: {boundingRect.Y}, Width: {boundingRect.Width}, Height: {boundingRect.Height}");
+                if (heightMin > 0 && boundingRect.Height < heightMin)
+                    continue;
 
+                if (heightMax > 0 && boundingRect.Height > heightMax)
+                    continue;
+
+                // 필터링된 객체를 이미지에 그림
+                //Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
+
+                findBlobCount++;
+                Rect blobRect = boundingRect + InspRect.TopLeft;
+
+                string blobInfo;
+                blobInfo = $"Blob X:{blobRect.X}, Y:{blobRect.Y}, Size({blobRect.Width},{blobRect.Height})";
+                ResultString.Add(blobInfo);
+
+                _findArea.Add(blobRect);
+            }
+
+            OutBlobCount = findBlobCount;
+
+            if (BlobCount > 0)
+            {
+                string result = "NG";
+                if (findBlobCount == BlobCount)
+                {
+                    result = "OK";
+                }
+                string resultInfo = "";
+                resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
+                ResultString.Add(resultInfo);
             }
 
             return true;
         }
-
 
         //#BINARY FILTER#4 이진화 영역 반환
         public override int GetResultRect(out List<Rect> resultArea)
