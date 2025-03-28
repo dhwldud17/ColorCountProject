@@ -212,6 +212,8 @@
     <Compile Include="ResultForm.Designer.cs">
       <DependentUpon>ResultForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Sequence\Communicator.cs" />
+    <Compile Include="Sequence\VisionSequence.cs" />
     <Compile Include="Setting\CameraSetting.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -237,18 +239,15 @@
     <Compile Include="StatisticForm.Designer.cs">
       <DependentUpon>StatisticForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TeachForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TeachForm.Designer.cs">
-      <DependentUpon>TeachForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Teach\DiagramEntity.cs" />
     <Compile Include="Teach\GroupWindow.cs" />
     <Compile Include="Teach\InspWindow.cs" />
     <Compile Include="Teach\InspWindowFactory.cs" />
     <Compile Include="Teach\Model.cs" />
     <Compile Include="Util\BitmapExtension.cs" />
+    <Compile Include="Util\ImageFileSorter.cs" />
+    <Compile Include="Util\ImageLoader.cs" />
+    <Compile Include="Util\NetHelper.cs" />
     <Compile Include="Util\SLogger.cs" />
     <Compile Include="Util\XmlHelper.cs" />
     <EmbeddedResource Include="CameraForm.resx">
@@ -305,9 +304,6 @@
     <EmbeddedResource Include="Setting\SetupForm.resx">
       <DependentUpon>SetupForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TeachForm.resx">
-      <DependentUpon>TeachForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -339,6 +335,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\JidamVision_Ex\ExternalLib\MessagingLibrary\MessagingLibrary.csproj">
+      <Project>{9a7ef5c0-1ecc-4a9d-ac22-105014ab2bdb}</Project>
+      <Name>MessagingLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

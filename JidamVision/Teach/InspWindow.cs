@@ -10,6 +10,9 @@ using System.Security.Policy;
 using System.Drawing;
 using System.IO;
 using System.Xml.Serialization;
+using JidamVision.Setting;
+using System.Xml.Linq;
+using JidamVision.Inspect;
 
 namespace JidamVision.Teach
 {
@@ -18,8 +21,6 @@ namespace JidamVision.Teach
 
     public class InspWindow
     {
-        //템플릿 매칭할 윈도우 크기
-        private System.Drawing.Rectangle _rect;
         //템플릿 매칭 이미지
         private Mat _teachingImage;
 
@@ -32,6 +33,9 @@ namespace JidamVision.Teach
         public string UID { get; set; }
 
         public Rect WindowArea { get; set; }
+        public Rect InspArea { get; set; }
+
+        public bool IsTeach { get; set; } = false;
 
         //#ABSTRACT ALGORITHM#9 개별 변수로 있던, MatchAlgorithm과 BlobAlgorithm을
         //InspAlgorithm으로 추상화하여 리스트로 관리하도록 변경
@@ -45,6 +49,13 @@ namespace JidamVision.Teach
 
         [XmlElement("ChildWindow")]
         public List<InspWindow> Children { get; set; } = new List<InspWindow>();
+
+        public List<InspResult> InspResultList { get; set; } = new List<InspResult>();
+
+        [XmlIgnore]
+        public Mat WindowImage { get; set; }
+
+        public bool IsPatternLearn { get; set; } = false;
 
         public InspWindow()
         {
@@ -139,7 +150,7 @@ namespace JidamVision.Teach
         {
             foreach (var inspAlgo in AlgorithmList)
             {
-                if (inspAlgo.InspectType == inspType || inspAlgo.InspectType == InspectType.InspNone)
+                if (inspAlgo.InspectType == inspType || inspType == InspectType.InspNone)
                     inspAlgo.DoInspect();
             }
 
@@ -152,6 +163,13 @@ namespace JidamVision.Teach
             windowRect.X += offset.X;
             windowRect.Y += offset.Y;
             WindowArea = windowRect;
+            return true;
+        }
+
+        public bool SetInspOffset(OpenCvSharp.Point offset)
+        {
+            InspArea = WindowArea + offset;
+            AlgorithmList.ForEach(algo => algo.InspRect = algo.TeachRect + offset);
             return true;
         }
 
@@ -186,8 +204,75 @@ namespace JidamVision.Teach
 
             return root;
         }
-
-
         #endregion
+
+        public virtual bool SaveInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+            if (!Directory.Exists(imgDir))
+            {
+                Directory.CreateDirectory(imgDir);
+            }
+
+            Mat windowImage = WindowImage;
+            if (windowImage != null)
+            {
+                string targetPath = Path.Combine(imgDir, UID + ".png");
+                Cv2.ImWrite(targetPath, windowImage);
+            }
+
+            return true;
+        }
+
+        public virtual bool LoadInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+
+            foreach (InspAlgorithm algo in AlgorithmList)
+            {
+                if (algo is null)
+                    continue;
+
+                if (algo.InspectType == InspectType.InspMatch)
+                {
+                    MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
+                    string targetPath = Path.Combine(imgDir, UID + ".png");
+                    if (File.Exists(targetPath))
+                    {
+                        Mat windowImage = Cv2.ImRead(targetPath);
+                        if (windowImage != null)
+                        {
+                            WindowImage = windowImage;
+
+                            Mat tempImage = new Mat();
+                            if (windowImage.Type() == MatType.CV_8UC3)
+                                Cv2.CvtColor(windowImage, tempImage, ColorConversionCodes.BGR2GRAY);
+                            else
+                                tempImage = windowImage;
+
+                            matchAlgo.SetTemplateImage(tempImage);
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public void ResetInspResult()
+        {
+            InspResultList.Clear();
+        }
+
+        public void AddInspResult(InspResult inspResult)
+        {
+            InspResultList.Add(inspResult);
+        }
     }
 }

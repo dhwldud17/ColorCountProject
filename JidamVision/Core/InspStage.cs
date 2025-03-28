@@ -1,6 +1,7 @@
 ﻿using JidamVision.Algorithm;
 using JidamVision.Grab;
 using JidamVision.Inspect;
+using JidamVision.Sequence;
 using JidamVision.Setting;
 using JidamVision.Teach;
 using JidamVision.Util;
@@ -8,13 +9,16 @@ using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Policy;
+using System.ServiceModel.Configuration;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +29,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace JidamVision.Core
 {
     //검사와 관련된 클래스를 관리하는 클래스
-    public class InspStage
+    public class InspStage : IDisposable
     {
         public static readonly int MAX_GRAB_BUF = 5;
 
@@ -39,6 +43,11 @@ namespace JidamVision.Core
 
         //#MODEL#6 모델 변수 선언
         private Model _model = null;
+
+        private ImageLoader _imageLoader = null;
+
+        private string _lotNumber;
+        private string _serialID;
 
         public ImageSpace ImageSpace
         {
@@ -62,6 +71,14 @@ namespace JidamVision.Core
             get => _model;
         }
 
+        public ImageLoader ImageLoader
+        {
+            get
+            {
+                return _imageLoader;
+            }
+        }
+
         //#INSP WORKER#1 1개만 있던 InspWindow를 리스트로 변경하여, 여러개의 ROI를 관리하도록 개선
         public List<InspWindow> InspWindowList { get; set; } = new List<InspWindow>();
 
@@ -69,6 +86,8 @@ namespace JidamVision.Core
 
         public int SelBufferIndex { get; set; } = 0;
         public eImageChannel SelImageChannel { get; set; } = eImageChannel.Gray;
+
+        public bool UseCamera { get; set; } = false;
 
         public InspStage() { }
 
@@ -82,6 +101,8 @@ namespace JidamVision.Core
 
             //#MODEL#8 모델 인스턴스 생성
             _model = new Model();
+
+            _imageLoader = new ImageLoader();
 
             //#SETUP#7 환경설정에서 설정값 가져오기
             LoadSetting();
@@ -100,7 +121,7 @@ namespace JidamVision.Core
                     }
                 default:
                     {
-                        Console.WriteLine("Not supported camera type!");
+                        SLogger.Write("Not supported camera type!", SLogger.LogType.Error);
                         return false;
                     }
             }
@@ -112,7 +133,9 @@ namespace JidamVision.Core
                 InitModelGrab(MAX_GRAB_BUF);
             }
 
-            InitInspWindow();
+            //VisionSequence.Inst.InitSequence();
+            //VisionSequence.Inst.SeqCommand += SeqCommand;
+
 
             return true;
         }
@@ -158,6 +181,8 @@ namespace JidamVision.Core
         {
             if (_grabManager == null)
                 return;
+
+            SLogger.Write($"Load Image : {filePath}");
 
             Mat matImage = Cv2.ImRead(filePath);
 
@@ -222,12 +247,15 @@ namespace JidamVision.Core
             SLogger.Write("버퍼 초기화 성공!");
         }
 
-        public void Grab(int bufferIndex)
+        public bool Grab(int bufferIndex)
         {
             if (_grabManager == null)
-                return;
+                return false;
 
-            _grabManager.Grab(bufferIndex, true);
+            if(!_grabManager.Grab(bufferIndex, true))
+                return false;
+
+            return true;
         }
 
         // NOTE
@@ -263,7 +291,17 @@ namespace JidamVision.Core
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
-                cameraForm.UpdateDisplay();
+                if (cameraForm.InvokeRequired)
+                {
+                    cameraForm.Invoke((MethodInvoker)(() =>
+                    {
+                        cameraForm.UpdateDisplay();
+                    }));
+                }
+                else
+                {
+                    cameraForm.UpdateDisplay();
+                }
             }
         }
 
@@ -303,16 +341,9 @@ namespace JidamVision.Core
             return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, SelImageChannel);
         }
 
-        private void InitInspWindow()
-        {
-            SLogger.Write("검사 속성창 초기화!");
-        }
 
         public void TryInspection(InspWindow inspWindow)
         {
-            if (inspWindow is null)
-                return;
-
             InspWorker.TryInspect(inspWindow, InspectType.InspNone);
         }
 
@@ -343,6 +374,8 @@ namespace JidamVision.Core
                 return;
 
             inspWindow.WindowArea = rect;
+            inspWindow.IsTeach = false;
+            SetTeachingImage(inspWindow);
             UpdateProperty(inspWindow);
             UpdateDiagramEntity();
 
@@ -378,6 +411,8 @@ namespace JidamVision.Core
                 return;
 
             inspWindow.WindowArea = rect;
+            inspWindow.IsTeach = false;
+            SetTeachingImage(inspWindow);
 
             UpdateProperty(inspWindow);
         }
@@ -388,6 +423,7 @@ namespace JidamVision.Core
             _model.DelInspWindow(inspWindow);
             UpdateDiagramEntity();
         }
+
 
         public void DelInspWindow(List<InspWindow> inspWindowList)
         {
@@ -437,26 +473,34 @@ namespace JidamVision.Core
             if (inspWindow is null)
                 return;
 
-            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm is null)
-                return;
-
-            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
-            if (matchAlgo != null)
-            {
-                Mat curImage = cameraForm.GetDisplayImage();
-                if (curImage is null)
-                    return;
-
-                Mat teachingImage = curImage[inspWindow.WindowArea];
-                matchAlgo.SetTemplateImage(teachingImage);
-            }
-
             PropertiesForm propertiesForm = MainForm.GetDockForm<PropertiesForm>();
             if (propertiesForm is null)
                 return;
 
             propertiesForm.UpdateProperty(inspWindow);
+        }
+
+        public void SetTeachingImage(InspWindow inspWindow)
+        {
+            if (inspWindow is null)
+                return;
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm is null)
+                return;
+
+            Mat curImage = cameraForm.GetDisplayImage();
+            if (curImage is null)
+                return;
+
+            Mat windowImage = curImage[inspWindow.WindowArea];
+            inspWindow.WindowImage = windowImage;
+
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo != null)
+            {
+                matchAlgo.SetTemplateImage(windowImage);
+            }
         }
 
         //#MODEL#15 변경된 모델 정보 갱신하여, ImageViewer와 모델트리에 반영
@@ -485,12 +529,27 @@ namespace JidamVision.Core
         }
 
         //#MODEL SAVE#3 Mainform에서 호출되는 모델 열기와 저장 함수
-        public void LoadModel(string filePath)
+        public bool LoadModel(string filePath)
         {
             SLogger.Write($"모델 로딩:{filePath}");
 
             _model = _model.Load(filePath);
+
+            if (_model is null)
+            {
+                SLogger.Write($"모델 로딩 실패:{filePath}");
+                return false;
+            }
+
+            string inspImagePath = _model.InspectImagePath;
+            if (File.Exists(inspImagePath))
+            {
+                Global.Inst.InspStage.SetImageBuffer(inspImagePath);
+            }
+
             UpdateDiagramEntity();
+
+            return true;
         }
 
         public void SaveModel(string filePath)
@@ -503,5 +562,189 @@ namespace JidamVision.Core
             else
                 Global.Inst.InspStage.CurModel.SaveAs(filePath);
         }
+
+        public void CycleInspect(bool isCycle)
+        {
+            string inspImagePath = CurModel.InspectImagePath;
+            if (inspImagePath == "")
+                return;
+
+            string inspImageDir = Path.GetDirectoryName(inspImagePath);
+            if (!Directory.Exists(inspImageDir))
+                return;
+
+            if (!_imageLoader.IsLoadedImages())
+                _imageLoader.LoadImages(inspImageDir);
+
+            if (isCycle)
+                _inspWorker.StartCycleInspectImage();
+            else
+                OneCycle();
+        }
+
+        public bool OneCycle()
+        {
+            if(UseCamera)
+            {
+                if(!Grab(0))
+                    return false;
+            }
+            else
+            {
+                if (!VirtualGrab())
+                    return false;
+            }
+
+            if (!_inspWorker.RunInspect())
+                return false;
+
+            return true;
+        }
+
+        public void StopCycle()
+        {
+            if (_inspWorker != null)
+                _inspWorker.Stop();
+        }
+
+        public bool VirtualGrab()
+        {
+            if (_imageLoader is null)
+                return false;
+
+            string imagePath = _imageLoader.GetNextImagePath();
+            if (imagePath == "")
+                return false;
+
+            Global.Inst.InspStage.SetImageBuffer(imagePath);
+
+            _imageSpace.Split(0);
+
+            DisplayGrabImage(0);
+
+            return true;
+        }
+
+        private void SeqCommand(object sender, SeqCmd seqCmd, object Param)
+        {
+            switch (seqCmd)
+            {
+                case SeqCmd.OpenRecipe:
+                    {
+                        SLogger.Write("MMI : OpenRecipe", SLogger.LogType.Info);
+
+                        string modelName = (string)Param;
+                        string modelPath = Path.Combine(SettingXml.Inst.ModelDir, modelName, modelName + ".xml");
+
+                        string errMsg = "";
+
+                        if (File.Exists(modelPath))
+                        {
+                            if (!LoadModel(modelPath))
+                                errMsg = "모델 열기 실패!";
+                        }
+                        else
+                        {
+                            errMsg = $"{modelName}이 존재하지 않습니다!";
+                        }
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.ModeLoaded, errMsg);
+                    }
+                    break;
+                case SeqCmd.InspReady:
+                    {
+                        SLogger.Write("MMI : InspReady", SLogger.LogType.Info);
+
+                        //검사 모드 진입
+                        string errMsg = "";
+
+                        MessagingLibrary.Message msg = (MessagingLibrary.Message)Param;
+                        if (!InspectReady(msg.LotNumber, msg.SerialID))
+                        {
+                            errMsg = string.Format("Inspection not ready");
+                            SLogger.Write(errMsg, SLogger.LogType.Error);
+                        }
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspReady, errMsg);
+                    }
+                    break;
+                case SeqCmd.InspStart:
+                    {
+                        SLogger.Write("MMI : InspStart", SLogger.LogType.Info);
+
+                        //검사 시작
+                        string errMsg = "";
+
+                        MessagingLibrary.Message msg = (MessagingLibrary.Message)Param;
+                        _serialID = msg.SerialID;
+                        if (!OneCycle())
+                        {
+                            errMsg = string.Format("Failed to inspect");
+                            SLogger.Write(errMsg, SLogger.LogType.Error);
+                        }
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, errMsg);
+                    }
+                    break;
+                case SeqCmd.InspEnd:
+                    {
+                        SLogger.Write("MMI : InspEnd", SLogger.LogType.Info);
+
+                        //모든 검사 종료
+                        string errMsg = "";
+
+                        //검사 완료에 대한 처리
+                        SLogger.Write("검사 종료");
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspEnd, errMsg);
+                    }
+                    break;
+            }
+        }
+
+        //검사를 위한 준비 작업
+        private bool InspectReady(string lotNumber, string serialID)
+        {
+            _lotNumber = lotNumber;
+            _serialID = serialID;
+
+            LiveMode = false;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
+
+            return true;
+        }
+
+        #region Disposable
+
+        private bool disposed = false; // to detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    VisionSequence.Inst.SeqCommand -= SeqCommand;
+
+                    if (_imageSpace != null)
+                        _imageSpace.Dispose();
+
+                    if (_imageLoader != null)
+                        _imageLoader.Dispose();
+                }
+
+                // Dispose unmanaged managed resources.
+
+                disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion //Disposable
     }
 }
