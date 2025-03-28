@@ -33,19 +33,22 @@
             // 
             // tvModelTree
             // 
-            this.tvModelTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvModelTree.Dock = System.Windows.Forms.DockStyle.Left;
             this.tvModelTree.Location = new System.Drawing.Point(0, 0);
+            this.tvModelTree.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tvModelTree.Name = "tvModelTree";
-            this.tvModelTree.Size = new System.Drawing.Size(370, 308);
+            this.tvModelTree.Size = new System.Drawing.Size(527, 462);
             this.tvModelTree.TabIndex = 0;
+            this.tvModelTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvModelTree_AfterSelect);
             this.tvModelTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvModelTree_MouseDown);
             // 
             // ModelTreeForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(370, 308);
+            this.ClientSize = new System.Drawing.Size(529, 462);
             this.Controls.Add(this.tvModelTree);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ModelTreeForm";
             this.Text = "ModelTreeForm";
             this.ResumeLayout(false);

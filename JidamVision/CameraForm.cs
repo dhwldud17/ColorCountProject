@@ -257,6 +257,12 @@ namespace JidamVision
             imageViewer.Invalidate();
         }
 
+        public Mat GetCurrentImage()
+        {
+            return Global.Inst.InspStage.GetMat();
+        }
+
+
         private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
