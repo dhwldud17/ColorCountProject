@@ -45,6 +45,7 @@ namespace JidamVision
         DeleteList,
         AddGroup,
         Break,
+        PickColor
         UpdateImage
     }
 
@@ -63,6 +64,12 @@ namespace JidamVision
         private Point _moveStart = Point.Empty;
         private int _resizeDirection = -1;
         private const int _ResizeHandleSize = 10;
+
+        //#COLOR BINARY FILTER#19 이미지 영역 색상 지정 시, 이벤트 발생
+        public event EventHandler<MouseEventArgs> MouseEvent;
+        private Point startPoint;
+        private Rectangle selectedArea;
+        private bool isSelecting = false;
 
         // 현재 로드된 이미지
         private Bitmap _bitmapImage = null;
@@ -110,6 +117,8 @@ namespace JidamVision
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private bool _isPickColor = false;
+        private Rectangle _pickColorRect;
         public ImageViewCCtrl()
         {
             InitializeComponent();
@@ -139,6 +148,13 @@ namespace JidamVision
 
             // 화면 깜빡임을 방지하기 위한 더블 버퍼링 설정
             DoubleBuffered = true;
+        }
+
+        public OpenCvSharp.Rect GetPickColorRect()
+        {
+            OpenCvSharp.Rect rect = new OpenCvSharp.Rect(_pickColorRect.X, _pickColorRect.Y, _pickColorRect.Width, _pickColorRect.Height);
+            return rect;
+
         }
 
         //#MULTI ROI#6 InspWindow 타입에 따른, 칼라 정보 얻는 함수
@@ -475,6 +491,12 @@ namespace JidamVision
             //#MULTI ROI#10 여러개 ROI 기능에 맞게 코드 수정
             if (e.Button == MouseButtons.Left)
             {
+                if (isSelecting)
+                {
+                    startPoint = e.Location;
+                    selectedArea = new Rectangle(startPoint, new Size(0, 0));
+                }
+
                 if (_newRoiType != InspWindowType.None)
                 {
                     //새로운 ROI 그리기 시작 위치 설저어
@@ -566,6 +588,13 @@ namespace JidamVision
 
         private void ImageViewCCtrl_MouseMove(object sender, MouseEventArgs e)
         {
+            if (isSelecting && e.Button == MouseButtons.Left)
+            {
+                selectedArea.Width = e.X - startPoint.X;
+                selectedArea.Height = e.Y - startPoint.Y;
+                Invalidate(); // 화면 갱신
+            }
+
             //#MULTI ROI#12 마우스 이동시, 구현 코드
             if (e.Button == MouseButtons.Left)
             {
@@ -659,10 +688,32 @@ namespace JidamVision
 
         private void ImageViewCCtrl_MouseUp(object sender, MouseEventArgs e)
         {
+            if (isSelecting)
+            {
+                isSelecting = false;
+                this.Cursor = Cursors.Default;
+                Invalidate(); // 화면 갱신
+                ExtractColorFromSelection(); // 선택한 영역에서 색상 추출
+            }
+
             //#SETROI#5 ROI 크기 변경 또는 이동 완료
             //#MULTI ROI#13 마우스 업일때, 구현 코드
             if (e.Button == MouseButtons.Left)
             {
+                if (_isPickColor)
+                {
+                    Size sampleSize = new Size(10, 10);
+                    Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
+                        sampleSize.Width, sampleSize.Height);
+
+                    _pickColorRect = ScreenToVirtual(pickRect);
+
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.PickColor, null));
+
+                    _isPickColor = false;
+                    return;
+                }
+
                 if (_isSelectingRoi)
                 {
                     _isSelectingRoi = false;
@@ -985,6 +1036,73 @@ namespace JidamVision
                 _selEntity = entity;
                 _roiRect = entity.EntityROI;
             }
+        }
+
+        private void ExtractColorFromSelection()
+        {
+            if (selectedArea.Width == 0 || selectedArea.Height == 0)
+                return;
+
+            // 이미지에서 선택된 영역 추출
+            //Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
+            //Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
+
+            //// 영역의 색상 추출
+            //Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
+
+            //// 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
+            //for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
+            //{
+            //    for (int x = selectedArea.Left; x < selectedArea.Right; x++)
+            //    {
+            //        Color pixelColor = selectedBitmap.GetPixel(x, y);
+            //        if (IsColorMatch(pixelColor, averageColor))
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
+            //        }
+            //        else
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
+            //        }
+            //    }
+            //}
+
+            // 화면 갱신: 마스크 이미지 갱신
+            //pictureBox.Image = maskBitmap;
+        }
+
+        // 평균 색상 계산
+        private Color GetAverageColor(Bitmap bitmap, Rectangle area)
+        {
+            long r = 0, g = 0, b = 0;
+            int pixelCount = 0;
+
+            for (int y = area.Top; y < area.Bottom; y++)
+            {
+                for (int x = area.Left; x < area.Right; x++)
+                {
+                    Color pixelColor = bitmap.GetPixel(x, y);
+                    r += pixelColor.R;
+                    g += pixelColor.G;
+                    b += pixelColor.B;
+                    pixelCount++;
+                }
+            }
+
+            r /= pixelCount;
+            g /= pixelCount;
+            b /= pixelCount;
+
+            return Color.FromArgb((int)r, (int)g, (int)b);
+        }
+
+        // 색상 비교 (상당히 유사한 색상만 선택)
+        private bool IsColorMatch(Color color, Color targetColor)
+        {
+            int tolerance = 30; // 색상 차이를 허용하는 범위
+            return Math.Abs(color.R - targetColor.R) < tolerance &&
+                   Math.Abs(color.G - targetColor.G) < tolerance &&
+                   Math.Abs(color.B - targetColor.B) < tolerance;
         }
 
         //#GROUP ROI#4 팝업 메뉴 함수 

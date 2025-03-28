@@ -221,7 +221,6 @@
             this.Controls.Add(this.btnInspect);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnLive);
-            this.Controls.Add(this.imageViewer);
             this.Controls.Add(this.btnGrab);
             this.Name = "CameraForm";
             this.Text = "CameraForm";

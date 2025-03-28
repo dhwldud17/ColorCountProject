@@ -67,7 +67,7 @@ namespace JidamVision
 
             // 새로운 UserControl 생성
             UserControl _inspProp = CreateUserControl(inspType);
-            if (_inspProp == null) 
+            if (_inspProp == null)
                 return;
 
             // 새 탭 추가
@@ -93,17 +93,16 @@ namespace JidamVision
                     BinaryInspProp blobProp = new BinaryInspProp();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     blobProp.PropertyChanged += PropertyChanged;
+                    blobProp.RangeChanged += BinaryRangeSlider_RangeChanged;
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
-                    ColorBinaryInspProp colorBinProp = new ColorBinaryInspProp();
-                    colorBinProp.LoadInspParam();
-                    //colorBinProp.ThresholdChanged += RangeSlider_RangeChanged;
-                    _inspProp = colorBinProp;
+                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
+                    colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
+                    _inspProp = colorBlobProp;
                     break;
                 case InspectType.InspFilter:
                     FilterInspProp filterProp = new FilterInspProp();
-                    //filterProp.LoadInspParam();
                     filterProp.FilterSelected += FilterSelect_FilterChanged;
                     _inspProp = filterProp;
                     break;
@@ -133,27 +132,21 @@ namespace JidamVision
         {
             LoadOptionControl(inspPropType);
         }
-      
-
-    
-
-
-        public void UpdateProperty(InspWindow window)
+        private void ColorRangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
         {
-            if (window is null)
-                return;
+            // 이벤트 인자에서 H, S, V 값과 ShowBinaryMode 값을 가져옴
+            ShowBinaryMode showColorBinMode = e.ShowBinaryMode;
 
-            foreach (TabPage tabPage in tabPropControl.TabPages)
-            {
-                if (tabPage.Controls.Count > 0)
-                {
-                    UserControl uc = tabPage.Controls[0] as UserControl;
+            bool invert = e.Invert;         
+            Global.Inst.InspStage.PreView?.SetColorBinary(e.HsvMin, e.HsvMax, invert, showColorBinMode);
 
-                    if (uc is MatchInspProp matchProp)
-                    {
-                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
-                        if (matchAlgo is null)
-                            continue;
+        }
+
+        public void UpdateColorBinaryImageFilter(int hCenter, int sMin, int vMin, ShowBinaryMode showMode)
+        {
+            this.HCenter = hCenter;
+            this.SMin = sMin;
+            this.VMin = vMin;
 
                         matchProp.SetAlgorithm(matchAlgo);
                     }
@@ -178,6 +171,19 @@ namespace JidamVision
         }
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
+        private void BinaryRangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        {
+            // 속성값을 이용하여 이진화 임계값 설정
+            int lowerValue = e.LowerValue;
+            int upperValue = e.UpperValue;
+            bool invert = e.Invert;
+            ShowBinaryMode showBinMode = e.ShowBinMode;
+            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+
+
+        }
+
+        //#COLOR BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
         {
             // 속성값을 이용하여 이진화 임계값 설정
@@ -186,6 +192,8 @@ namespace JidamVision
             bool invert = e.Invert;
             ShowBinaryMode showBinMode = e.ShowBinMode;
             Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+
+
         }
 
         private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
@@ -201,5 +209,9 @@ namespace JidamVision
         {
             Global.Inst.InspStage.RedrawMainView();
         }
+
+        
+
+
     }
 }
