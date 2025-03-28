@@ -364,29 +364,6 @@ namespace JidamVision.Property
            // Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
             //Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
 
-            //// 영역의 색상 추출
-            //Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
-
-            //// 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
-            //for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
-            //{
-            //    for (int x = selectedArea.Left; x < selectedArea.Right; x++)
-            //    {
-            //        Color pixelColor = selectedBitmap.GetPixel(x, y);
-            //        if (IsColorMatch(pixelColor, averageColor))
-            //        {
-            //            maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
-            //        }
-            //        else
-            //        {
-            //            maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
-            //        }
-            //    }
-            //}
-
-            // 화면 갱신: 마스크 이미지 갱신
-            //pictureBox.Image = maskBitmap;
-        }
 
         // 평균 색상 계산
         private Color GetAverageColor(Bitmap bitmap, Rectangle area)
