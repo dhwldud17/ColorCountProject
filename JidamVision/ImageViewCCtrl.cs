@@ -44,6 +44,7 @@ namespace JidamVision
         DeleteList,
         AddGroup,
         Break,
+        PickColor
     }
 
     public partial class ImageViewCCtrl : UserControl
@@ -114,6 +115,8 @@ namespace JidamVision
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private bool _isPickColor = false;
+        private Rectangle _pickColorRect;
         public ImageViewCCtrl()
         {
             InitializeComponent();
@@ -144,6 +147,13 @@ namespace JidamVision
             DoubleBuffered = true;
         }
 
+        public OpenCvSharp.Rect GetPickColorRect()
+        {
+            OpenCvSharp.Rect rect = new OpenCvSharp.Rect(_pickColorRect.X, _pickColorRect.Y, _pickColorRect.Width, _pickColorRect.Height);
+            return rect;
+
+        }
+
         //#MULTI ROI#6 InspWindow 타입에 따른, 칼라 정보 얻는 함수
         public Color GetWindowColor(InspWindowType inspWindowType)
         {
@@ -160,7 +170,7 @@ namespace JidamVision
                 case InspWindowType.ID:
                     color = Color.Cyan;
                     break;
-                
+
             }
 
             return color;
@@ -429,7 +439,7 @@ namespace JidamVision
                     if (_multiSelectedEntities.Count <= 1 && _selEntity != null)
                     {
                         //확장영역이 있다면 표시
-                     //   DrawInspParam(g, _selEntity.LinkedWindow);
+                        //   DrawInspParam(g, _selEntity.LinkedWindow);
                     }
 
                     //#GROUP ROI#10 선택 영역 박스 그리기
@@ -460,8 +470,8 @@ namespace JidamVision
                     startPoint = e.Location;
                     selectedArea = new Rectangle(startPoint, new Size(0, 0));
                 }
-                
-                    if (_newRoiType != InspWindowType.None)
+
+                if (_newRoiType != InspWindowType.None)
                 {
                     //새로운 ROI 그리기 시작 위치 설저어
                     _roiStart = e.Location;
@@ -664,6 +674,20 @@ namespace JidamVision
             //#MULTI ROI#13 마우스 업일때, 구현 코드
             if (e.Button == MouseButtons.Left)
             {
+                if (_isPickColor)
+                {
+                    Size sampleSize = new Size(10, 10);
+                    Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
+                        sampleSize.Width, sampleSize.Height);
+
+                    _pickColorRect = ScreenToVirtual(pickRect);
+
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.PickColor, null));
+
+                    _isPickColor = false;
+                    return;
+                }
+
                 if (_isSelectingRoi)
                 {
                     _isSelectingRoi = false;
@@ -993,31 +1017,31 @@ namespace JidamVision
                 return;
 
             // 이미지에서 선택된 영역 추출
-            Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
-            Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
+            //Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
+            //Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
 
-            // 영역의 색상 추출
-            Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
+            //// 영역의 색상 추출
+            //Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
 
-            // 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
-            for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
-            {
-                for (int x = selectedArea.Left; x < selectedArea.Right; x++)
-                {
-                    Color pixelColor = selectedBitmap.GetPixel(x, y);
-                    if (IsColorMatch(pixelColor, averageColor))
-                    {
-                        maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
-                    }
-                    else
-                    {
-                        maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
-                    }
-                }
-            }
+            //// 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
+            //for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
+            //{
+            //    for (int x = selectedArea.Left; x < selectedArea.Right; x++)
+            //    {
+            //        Color pixelColor = selectedBitmap.GetPixel(x, y);
+            //        if (IsColorMatch(pixelColor, averageColor))
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
+            //        }
+            //        else
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
+            //        }
+            //    }
+            //}
 
             // 화면 갱신: 마스크 이미지 갱신
-            pictureBox.Image = maskBitmap;
+            //pictureBox.Image = maskBitmap;
         }
 
         // 평균 색상 계산
@@ -1095,7 +1119,7 @@ namespace JidamVision
             if (window is null)
                 return;
 
-        //    window.IsTeach = true;
+            //    window.IsTeach = true;
             _selEntity.IsHold = true;
         }
 

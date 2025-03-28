@@ -372,6 +372,31 @@ namespace JidamVision.Core
             UpdateDiagramEntity();
         }
 
+        public void PickColorWindow(Rect pickColorRect)
+        {
+            Mat curImage = Global.Inst.InspStage.GetMat();
+            Mat pick = curImage[pickColorRect];
+
+            // BGR -> HSV로 변환
+            Mat hsvImage = new Mat();
+            Cv2.CvtColor(pick, hsvImage, ColorConversionCodes.BGR2HSV);
+
+            // HSV 최소값, 최대값 구하기
+            double minVal, maxVal;
+            OpenCvSharp.Point minLoc, maxLoc;
+            Cv2.MinMaxLoc(hsvImage, out minVal, out maxVal, out minLoc, out maxLoc);
+
+            // HSV 이미지에서 최소, 최대값을 추출 (Y, X 순서로 인덱싱)
+            Vec3b minHSV = hsvImage.At<Vec3b>(minLoc.Y, minLoc.X); // 최소값 위치에서 HSV 값 가져오기
+            Vec3b maxHSV = hsvImage.At<Vec3b>(maxLoc.Y, maxLoc.X); // 최대값 위치에서 HSV 값 가져오기
+
+            // H, S, V 값 출력
+            Console.WriteLine($"Min HSV Value: H = {minHSV.Item0}, S = {minHSV.Item1}, V = {minHSV.Item2}");
+            Console.WriteLine($"Max HSV Value: H = {maxHSV.Item0}, S = {maxHSV.Item1}, V = {maxHSV.Item2}");
+        }
+
+        
+
         //GroupWindow 생성
         public void CreateGroupWindow(List<InspWindow> inspWindowList)
         {

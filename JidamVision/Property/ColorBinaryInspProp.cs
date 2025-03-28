@@ -23,15 +23,21 @@ namespace JidamVision.Property
     입력된 H, S, V 임계값을 이용해, 레퍼런스이미지를 컬러이진화한 후, Filter(area)등을 이용해, 원하는 영역을 찾는다.
      */
 
-
-    //#COLOR BINARY FILTER#7 이진화 하이라이트, 이외에, 이진화 이미지를 보기 위한 옵션
-    //컬러이진화 하이라이트, 이외에, 이진화 이미지를 보기 위한 옵션
-    public enum ShowColorBinaryMode
+    public struct HsvRange
     {
-        ShowColorBinaryNone = 0, //이진화 컬러 하이라이트 끄기
-        ShowColorBinaryHighlight, //이진화 컬러 하이라이트 보기
-        ShowColorBinary, //이진화 컬러 이미지만 보기
-        ShowColorBinaryOnly //배경 없이 이진화 컬러 이미지만 보기
+        public int HueLower, HueUpper; // Hue 범위
+        public int SaturationLower, SaturationUpper; // Saturation 범위
+        public int ValueLower, ValueUpper; // Value 범위
+        
+        //public HsvRange(int hueLower, int hueUpper, int saturationLower, int saturationUpper, int valueLower, int valueUpper)
+        //{
+        //    int HueLower = hueLower;
+        //    int HueUpper = hueUpper;
+        //    int SaturationLower = saturationLower;
+        //    int SaturationUpper = saturationUpper;
+        //    int ValueLower = valueLower;
+        //    int ValueUpper = valueUpper;
+        //}
     }
 
     public partial class ColorBinaryInspProp : UserControl
@@ -56,10 +62,10 @@ namespace JidamVision.Property
         C# 6부터는 위 코드를 더 간결하게 람다(=>) 문법을 사용하여 표현
         */
 
-        // 속성값을 이용하여 이진화 임계값 설정
-        public int HueValue => hTrackBar.Value; // Hue 값만 설정
-        public int SatValue => sTrackBar.Value; // Saturation 값만 설정
-        public int ValValue => vTrackBar.Value; // Value 값만 설정
+        Vec3b _hsvMin = new Vec3b(0, 0, 0);
+
+        Vec3b _hsvMax = new Vec3b(0, 0, 0);
+
 
         public ColorBinaryInspProp()
         {
@@ -74,13 +80,24 @@ namespace JidamVision.Property
 
 
             // TrackBar 초기 설정
-            hTrackBar.ValueChanged += OnValueChanged;
-            sTrackBar.ValueChanged += OnValueChanged;
-            vTrackBar.ValueChanged += OnValueChanged;
+            hTrackBarLower.ValueChanged += OnValueChanged;
+            hTrackBarUpper.ValueChanged += OnValueChanged;
+            sTrackBarLower.ValueChanged += OnValueChanged;
+            sTrackBarUpper.ValueChanged += OnValueChanged;
+            vTrackBarLower.ValueChanged += OnValueChanged;
+            vTrackBarUpper.ValueChanged += OnValueChanged;
 
-            hTrackBar.Value = 0;
-            sTrackBar.Value = 0;
-            vTrackBar.Value = 0;
+
+            hTrackBarLower.Minimum = 0;
+            hTrackBarLower.Maximum = 255;
+            sTrackBarLower.Minimum = 0;
+            sTrackBarLower.Maximum = 255;
+            vTrackBarLower.Minimum = 0;
+            vTrackBarLower.Maximum = 255;
+
+            hTrackBarLower.Value = 0;
+            sTrackBarUpper.Value = 0;
+            vTrackBarLower.Value = 0;
 
             // 필터 적용 버튼 클릭 이벤트
             btnApply.Click += btnApply_Click;
@@ -88,7 +105,7 @@ namespace JidamVision.Property
 
             // 필터 선택 콤보박스 이벤트
             select_effect.SelectedIndexChanged += select_effect_SelectedIndexChanged;
-
+            select_effect2.SelectedIndexChanged += select_effect_SelectedIndexChanged;
 
 
             //#COLOR BINARY FILTER#8 컬러이진화 필터값을 GUI에 로딩
@@ -100,9 +117,14 @@ namespace JidamVision.Property
                 if (colorBlobAlgo != null)
                 {
                     int filterArea = colorBlobAlgo.AreaFilter;
-                    txtH.Text = HueValue.ToString();
-                    txtS.Text = SatValue.ToString();
-                    txtV.Text = ValValue.ToString();
+
+
+                    hTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item0;
+                    hTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item0;
+                    sTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item1;
+                    sTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item1;
+                    vTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item2;
+                    vTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item2;
                 }
             }
         }
@@ -114,19 +136,26 @@ namespace JidamVision.Property
             bool invert = chkInvert.Checked;
             bool highlight = chkHighlight.Checked;
 
-
-            ShowColorBinaryMode showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryNone;
+            ShowBinaryMode showBinaryMode = ShowBinaryMode.ShowBinaryNone;
             if (highlight)
             {
-                showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryHighlight;
+                showBinaryMode = ShowBinaryMode.ShowBinaryHighlight;
 
-                bool showColorBinary = chkShowColorBinaryOnly.Checked;
+                bool showBinary = chkShowColorBinaryOnly.Checked;
 
-                if (showColorBinary)
-                    showColorBinaryMode = ShowColorBinaryMode.ShowColorBinaryOnly;
+                if (showBinary)
+                    showBinaryMode = ShowBinaryMode.ShowBinaryOnly;
             }
 
-            RangeChanged?.Invoke(this, new RangeChangedEventArgs(HueValue, SatValue, ValValue, invert, showColorBinaryMode));
+
+            _hsvMin.Item0 = (byte)hTrackBarLower.Value;
+            _hsvMax.Item0 = (byte)hTrackBarUpper.Value;
+            _hsvMin.Item1 = (byte)sTrackBarLower.Value;
+            _hsvMax.Item1 = (byte)sTrackBarUpper.Value;
+            _hsvMin.Item2 = (byte)vTrackBarLower.Value;
+            _hsvMax.Item2 = (byte)vTrackBarUpper.Value;
+
+            RangeChanged?.Invoke(this, new RangeChangedEventArgs(_hsvMin, _hsvMax, invert, showBinaryMode));
         }
 
 
@@ -157,61 +186,74 @@ namespace JidamVision.Property
         //#COLOR BINARY FILTER#9 컬러이진화 관련 이벤트 발생시, 전달할 값 추가
         public class RangeChangedEventArgs : EventArgs
         {
-            public int LowerHue { get; }
-            public int UpperHue { get; }
-            public int LowerSaturation { get; }
-            public int UpperSaturation { get; }
-            public int LowerValue { get; }
-            public int UpperValue { get; }            
+            //public int LowerHue { get; }
+            //public int UpperHue { get; }
+            //public int LowerSaturation { get; }
+            //public int UpperSaturation { get; }
+            //public int LowerValue { get; }
+            //public int UpperValue { get; }
+            //
+            public Vec3b HsvMin { get;  }
+            public Vec3b HsvMax { get;  }
+
             public bool Invert { get; }
-            public ShowColorBinaryMode ShowColorBinMode { get; }
+            public ShowBinaryMode ShowBinaryMode { get; }
 
-            public RangeChangedEventArgs(int hueValue, int satValue, int valValue, bool invert, ShowColorBinaryMode showColorBinaryMode)
+
+            public RangeChangedEventArgs(Vec3b hsvMin, Vec3b hsvMax, bool invert, ShowBinaryMode showBinaryMode)
             {
-                LowerHue = hueValue;
-                UpperHue = hueValue;
-                LowerSaturation = satValue;
-                UpperSaturation = satValue;
-                LowerValue = valValue;
-                UpperValue = valValue;
+                HsvMin = hsvMin;
+                HsvMax = hsvMax;
                 Invert = invert;
-                ShowColorBinMode = showColorBinaryMode;
+                ShowBinaryMode = ShowBinaryMode;
             }
 
+            //public RangeChangedEventArgs(int hueValue, int satValue, int valValue, bool invert, ShowColorBinaryMode showColorBinaryMode)
+            //{
+            //    LowerHue = hueValue;
+            //    UpperHue = hueValue;
+            //    LowerSaturation = satValue;
+            //    UpperSaturation = satValue;
+            //    LowerValue = valValue;
+            //    UpperValue = valValue;
+            //    Invert = invert;
+            //    ShowColorBinMode = showColorBinaryMode;
+            //}
 
-            public Mat ProcessColor(Mat inputImage, int hue, int sat, int val, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
-            {
-                if (inputImage.Empty())
-                    return null;
 
-                Mat hsvImage = new Mat();
-                Cv2.CvtColor(inputImage, hsvImage, ColorConversionCodes.BGR2HSV);
+            //public Mat ProcessColor(Mat inputImage, int hue, int sat, int val, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
+            //{
+            //    if (inputImage.Empty())
+            //        return null;
 
-                // HSV 범위 설정
-                Scalar lowerBound = new Scalar(hue - thresholdH, Math.Max(sat - thresholdS, 0), Math.Max(val - thresholdV, 0));
-                Scalar upperBound = new Scalar(hue + thresholdH, Math.Min(sat + thresholdS, 255), Math.Min(val + thresholdV, 255));
+            //    Mat hsvImage = new Mat();
+            //    Cv2.CvtColor(inputImage, hsvImage, ColorConversionCodes.BGR2HSV);
 
-                Mat binaryMask = new Mat();
-                Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
+            //    // HSV 범위 설정
+            //    Scalar lowerBound = new Scalar(hue - thresholdH, Math.Max(sat - thresholdS, 0), Math.Max(val - thresholdV, 0));
+            //    Scalar upperBound = new Scalar(hue + thresholdH, Math.Min(sat + thresholdS, 255), Math.Min(val + thresholdV, 255));
 
-                if (mode == ShowColorBinaryMode.ShowColorBinaryHighlight)
-                {
-                    Mat highlightedImage = new Mat();
-                    inputImage.CopyTo(highlightedImage); // 원본 이미지 복사
+            //    Mat binaryMask = new Mat();
+            //    Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
 
-                    // 빨간색(또는 원하는 색)으로 강조 (bitwise 연산 활용)
-                    Mat redHighlight = new Mat(inputImage.Size(), inputImage.Type(), new Scalar(0, 0, 255));
-                    redHighlight.CopyTo(highlightedImage, binaryMask);
+            //    if (mode == ShowColorBinaryMode.ShowColorBinaryHighlight)
+            //    {
+            //        Mat highlightedImage = new Mat();
+            //        inputImage.CopyTo(highlightedImage); // 원본 이미지 복사
 
-                    return highlightedImage;
-                }
-                else if (mode == ShowColorBinaryMode.ShowColorBinaryOnly)
-                {
-                    return binaryMask; // 컬러 이진화된 이미지 반환
-                }
+            //        // 빨간색(또는 원하는 색)으로 강조 (bitwise 연산 활용)
+            //        Mat redHighlight = new Mat(inputImage.Size(), inputImage.Type(), new Scalar(0, 0, 255));
+            //        redHighlight.CopyTo(highlightedImage, binaryMask);
 
-                return inputImage; // 기본적으로 원본 유지
-            }
+            //        return highlightedImage;
+            //    }
+            //    else if (mode == ShowColorBinaryMode.ShowColorBinaryOnly)
+            //    {
+            //        return binaryMask; // 컬러 이진화된 이미지 반환
+            //    }
+
+            //    return inputImage; // 기본적으로 원본 유지
+            //}
         }
 
         //필터 선택시, 적용할 필터 효과를 선택하고, 필터 옵션을 선택할 수 있도록 개선
@@ -279,19 +321,20 @@ namespace JidamVision.Property
             if (ColorblobAlgo is null)
                 return;
 
-            HsvRange threshold = new HsvRange();
-            threshold.HueUpper = HueValue;
-            threshold.SaturationUpper = SatValue;
-            threshold.ValueUpper = ValValue;
+            //HsvRange threshold = new HsvRange();
+            //threshold.HueUpper = hTrackBarUpper;
+            //threshold.SaturationUpper = sTrackBarUpper;
+            
+            //threshold.ValueUpper = ValValue;
 
-            threshold.HueLower = HueValue;
-            threshold.SaturationLower = SatValue;
-            threshold.ValueLower = ValValue;
+            //threshold.HueLower = HueValue;
+            //threshold.SaturationLower = SatValue;
+            //threshold.ValueLower = ValValue;
 
 
-            threshold.Invert = chkInvert.Checked;
+            //threshold.Invert = chkInvert.Checked;
 
-            ColorblobAlgo.ColorRange = threshold;
+            //ColorblobAlgo.ColorRange = threshold;
 
             int hueArea = int.Parse(txtH.Text);
             int satArea = int.Parse(txtS.Text);
@@ -310,34 +353,7 @@ namespace JidamVision.Property
             this.Cursor = Cursors.Cross; // 펜 모양으로 변경
         }
 
-        private void ColorBinaryInspProp_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (isSelecting)
-            {
-                // 마우스 클릭 위치 저장
-                Point point = new Point(e.X, e.Y);
-                // 마우스 클릭 위치에 대한 색상값 저장
-                System.Drawing.Color color = System.Drawing.Color.FromArgb(255, point.X, point.Y);
-                // 색상값을 HSV로 변환
-                Hsv hsv = new Hsv(color.R, color.G, color.B);
-                // HSV값을 텍스트박스에 출력
-                txtH.Text = hsv.H.ToString();
-                txtS.Text = hsv.S.ToString();
-                txtV.Text = hsv.V.ToString();
-                isSelecting = false;
-                this.Cursor = Cursors.Default; // 기본 커서로 변경
-            }
-        }
-
-        //imageViewer에 ROI 추가 기능 실행
-        private void ColorBinaryInspProp_MouseClick(InspWindowType inspWindowType)
-        {
-            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm != null)
-            {
-                cameraForm.AddRoi(inspWindowType);
-            }
-        }
+        
 
         private void ExtractColorFromSelection()
         {
@@ -345,31 +361,31 @@ namespace JidamVision.Property
                 return;
 
             // 이미지에서 선택된 영역 추출
-            Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
-            Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
+           // Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
+            //Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
 
-            // 영역의 색상 추출
-            Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
+            //// 영역의 색상 추출
+            //Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
 
-            // 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
-            for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
-            {
-                for (int x = selectedArea.Left; x < selectedArea.Right; x++)
-                {
-                    Color pixelColor = selectedBitmap.GetPixel(x, y);
-                    if (IsColorMatch(pixelColor, averageColor))
-                    {
-                        maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
-                    }
-                    else
-                    {
-                        maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
-                    }
-                }
-            }
+            //// 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
+            //for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
+            //{
+            //    for (int x = selectedArea.Left; x < selectedArea.Right; x++)
+            //    {
+            //        Color pixelColor = selectedBitmap.GetPixel(x, y);
+            //        if (IsColorMatch(pixelColor, averageColor))
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
+            //        }
+            //        else
+            //        {
+            //            maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
+            //        }
+            //    }
+            //}
 
             // 화면 갱신: 마스크 이미지 갱신
-            pictureBox.Image = maskBitmap;
+            //pictureBox.Image = maskBitmap;
         }
 
         // 평균 색상 계산

@@ -39,6 +39,11 @@ namespace JidamVision.Algorithm
 
         public HsvRange ColorRange { get; set; } = new HsvRange();
 
+        public Vec3b HsvMin { get; set; } = new Vec3b(0, 0, 0);
+
+        public Vec3b HsvMax { get; set; } = new Vec3b(0, 0, 0);
+
+
         // 픽셀 영역 필터링 (기본값 100)
         public int AreaFilter { get; set; } = 100;
 

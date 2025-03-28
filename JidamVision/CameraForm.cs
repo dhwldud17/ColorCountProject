@@ -59,6 +59,11 @@ namespace JidamVision
                 case EntityActionType.Break:
                     Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
                     break;
+                case EntityActionType.PickColor:
+                    Rect rect = imageViewer.GetPickColorRect();
+                    Global.Inst.InspStage.PickColorWindow(rect);
+                    break;
+
             }
         }
 

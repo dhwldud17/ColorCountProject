@@ -133,10 +133,10 @@ namespace JidamVision.Core
             cameraForm.UpdateDisplay(bmpImage);
         }
 
-        
+
 
         //#COLOR BINARY FILTER#15 기존 이진화 프리뷰에, 배경없이 이진화 이미지만 보이는 모드 추가
-        public void SetColorBinary(int hueLower, int hueUpper, int saturationLower, int saturationUpper, int valueLower, int valueUpper, bool invert, ShowColorBinaryMode showColorBinMode)
+        public void SetColorBinary(Vec3b hsvMin, Vec3b hsvMax, bool invert, ShowBinaryMode showBinMode)
         {
             if (_orinalImage == null)
                 return;
@@ -146,43 +146,39 @@ namespace JidamVision.Core
                 return;
 
             Bitmap bmpImage;
-            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryNone)
+            if (showBinMode == ShowBinaryMode.ShowBinaryNone)
             {
                 bmpImage = BitmapConverter.ToBitmap(_orinalImage);
                 cameraForm.UpdateDisplay(bmpImage);
                 return;
             }
 
-            // 1️⃣ RGB → HSV 변환
             Mat hsvImage = new Mat();
             Cv2.CvtColor(_orinalImage, hsvImage, ColorConversionCodes.BGR2HSV);
 
-            // 2️⃣ 특정 색 범위 이진화
-            Mat colorBinaryMask = new Mat();
-            Scalar lowerBound = new Scalar(hueLower, saturationLower, valueLower);
-            Scalar upperBound = new Scalar(hueUpper, saturationUpper, valueUpper);
+            // 4️⃣ 이진화 처리 (hsvMin ~ hsvMax 사이의 값은 255(흰색), 나머지는 0(검은색))
+            Mat binaryMask = new Mat();
+            Cv2.InRange(hsvImage, new Scalar(hsvMin.Item0, hsvMin.Item1, hsvMin.Item2),
+                                   new Scalar(hsvMax.Item0, hsvMax.Item1, hsvMax.Item2), binaryMask);
 
-            Cv2.InRange(hsvImage, lowerBound, upperBound, colorBinaryMask);
-
-            // 3️⃣ 반전 옵션 적용
             if (invert)
-                colorBinaryMask = ~colorBinaryMask;
+                binaryMask = ~binaryMask;
 
-            if (showColorBinMode == ShowColorBinaryMode.ShowColorBinaryOnly)
+            if (showBinMode == ShowBinaryMode.ShowBinaryOnly)
             {
-                bmpImage = BitmapConverter.ToBitmap(colorBinaryMask);
+                bmpImage = BitmapConverter.ToBitmap(binaryMask);
                 cameraForm.UpdateDisplay(bmpImage);
                 return;
             }
 
-            // 4️⃣ 원본 이미지에서 선택한 색상의 부분만 강조
+            // 컬러 강조를 위한 오버레이 이미지 생성 (빨간색 강조)
+            Mat colorOverlay = new Mat(_orinalImage.Size(), _orinalImage.Type(), new Scalar(0, 0, 255));
             Mat overlayImage = _orinalImage.Clone();
-            overlayImage.SetTo(new Scalar(0, 0, 255), colorBinaryMask); // 빨간색으로 강조
+            colorOverlay.CopyTo(overlayImage, binaryMask);
 
-            // 5️⃣ 원본과 합성 (투명도 적용)
+            // 원본과 강조 이미지 합성 (투명도 적용)
             Cv2.AddWeighted(_orinalImage, 0.7, overlayImage, 0.3, 0, _previewImage);
 
-            // 6️⃣ 결과 이미지 업데이트
             bmpImage = BitmapConverter.ToBitmap(_previewImage);
             cameraForm.UpdateDisplay(bmpImage);
         }
@@ -235,29 +231,10 @@ namespace JidamVision.Core
             Mat dst = new Mat();
 
             switch (operation)
-            {
-                case ImageOperation.OpAdd:
-                    Cv2.Add(src1, src2, dst);  // 두 이미지를 더하기
-                    break;
+            {          
                 case ImageOperation.OpSubtract:
                     Cv2.Subtract(src1, src2, dst);  // 두 이미지의 차이 구하기
-                    break;
-                case ImageOperation.OpMultiply:
-                    Cv2.Multiply(src1, src2, dst);  // 두 이미지를 곱하기
-                    break;
-                case ImageOperation.OpDivide:
-                    Cv2.Divide(src1, src2, dst);  // 두 이미지 나누기
-                    break;
-                case ImageOperation.OpMax:
-                    Cv2.Max(src1, src2, dst);  // 두 이미지의 최대값 비교
-                    break;
-                case ImageOperation.OpMin:
-                    Cv2.Min(src1, src2, dst);  // 두 이미지의 최소값 비교
-                    break;
-                case ImageOperation.OpAbs:
-                    Cv2.Multiply(src1, src2, dst);
-                    Cv2.Abs(dst); // 절대값 계산
-                    break;
+                    break;              
                 case ImageOperation.OpAbsDiff:
                     Mat matMul = new Mat();
                     Cv2.Multiply(src1, src2, matMul);
@@ -276,16 +253,7 @@ namespace JidamVision.Core
             Mat dst = new Mat();
             Mat src2 = src1.Flip(FlipMode.Y); //Y축 기준으로 반전한 이미지 
             switch (operation)
-            {
-                case Bitwise.OnAnd:
-                    Cv2.BitwiseAnd(src1, src2, dst);  // AND 연산
-                    break;
-                case Bitwise.OnOr:
-                    Cv2.BitwiseOr(src1, src2, dst);  // OR 연산
-                    break;
-                case Bitwise.OnXor:
-                    Cv2.BitwiseXor(src1, src2, dst);  // XOR 연산
-                    break;
+            {                
                 case Bitwise.OnNot:
                     Cv2.BitwiseNot(src1, dst);  // NOT 연산
                     break;
@@ -296,52 +264,7 @@ namespace JidamVision.Core
             resultImage = dst;
         }
 
-        static void ApplyImageFiltering(ImageFilter filterType, Mat src, out Mat resultImage) // 블러링 효과 코드
-                                                                                              // 다양한 필터를 사용하여 이미지에 흐림 효과를 적용하는 예시
-        {
-            Mat dst = new Mat();
-            switch (filterType)
-            {
-                case ImageFilter.FilterBlur:
-                    Cv2.Blur(src, dst, new OpenCvSharp.Size(5, 5));  // 블러 필터 적용
-                    break;
-                case ImageFilter.FilterBoxFilter:
-                    Cv2.BoxFilter(src, dst, src.Depth(), new OpenCvSharp.Size(30, 30));  // 박스 필터 적용
-                    break;
-                case ImageFilter.FilterMedianBlur:
-                    Cv2.MedianBlur(src, dst, 31);  // 미디안 블러 적용
-                    break;
-                case ImageFilter.FilterGaussianBlur:
-                    Cv2.GaussianBlur(src, dst, new OpenCvSharp.Size(31, 31), 0);  // 가우시안 블러 적용
-                    break;
-                case ImageFilter.FilterBilateral:
-                    Cv2.BilateralFilter(src, dst, 9, 75, 75);  // 양방향 필터 적용
-                    break;
-            }
-            resultImage = dst;
-        }
-
-        static void ApplyEdgeDetection(ImageEdge edgeType, Mat src, out Mat resultImage)// 엣지(가장자리) 검출 코드
-                                                                                        // Sobel, Scharr, Laplacian, Canny 필터를 사용해 이미지의 가장자리를 검출하는 예시
-        {
-            Mat dst = new Mat();
-            switch (edgeType)
-            {
-                case ImageEdge.FilterSobel:
-                    Cv2.Sobel(src, dst, MatType.CV_8U, 1, 1);  // Sobel 필터 적용
-                    break;
-                case ImageEdge.FilterScharr:
-                    Cv2.Scharr(src, dst, MatType.CV_8U, 1, 0);  // Scharr 필터 적용
-                    break;
-                case ImageEdge.FilterLaplacian:
-                    Cv2.Laplacian(src, dst, MatType.CV_8U);  // Laplacian 필터 적용
-                    break;
-                case ImageEdge.FilterCanny:
-                    Cv2.Canny(src, dst, 100, 200);  // Canny 엣지 검출 적용
-                    break;
-            }
-            resultImage = dst;
-        }
+                
 
         //필터 효과 기능
         public void ApplyFilter(String selected_filter1, int selected_filter2)
@@ -366,16 +289,7 @@ namespace JidamVision.Core
                     // 비트 연산 관련 enum 값 매핑
                     Bitwise bitwise = (Bitwise)selected_filter2;
                     ApplyBitwiseOperation(bitwise, _orinalImage, out filteredImage);
-                    break;
-                case "블러링":
-                    ImageFilter filter = (ImageFilter)selected_filter2;
-                    ApplyImageFiltering(filter, _orinalImage, out filteredImage);
-                    break;
-                case "Edge":
-                    ImageEdge edge = (ImageEdge)selected_filter2;
-                    ApplyEdgeDetection(edge, _orinalImage, out filteredImage);
-                    break;
-
+                    break;                
                 default:
                     return;
             }
