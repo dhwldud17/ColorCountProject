@@ -59,17 +59,13 @@ namespace JidamVision.Inspect
 
                 switch (algo.InspectType)
                 {
-                    //case InspectType.InspMatch:
-                    //    MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
-                    //    inspResult.ResultValue = $"{matchAlgo.OutScore}";
-                    //    break;
+                    case InspectType.InspMatch:
+                        MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
+                        inspResult.ResultValue = $"{matchAlgo.OutScore}";
+                        break;
                     case InspectType.InspBinary:
                         BlobAlgorithm blobAlgo = algo as BlobAlgorithm;
                         inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{blobAlgo.BlobCount}";
-                        break;
-                    case InspectType.InspColorBinary:
-                        ColorBlobAlgorithm colorblobAlgo = algo as ColorBlobAlgorithm;
-                       // inspResult.ResultValue = $"{colorblobAlgo.OutBlobCount}/{colorblobAlgo.BlobCount}";
                         break;
                 }
 
@@ -90,7 +86,7 @@ namespace JidamVision.Inspect
 
             //ID 윈도우가 매칭알고리즘이 있고, 검사가 되었다면, 오프셋을 얻는다.
             Point alignOffset = new Point(0, 0);
-            InspWindow idWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Base);
+            InspWindow idWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.ID);
             if (idWindow != null)
             {
                 MatchAlgorithm matchAlgo = (MatchAlgorithm)idWindow.FindInspAlgorithm(InspectType.InspMatch);
@@ -99,11 +95,11 @@ namespace JidamVision.Inspect
                     if (!InspectWindow(idWindow))
                         return false;
 
-                    //if (matchAlgo.IsInspected)
-                    //{
-                    //    alignOffset = matchAlgo.GetOffset();
-                    //    idWindow.InspArea = idWindow.WindowArea + alignOffset;
-                    //}
+                    if (matchAlgo.IsInspected)
+                    {
+                        alignOffset = matchAlgo.GetOffset();
+                        idWindow.InspArea = idWindow.WindowArea + alignOffset;
+                    }
                 }
             }
 

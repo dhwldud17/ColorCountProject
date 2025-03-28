@@ -54,7 +54,45 @@ namespace JidamVision.Teach
 
             _windowTypeNo[name] = curID;
 
+            AddInspAlgorithm(inspWindow);
+
             return inspWindow;
+        }
+
+        private bool AddInspAlgorithm(InspWindow inspWindow)
+        {
+            switch(inspWindow.InspWindowType)
+            {
+                case InspWindowType.Base:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.Body:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.Sub:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.ID:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    break;
+                case InspWindowType.Package:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.Chip:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.Pad:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+            }
+
+            return true;
         }
 
         //타입을 입력하면, 해당 타입의 이름과 UID 이름 반환
@@ -65,22 +103,41 @@ namespace JidamVision.Teach
             switch (windowType)
             {
                 case InspWindowType.Global:
-                    name = "GLOBAL";
+                    name = "Global";
                     prefix = "GLB";
                     break;
                 case InspWindowType.Group:
-                    name = "GROUP";
+                    name = "Group";
                     prefix = "GRP";
                     break;
                 case InspWindowType.Base:
-                    name = "BASE";
+                    name = "Base";
                     prefix = "BAS";
                     break;
-                case InspWindowType.Cabel:
-                    name = "CABEL";
-                    prefix = "CABLE";
+                case InspWindowType.Body:
+                    name = "Body";
+                    prefix = "BDY";
                     break;
-                
+                case InspWindowType.Sub:
+                    name = "Sub";
+                    prefix = "SUB";
+                    break;
+                case InspWindowType.ID:
+                    name = "ID";
+                    prefix = "ID";
+                    break;
+                case InspWindowType.Package:
+                    name = "Package";
+                    prefix = "PKG";
+                    break;
+                case InspWindowType.Chip:
+                    name = "Chip";
+                    prefix = "CHP";
+                    break;
+                case InspWindowType.Pad:
+                    name = "Pad";
+                    prefix = "PAD";
+                    break;
                 default:
                     return false;
             }

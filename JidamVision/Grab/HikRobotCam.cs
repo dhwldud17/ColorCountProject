@@ -1,10 +1,12 @@
-﻿using MvCamCtrl.NET;
+﻿using JidamVision.Util;
+using MvCamCtrl.NET;
 using OpenCvSharp;
 using OpenCvSharp.Dnn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,7 +50,7 @@ namespace JidamVision.Grab
                     int nRet = _camera.MV_CC_ConvertPixelType_NET(ref _pixelConvertParam);
                     if (MyCamera.MV_OK != nRet)
                     {
-                        Console.WriteLine("Convert pixel type Failed:{0:x8}", nRet);
+                        SLogger.Write($"Convert pixel type Failed! [{nRet:x8}]",SLogger.LogType.Error);
                         return;
                     }
                 }
@@ -91,7 +93,7 @@ namespace JidamVision.Grab
                 nRet = MyCamera.MV_CC_EnumDevices_NET(MyCamera.MV_GIGE_DEVICE, ref stDevList);
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Enum device failed:{0:x8}", nRet);
+                    SLogger.Write($"Enum device failed! [{nRet:x8}]",SLogger.LogType.Error);
                     return false;
                 }
                 Console.WriteLine("Enum device count :{0}", stDevList.nDeviceNum);
@@ -115,9 +117,9 @@ namespace JidamVision.Grab
                         uint nIp3 = ((stGigEDeviceInfo.nCurrentIp & 0x0000ff00) >> 8);
                         uint nIp4 = (stGigEDeviceInfo.nCurrentIp & 0x000000ff);
 
-                        Console.WriteLine("[device " + i.ToString() + "]:");
-                        Console.WriteLine("DevIP:" + nIp1 + "." + nIp2 + "." + nIp3 + "." + nIp4);
-                        Console.WriteLine("UserDefineName:" + stGigEDeviceInfo.chUserDefinedName + "\n");
+                        SLogger.Write($"[device {i}]:");
+                        SLogger.Write($"DevIP:{nIp1}.{nIp2}.{nIp3}.{nIp4}");
+                        SLogger.Write("UserDefineName:" + stGigEDeviceInfo.chUserDefinedName);
 
                         string strDevice = "[device " + i.ToString() + "]:";
                         string strIP = nIp1 + "." + nIp2 + "." + nIp3 + "." + nIp4;
@@ -133,7 +135,7 @@ namespace JidamVision.Grab
 
                 if (nDevIndex < 0 || nDevIndex > stDevList.nDeviceNum - 1)
                 {
-                    Console.WriteLine("Invalid selected device number:{0}", nDevIndex);
+                    SLogger.Write($"Invalid selected device number:{nDevIndex}",SLogger.LogType.Error);
                     return false;
                 }
 
@@ -149,7 +151,7 @@ namespace JidamVision.Grab
                 nRet = _camera.MV_CC_CreateDevice_NET(ref stDevInfo);
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Create device failed:{0:x8}", nRet);
+                    SLogger.Write($"Create device failed! [{nRet:x8}]");
                     return false;
                 }
 
@@ -215,7 +217,7 @@ namespace JidamVision.Grab
                     if (MyCamera.MV_OK != nRet)
                     {
                         _camera.MV_CC_DestroyDevice_NET();
-                        Console.WriteLine("Device open fail!", nRet);
+                        SLogger.Write($"Device open fail! [{nRet:x8}]",SLogger.LogType.Error);
                         MessageBox.Show($"Device open fail! {nRet:X8}");
                         return false;
                     }
@@ -227,7 +229,7 @@ namespace JidamVision.Grab
                         nRet = _camera.MV_CC_SetIntValue_NET("GevSCPSPacketSize", (uint)nPacketSize);
                         if (nRet != MyCamera.MV_OK)
                         {
-                            Console.WriteLine("Set Packet Size failed!", nRet);
+                            SLogger.Write($"Set Packet Size failed! [{nRet:x8}]", SLogger.LogType.Error);
                         }
                     }
 
@@ -247,7 +249,7 @@ namespace JidamVision.Grab
                     nRet = _camera.MV_CC_RegisterImageCallBackEx_NET(ImageCallback, IntPtr.Zero);
                     if (MyCamera.MV_OK != nRet)
                     {
-                        Console.WriteLine("Register image callback failed!");
+                        SLogger.Write($"Register image callback failed! [{nRet:x8}]", SLogger.LogType.Error);
                         return false;
                     }
 
@@ -255,14 +257,14 @@ namespace JidamVision.Grab
                     nRet = _camera.MV_CC_StartGrabbing_NET();
                     if (MyCamera.MV_OK != nRet)
                     {
-                        Console.WriteLine("Start grabbing failed:{0:x8}", nRet);
+                        SLogger.Write($"Start grabbing failed! [{nRet:x8}]", SLogger.LogType.Error);
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                SLogger.Write(ex.ToString(),SLogger.LogType.Error);
                 return false;
             }
 
@@ -273,7 +275,7 @@ namespace JidamVision.Grab
         {
             if (_camera is null)
             {
-                Console.WriteLine("_camera is null");
+                SLogger.Write("_camera is null",SLogger.LogType.Error);
                 return false;
             }
             Close();
@@ -292,7 +294,7 @@ namespace JidamVision.Grab
             int nRet = _camera.MV_CC_GetEnumValue_NET("PixelFormat", ref stEnumValue);
             if (MyCamera.MV_OK != nRet)
             {
-                Console.WriteLine("Get PixelFormat failed: nRet {0:x8}", nRet);
+                SLogger.Write($"Get PixelFormat failed! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
 
@@ -318,7 +320,7 @@ namespace JidamVision.Grab
             int nRet = _camera.MV_CC_SetFloatValue_NET("ExposureTime", exposure);
             if (nRet != MyCamera.MV_OK)
             {
-                Console.WriteLine("Set Exposure Time Fail!", nRet);
+                SLogger.Write($"Set Exposure Time Fail! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
 
@@ -350,7 +352,7 @@ namespace JidamVision.Grab
             int nRet = _camera.MV_CC_SetFloatValue_NET("Gain", gain);
             if (nRet != MyCamera.MV_OK)
             {
-                Console.WriteLine("Set Gain Time Fail!", nRet);
+                SLogger.Write($"Set Gain Time Fail! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
 
@@ -385,7 +387,7 @@ namespace JidamVision.Grab
             int nRet = _camera.MV_CC_GetIntValue_NET("Width", ref stParam);
             if (MyCamera.MV_OK != nRet)
             {
-                Console.WriteLine("Get Width failed: nRet {0:x8}", nRet);
+                SLogger.Write($"Get Width Fail! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
             width = (ushort)stParam.nCurValue;
@@ -393,7 +395,7 @@ namespace JidamVision.Grab
             nRet = _camera.MV_CC_GetIntValue_NET("Height", ref stParam);
             if (MyCamera.MV_OK != nRet)
             {
-                Console.WriteLine("Get Height failed: nRet {0:x8}", nRet);
+                SLogger.Write($"Get Height Fail! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
             height = (ushort)stParam.nCurValue;
@@ -402,7 +404,7 @@ namespace JidamVision.Grab
             nRet = _camera.MV_CC_GetEnumValue_NET("PixelFormat", ref stEnumValue);
             if (MyCamera.MV_OK != nRet)
             {
-                Console.WriteLine("Get PixelFormat failed: nRet {0:x8}", nRet);
+                SLogger.Write($"Get PixelFormat Fail! [{nRet:x8}]", SLogger.LogType.Error);
                 return false;
             }
 
@@ -448,7 +450,7 @@ namespace JidamVision.Grab
 
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Failed to enable auto white balance!");
+                    SLogger.Write("Failed to enable auto white balance!",SLogger.LogType.Error);
                     return false;
                 }
 
@@ -463,7 +465,7 @@ namespace JidamVision.Grab
 
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Failed to disable auto white balance!");
+                    SLogger.Write("Failed to disable auto white balance!", SLogger.LogType.Error);
                     return false;
                 }
 
@@ -471,14 +473,14 @@ namespace JidamVision.Grab
                 nRet = _camera.MV_CC_SetFloatValue_NET("BalanceRatioRed", redGain);
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Failed to set Red gain!");
+                    SLogger.Write("Failed to set Red gain!",SLogger.LogType.Error);
                     return false;
                 }
 
                 nRet = _camera.MV_CC_SetFloatValue_NET("BalanceRatioBlue", blueGain);
                 if (MyCamera.MV_OK != nRet)
                 {
-                    Console.WriteLine("Failed to set Blue gain!");
+                    SLogger.Write("Failed to set Blue gain!",SLogger.LogType.Error);
                     return false;
                 }
             }

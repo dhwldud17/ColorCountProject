@@ -391,7 +391,7 @@ namespace JidamVision.Core
             if (_imageInfo.Count <= index)
                 return null;
 
-            if (channel == eImageChannel.Gray)
+            if (channel == eImageChannel.Color)
             {
                 return _imageInfo[index].ToMat();
             }

@@ -21,7 +21,12 @@ namespace JidamVision.Core
         Global,
         Group,
         Base,
-       Cabel
+        Body,
+        Sub,
+        ID,
+        Package,
+        Chip,
+        Pad
     }
 
     public static class Define

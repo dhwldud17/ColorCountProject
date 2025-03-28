@@ -1,7 +1,10 @@
-﻿using OpenCvSharp;
+﻿using JidamVision.Algorithm;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -79,5 +82,30 @@ namespace JidamVision.Teach
             return true;
         }
 
+        public override bool SaveInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            foreach(var window in Members)
+            {
+                window.SaveInspWindow(curModel);
+            }
+
+            return true;
+        }
+
+        public override bool LoadInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            foreach (var window in Members)
+            {
+                window.LoadInspWindow(curModel);
+            }
+
+            return true;
+        }
     }
 }

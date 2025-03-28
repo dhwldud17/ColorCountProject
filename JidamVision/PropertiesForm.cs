@@ -133,9 +133,9 @@ namespace JidamVision
         {
             LoadOptionControl(inspPropType);
         }
-      
 
-    
+
+
 
 
         public void UpdateProperty(InspWindow window)
@@ -149,22 +149,23 @@ namespace JidamVision
                 {
                     UserControl uc = tabPage.Controls[0] as UserControl;
 
-                    //if (uc is MatchInspProp matchProp)
-                    //{
-                    //    MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
-                    //    if (matchAlgo is null)
-                    //        continue;
+                    if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
 
-                    //    matchProp.SetAlgorithm(matchAlgo);
-                    //}
-                    //else if (uc is BinaryInspProp binaryProp)
-                    //{
-                    //    BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
-                    //    if (blobAlgo is null)
-                    //        continue;
+                        matchProp.SetAlgorithm(matchAlgo);
+                    }
+                    else if (uc is BinaryInspProp binaryProp)
+                    {
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
 
-                    //    binaryProp.SetAlgorithm(blobAlgo);
-                    //}
+                        //    binaryProp.SetAlgorithm(blobAlgo);
+                        //}
+                    }
                 }
             }
         }

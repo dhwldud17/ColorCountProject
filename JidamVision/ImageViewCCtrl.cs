@@ -149,13 +149,26 @@ namespace JidamVision
             switch (inspWindowType)
             {
                 case InspWindowType.Base:
-                    color = Color.Red;
+                    color = Color.BurlyWood;
                     break;
-                case InspWindowType.Cabel:
-                    color = Color.Pink;
+                case InspWindowType.Sub:
+                    color = Color.Brown;
                     break;
-                
-                
+                case InspWindowType.ID:
+                    color = Color.Cyan;
+                    break;
+                case InspWindowType.Package:
+                    color = Color.LightBlue;
+                    break;
+                case InspWindowType.Body:
+                    color = Color.Chartreuse;
+                    break;
+                case InspWindowType.Chip:
+                    color = Color.Orange;
+                    break;
+                case InspWindowType.Pad:
+                    color = Color.Yellow;
+                    break;
             }
 
             return color;

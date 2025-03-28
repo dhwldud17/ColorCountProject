@@ -33,10 +33,11 @@
             // 
             // tabSetting
             // 
-            this.tabSetting.Location = new System.Drawing.Point(12, 12);
+            this.tabSetting.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSetting.Location = new System.Drawing.Point(0, 0);
             this.tabSetting.Name = "tabSetting";
             this.tabSetting.SelectedIndex = 0;
-            this.tabSetting.Size = new System.Drawing.Size(493, 362);
+            this.tabSetting.Size = new System.Drawing.Size(517, 386);
             this.tabSetting.TabIndex = 0;
             // 
             // SetupForm

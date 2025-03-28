@@ -35,7 +35,8 @@ namespace JidamVision
             // 
             // tabPropControl
             // 
-            this.tabPropControl.Location = new System.Drawing.Point(12, 12);
+            this.tabPropControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabPropControl.Location = new System.Drawing.Point(0, 0);
             this.tabPropControl.Name = "tabPropControl";
             this.tabPropControl.SelectedIndex = 0;
             this.tabPropControl.Size = new System.Drawing.Size(318, 366);

@@ -46,11 +46,11 @@ namespace JidamVision
             List<InspWindowType> windowTypeList;
             if (MachineType.SMT == SettingXml.Inst.MachineType)
             {
-                windowTypeList = new List<InspWindowType> { InspWindowType.Cabel  };
+                windowTypeList = new List<InspWindowType> { InspWindowType.Package, InspWindowType.Chip, InspWindowType.Pad, InspWindowType.ID };
             }
             else
             {
-                windowTypeList = new List<InspWindowType> { InspWindowType.Base};
+                windowTypeList = new List<InspWindowType> { InspWindowType.Base, InspWindowType.Body, InspWindowType.Sub, InspWindowType.ID };
             }
 
             foreach (InspWindowType windowType in windowTypeList)

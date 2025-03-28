@@ -203,10 +203,10 @@ namespace JidamVision.Inspect
                     //     }
                     case InspectType.InspColorBinary:
                         {
-                           ColorBlobAlgorithm ColorAlgo = (ColorBlobAlgorithm)inspAlgo;
+                            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
 
-                            Mat srcImage = Global.Inst.InspStage.GetMat(0, ColorAlgo.ImageChannel);
-                            ColorAlgo.SetInspData(srcImage);
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
+                            matchAlgo.SetInspData(srcImage);
                             break;
                         }
                     default:

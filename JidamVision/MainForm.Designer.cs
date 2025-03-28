@@ -132,6 +132,13 @@
             this.SetupMenuItem.Text = "Setup";
             this.SetupMenuItem.Click += new System.EventHandler(this.SetupMenuItem_Click);
             // 
+            // ModelNewMenuItem
+            // 
+            this.ModelNewMenuItem.Name = "ModelNewMenuItem";
+            this.ModelNewMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ModelNewMenuItem.Text = "Model New";
+            this.ModelNewMenuItem.Click += new System.EventHandler(this.ModelNewMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);

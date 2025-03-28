@@ -43,9 +43,7 @@ namespace JidamVision.Core
 
         public void Dispose()
         {
-
-
-
+            _stage.Dispose();
         }
     }
 }
