@@ -161,6 +161,7 @@ namespace JidamVision.Property
                 txtArea.Text = _blobAlgo.AreaFilter.ToString(); // 기존 값 복원
             }
         }
+
     }
 
     //#BINARY FILTER#9 이진화 관련 이벤트 발생시, 전달할 값 추가

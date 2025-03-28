@@ -29,8 +29,7 @@ namespace JidamVision
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
 
-        private Button btnCountWires;  // 전역으로 선언
-
+        private Button btnCountWires;
         public ModelTreeForm()
         {
             InitializeComponent();
@@ -48,16 +47,12 @@ namespace JidamVision
 
             // 전선 카운트 버튼 생성
             btnCountWires = new Button();
-            btnCountWires.Text = "전선 카운트";  // 버튼 텍스트
+            btnCountWires.Text = "전선 카운트";
             btnCountWires.Font = new System.Drawing.Font("맑은 고딕", 8);
-            btnCountWires.Location = new System.Drawing.Point(370, 50);  // 위치 조정
-            btnCountWires.Enabled = false;
-            btnCountWires.Click += BtnCountWires_Click;  // 클릭 이벤트 추가
-
-            // 처음엔 비활성화 상태로 시작
-            btnCountWires.Enabled = false;
-
-            this.Controls.Add(btnCountWires);  // 폼에 버튼 추가
+            btnCountWires.Location = new System.Drawing.Point(370, 50);
+            btnCountWires.Enabled = false;  // 초기엔 비활성화
+            btnCountWires.Click += BtnCountWires_Click;
+            this.Controls.Add(btnCountWires);
 
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
@@ -111,6 +106,7 @@ namespace JidamVision
             {
                 cameraForm.AddRoi(inspWindowType);
 
+                // Base ROI를 설정한 경우에만 카운트 버튼 활성화
                 if (inspWindowType == InspWindowType.Base)
                 {
                     btnCountWires.Enabled = true;
@@ -156,6 +152,9 @@ namespace JidamVision
             Model model = Global.Inst.InspStage.CurModel;
             model.InspWindowList.Clear();
 
+            // 버튼 비활성화
+            btnCountWires.Enabled = false;
+
             // UI 갱신
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
@@ -171,58 +170,80 @@ namespace JidamVision
             MessageBox.Show("ROI가 초기화되었습니다!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void BtnCountWires_Click(object sender, EventArgs e)
+        {
+            int count = CountWiresInBaseROI();
+            MessageBox.Show($"감지된 전선 개수: {count}개", "전선 카운트 결과", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private int CountWiresInBaseROI()
         {
-            // 현재 활성화된 카메라 폼 가져오기
+            // 카메라에서 현재 이미지 가져오기
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm == null)
             {
-                MessageBox.Show("카메라 화면을 찾을 수 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("카메라 화면을 찾을 수 없습니다.");
                 return 0;
             }
 
-            // 현재 이미지 가져오기
             Mat image = cameraForm.GetCurrentImage();
             if (image == null || image.Empty())
             {
-                MessageBox.Show("이미지를 가져올 수 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("이미지가 없습니다.");
                 return 0;
             }
 
             // Base ROI 가져오기
             Model model = Global.Inst.InspStage.CurModel;
             InspWindow baseROI = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
-
             if (baseROI == null)
             {
-                MessageBox.Show("Base ROI가 설정되지 않았습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Base ROI가 설정되지 않았습니다.");
                 return 0;
             }
 
-            // ROI 영역 추출
+            Rect imageRect = new Rect(0, 0, image.Width, image.Height);
             Rect roiRect = new Rect(baseROI.WindowArea.X, baseROI.WindowArea.Y, baseROI.WindowArea.Width, baseROI.WindowArea.Height);
-            Mat roiImage = new Mat(image, roiRect); // ROI 영역만 추출
+            Rect validROI = roiRect & imageRect;
+            if (validROI.Width <= 0 || validROI.Height <= 0)
+            {
+                MessageBox.Show("유효하지 않은 ROI 영역입니다.");
+                return 0;
+            }
 
-            // 전선 감지를 위한 전처리 수행
+            // 잘라낸 ROI 이미지
+            Mat roiImage = new Mat(image, validROI);
+
+            // 흑백 변환 및 이진화
             Mat gray = new Mat();
+            Cv2.CvtColor(roiImage, gray, ColorConversionCodes.BGR2GRAY);
+
             Mat binary = new Mat();
-            Cv2.CvtColor(roiImage, gray, ColorConversionCodes.BGR2GRAY); // 그레이스케일 변환
-            Cv2.Threshold(gray, binary, 100, 255, ThresholdTypes.BinaryInv); // 이진화
+            Cv2.Threshold(gray, binary, 70, 255, ThresholdTypes.Binary); 
 
-            // Blob Analysis 수행
-            Mat labels = new Mat();
-            Mat stats = new Mat();
-            Mat centroids = new Mat();
-            int wireCount = Cv2.ConnectedComponentsWithStats(binary, labels, stats, centroids) - 1; // 배경 제외
+            // 전선 사이 분리 보장 (Morphology)
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
+            Cv2.MorphologyEx(binary, binary, MorphTypes.Open, kernel);
 
-            return wireCount;
+            Cv2.ImShow("binary", binary); Cv2.WaitKey();
+
+            // Blob 분석
+            OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(binary, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            int count = 0;
+            foreach (var contour in contours)
+            {
+                double area = Cv2.ContourArea(contour);
+                if (area >= 30) // 너무 작은 노이즈 제외
+                    count++;
+            }
+
+            return count;
         }
 
-        private void BtnCountWires_Click(object sender, EventArgs e)
-        {
-            int wireCount = CountWiresInBaseROI();
-            MessageBox.Show($"감지된 전선 개수: {wireCount}", "전선 카운트 결과", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+
 
     }
 }
