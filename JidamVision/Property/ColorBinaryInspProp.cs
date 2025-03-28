@@ -162,19 +162,18 @@ namespace JidamVision.Property
             public int LowerSaturation { get; }
             public int UpperSaturation { get; }
             public int LowerValue { get; }
-            public int UpperValue { get; }
-
-            public int HueValue { get; }
-            public int SatValue { get; }
-            public int ValValue { get; }
+            public int UpperValue { get; }            
             public bool Invert { get; }
             public ShowColorBinaryMode ShowColorBinMode { get; }
 
             public RangeChangedEventArgs(int hueValue, int satValue, int valValue, bool invert, ShowColorBinaryMode showColorBinaryMode)
             {
-                HueValue = hueValue;
-                SatValue = satValue;
-                ValValue = valValue;
+                LowerHue = hueValue;
+                UpperHue = hueValue;
+                LowerSaturation = satValue;
+                UpperSaturation = satValue;
+                LowerValue = valValue;
+                UpperValue = valValue;
                 Invert = invert;
                 ShowColorBinMode = showColorBinaryMode;
             }
