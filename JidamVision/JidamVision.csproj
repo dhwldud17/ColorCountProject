@@ -337,7 +337,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\JidamVision_Ex\ExternalLib\MessagingLibrary\MessagingLibrary.csproj">
+    <ProjectReference Include="..\ExternalLib\MessagingLibrary\MessagingLibrary.csproj">
       <Project>{9a7ef5c0-1ecc-4a9d-ac22-105014ab2bdb}</Project>
       <Name>MessagingLibrary</Name>
     </ProjectReference>
