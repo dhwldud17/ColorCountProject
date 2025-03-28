@@ -266,8 +266,6 @@ namespace JidamVision.Property
     //#BINARY FILTER#9 이진화 관련 이벤트 발생시, 전달할 값 추가
     public class RangeChangedEventArgs : EventArgs
     {
-        
-
         public int LowerValue { get; }
         public int UpperValue { get; }
         public bool Invert { get; }

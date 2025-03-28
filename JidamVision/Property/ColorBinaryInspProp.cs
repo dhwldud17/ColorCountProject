@@ -40,13 +40,14 @@ namespace JidamVision.Property
         //}
     }
 
+
     public partial class ColorBinaryInspProp : UserControl
 
     {   //콤보박스 필터   효과1,2번 선택 이벤트 추가
         public event EventHandler<FilterSelectedEventArgs> FilterSelected;
         private String _selected_effect;
         private int _selected_effect2 = -1;
-
+        ColorBlobAlgorithm _colorBlobAlgo = null;
         public event EventHandler<RangeChangedEventArgs> RangeChanged; //HSV임계값 이벤트 추가
         private ColorBlobAlgorithm colorBlobAlgorithm;
 
@@ -70,15 +71,6 @@ namespace JidamVision.Property
         public ColorBinaryInspProp()
         {
             InitializeComponent();
-        }
-
-        //컬러 이진화 검사 속성값을 GUI에 설정
-        public void LoadInspParam()
-        {
-            if (colorBlobAlgorithm == null)
-                return;
-
-
             // TrackBar 초기 설정
             hTrackBarLower.ValueChanged += OnValueChanged;
             hTrackBarUpper.ValueChanged += OnValueChanged;
@@ -87,7 +79,7 @@ namespace JidamVision.Property
             vTrackBarLower.ValueChanged += OnValueChanged;
             vTrackBarUpper.ValueChanged += OnValueChanged;
 
-
+            // HSV 범위 초기화
             hTrackBarLower.Minimum = 0;
             hTrackBarLower.Maximum = 255;
             sTrackBarLower.Minimum = 0;
@@ -98,6 +90,37 @@ namespace JidamVision.Property
             hTrackBarLower.Value = 0;
             sTrackBarUpper.Value = 0;
             vTrackBarLower.Value = 0;
+        
+                //int filterArea = colorBlobAlgo.AreaFilter    ;
+
+                   
+        }
+
+        public void SetProperty()
+        {
+            if (_colorBlobAlgo is null)
+                return;
+       
+                    hTrackBarLower.Value = (int)_colorBlobAlgo.HsvMin.Item0;
+                    hTrackBarUpper.Value = (int)_colorBlobAlgo.HsvMax.Item0;
+                    sTrackBarLower.Value = (int)_colorBlobAlgo.HsvMin.Item1;
+                    sTrackBarUpper.Value = (int)_colorBlobAlgo.HsvMax.Item1;
+                    vTrackBarLower.Value = (int)_colorBlobAlgo.HsvMin.Item2;
+                    vTrackBarUpper.Value = (int)_colorBlobAlgo.HsvMax.Item2;
+            //txtAreaMin.Text = _colorBlobAlgo.AreaMin.ToString();
+            //txtAreaMax.Text = _blobAlgo.AreaMax.ToString();
+            //txtWidthMin.Text = _blobAlgo.WidthMin.ToString();
+            //txtWidthMax.Text = _blobAlgo.WidthMax.ToString();
+            //txtHeightMin.Text = _blobAlgo.HeightMin.ToString();
+            //txtHeightMax.Text = _blobAlgo.HeightMax.ToString();
+            //txtCount.Text = _blobAlgo.BlobCount.ToString();
+        }
+
+        public void GetProperty()
+        {
+            if (_colorBlobAlgo is null)
+                return;
+
 
             // 필터 적용 버튼 클릭 이벤트
             btnApply.Click += btnApply_Click;
@@ -107,26 +130,19 @@ namespace JidamVision.Property
             select_effect.SelectedIndexChanged += select_effect_SelectedIndexChanged;
             select_effect2.SelectedIndexChanged += select_effect_SelectedIndexChanged;
 
+            _hsvMin.Item0 = (byte)hTrackBarLower.Value;
+            _hsvMax.Item0 = (byte)hTrackBarUpper.Value;
+            _hsvMin.Item1 = (byte)sTrackBarLower.Value;
+            _hsvMax.Item1 = (byte)sTrackBarUpper.Value;
+            _hsvMin.Item2 = (byte)vTrackBarLower.Value;
+            _hsvMax.Item2 = (byte)vTrackBarUpper.Value;
 
-            //#COLOR BINARY FILTER#8 컬러이진화 필터값을 GUI에 로딩
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow != null)
-            {
-                //#INSP WORKER#13 inspWindow에서 컬러이진화 알고리즘 찾는 코드
-                ColorBlobAlgorithm colorBlobAlgo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
-                if (colorBlobAlgo != null)
-                {
-                    int filterArea = colorBlobAlgo.AreaFilter;
-
-
-                    hTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item0;
-                    hTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item0;
-                    sTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item1;
-                    sTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item1;
-                    vTrackBarLower.Value = (int)colorBlobAlgo.HsvMin.Item2;
-                    vTrackBarUpper.Value = (int)colorBlobAlgo.HsvMax.Item2;
-                }
-            }
+            int hueArea = int.Parse(txtH.Text);
+            int satArea = int.Parse(txtS.Text);
+            int valArea = int.Parse(txtV.Text);
+            _colorBlobAlgo.AreaFilter = hueArea;
+            _colorBlobAlgo.AreaFilter = satArea;
+            _colorBlobAlgo.AreaFilter = valArea;
         }
 
 
@@ -147,15 +163,8 @@ namespace JidamVision.Property
                     showBinaryMode = ShowBinaryMode.ShowBinaryOnly;
             }
 
-
-            _hsvMin.Item0 = (byte)hTrackBarLower.Value;
-            _hsvMax.Item0 = (byte)hTrackBarUpper.Value;
-            _hsvMin.Item1 = (byte)sTrackBarLower.Value;
-            _hsvMax.Item1 = (byte)sTrackBarUpper.Value;
-            _hsvMin.Item2 = (byte)vTrackBarLower.Value;
-            _hsvMax.Item2 = (byte)vTrackBarUpper.Value;
-
-            RangeChanged?.Invoke(this, new RangeChangedEventArgs(_hsvMin, _hsvMax, invert, showBinaryMode));
+ RangeChanged?.Invoke(this, new RangeChangedEventArgs(_hsvMin, _hsvMax, invert, showBinaryMode));
+                   
         }
 
 
@@ -182,7 +191,76 @@ namespace JidamVision.Property
             UpdateColorBinary();
         }
 
+        //필터 적용 버튼 클릭 시
+        private void btnApplyHSV_Click(object sender, EventArgs e)
+        {
+            
+            
 
+            //inspWindow에서 컬러이진화 알고리즘 찾는 코드 추가
+           
+           
+
+            //HsvRange threshold = new HsvRange();
+            //threshold.HueUpper = hTrackBarUpper;
+            //threshold.SaturationUpper = sTrackBarUpper;
+
+            //threshold.ValueUpper = ValValue;
+
+            //threshold.HueLower = HueValue;
+            //threshold.SaturationLower = SatValue;
+            //threshold.ValueLower = ValValue;
+
+
+            //threshold.Invert = chkInvert.Checked;
+
+            //ColorblobAlgo.ColorRange = threshold;
+
+           
+
+            //이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
+            Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspColorBinary);   
+        }
+
+        private void btnApply_Click(object sender, EventArgs e)
+        {
+            if (_selected_effect == null || _selected_effect2 == -1)
+            {
+                MessageBox.Show("효과를 선택해주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // ColorBinaryInspProp.cs에서 필요한 필터만 전달
+            if ((_selected_effect == "비트연산(Bitwise)" && _selected_effect2 == 0) ||  // NOT 연산
+                (_selected_effect == "연산" && (_selected_effect2 == 0 || _selected_effect2 == 1)))  // 빼기 연산(0), 절대값 차이(1)
+            {
+                FilterSelected?.Invoke(this, new FilterSelectedEventArgs(_selected_effect, _selected_effect2));
+            }
+        }
+
+        private void select_effect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selected_effect = Convert.ToString(select_effect.SelectedItem);
+            select_effect2.Items.Clear(); // 기존 아이템 제거 후 새로 추가
+
+            if (_selected_effect == "비트연산(Bitwise)")
+            {
+                select_effect2.Items.Add("NOT 연산"); // NOT 연산만 추가
+                select_effect2.Show();
+            }
+            else if (_selected_effect == "연산")
+            {
+                select_effect2.Items.Add("빼기");
+                select_effect2.Items.Add("절대값 차이 계산");
+                select_effect2.Show();
+            }
+            else
+            {
+                select_effect2.Hide();
+            }
+        }
+
+       
         //#COLOR BINARY FILTER#9 컬러이진화 관련 이벤트 발생시, 전달할 값 추가
         public class RangeChangedEventArgs : EventArgs
         {
@@ -257,44 +335,10 @@ namespace JidamVision.Property
         }
 
         //필터 선택시, 적용할 필터 효과를 선택하고, 필터 옵션을 선택할 수 있도록 개선
-        private void select_effect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _selected_effect = Convert.ToString(select_effect.SelectedItem);
-            select_effect2.Items.Clear(); // 기존 아이템 제거 후 새로 추가
+        
 
-            if (_selected_effect == "비트연산(Bitwise)")
-            {
-                select_effect2.Items.Add("NOT 연산"); // NOT 연산만 추가
-                select_effect2.Show();
-            }
-            else if (_selected_effect == "연산")
-            {
-                select_effect2.Items.Add("빼기");
-                select_effect2.Items.Add("절대값 차이 계산");
-                select_effect2.Show();
-            }
-            else
-            {
-                select_effect2.Hide();
-            }
-        }
-
-        //필터 적용 버튼 클릭 시
-        private void btnApply_Click(object sender, EventArgs e)
-        {
-            if (_selected_effect == null || _selected_effect2 == -1)
-            {
-                MessageBox.Show("효과를 선택해주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // ColorBinaryInspProp.cs에서 필요한 필터만 전달
-            if ((_selected_effect == "비트연산(Bitwise)" && _selected_effect2 == 0) ||  // NOT 연산
-                (_selected_effect == "연산" && (_selected_effect2 == 0 || _selected_effect2 == 1)))  // 빼기 연산(0), 절대값 차이(1)
-            {
-                FilterSelected?.Invoke(this, new FilterSelectedEventArgs(_selected_effect, _selected_effect2));
-            }
-        }
+        
+       
 
         //필터 콤보박스 선택 시
         public class FilterSelectedEventArgs : EventArgs
@@ -308,44 +352,9 @@ namespace JidamVision.Property
                 FilterSelected2 = filterSelected2;
 
             }
-        }
+        
 
-        private void btnApplyHSV_Click(object sender, EventArgs e)
-        {
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow is null)
-                return;
-
-            //inspWindow에서 컬러이진화 알고리즘 찾는 코드 추가
-            ColorBlobAlgorithm ColorblobAlgo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
-            if (ColorblobAlgo is null)
-                return;
-
-            //HsvRange threshold = new HsvRange();
-            //threshold.HueUpper = hTrackBarUpper;
-            //threshold.SaturationUpper = sTrackBarUpper;
-            
-            //threshold.ValueUpper = ValValue;
-
-            //threshold.HueLower = HueValue;
-            //threshold.SaturationLower = SatValue;
-            //threshold.ValueLower = ValValue;
-
-
-            //threshold.Invert = chkInvert.Checked;
-
-            //ColorblobAlgo.ColorRange = threshold;
-
-            int hueArea = int.Parse(txtH.Text);
-            int satArea = int.Parse(txtS.Text);
-            int valArea = int.Parse(txtV.Text);
-            ColorblobAlgo.AreaFilter = hueArea;
-            ColorblobAlgo.AreaFilter = satArea;
-            ColorblobAlgo.AreaFilter = valArea;
-
-            //이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
-            Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspColorBinary);
-        }
+       
 
         private void btnTeachinColor_Click(object sender, EventArgs e)
         {
@@ -354,38 +363,6 @@ namespace JidamVision.Property
         }
 
         
-
-        private void ExtractColorFromSelection()
-        {
-            public int HCenter { get; }
-            public int SMin { get; }
-            public int VMin { get; }
-
-            public ShowColorBinaryMode ShowColorBinMode { get; }
-
-            public RangeChangedEventArgs(int hCenter, int sMin, int vMin, ShowColorBinaryMode showColorBinaryMode)
-            {
-                HCenter = hCenter;
-                SMin = sMin;
-                VMin = vMin;
-                ShowColorBinMode = showColorBinaryMode;
-            }
-
-            r /= pixelCount;
-            g /= pixelCount;
-            b /= pixelCount;
-
-            return Color.FromArgb((int)r, (int)g, (int)b);
-        }
-
-        // 색상 비교 (상당히 유사한 색상만 선택)
-        private bool IsColorMatch(Color color, Color targetColor)
-        {
-            int tolerance = 30; // 색상 차이를 허용하는 범위
-            return Math.Abs(color.R - targetColor.R) < tolerance &&
-                   Math.Abs(color.G - targetColor.G) < tolerance &&
-                   Math.Abs(color.B - targetColor.B) < tolerance;
-        }
 
     }
 }

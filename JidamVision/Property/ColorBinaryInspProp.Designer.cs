@@ -250,7 +250,6 @@
             this.btnTeachinColor.TabIndex = 22;
             this.btnTeachinColor.Text = "TeachinColor";
             this.btnTeachinColor.UseVisualStyleBackColor = true;
-            this.btnTeachinColor.Click += new System.EventHandler(this.btnTeachinColor_Click);
             // 
             // chkHighlight
             // 
@@ -408,6 +407,7 @@
             this.select_effect2.Size = new System.Drawing.Size(121, 26);
             this.select_effect2.TabIndex = 1;
             this.select_effect2.Text = "선택2";
+            this.select_effect2.SelectedIndexChanged += new System.EventHandler(this.select_effect2_SelectedIndexChanged);
             // 
             // select_effect
             // 

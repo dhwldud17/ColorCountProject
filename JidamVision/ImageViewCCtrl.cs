@@ -45,7 +45,7 @@ namespace JidamVision
         DeleteList,
         AddGroup,
         Break,
-        PickColor
+        PickColor,
         UpdateImage
     }
 

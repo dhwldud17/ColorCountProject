@@ -93,7 +93,7 @@ namespace JidamVision
                     BinaryInspProp blobProp = new BinaryInspProp();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     blobProp.PropertyChanged += PropertyChanged;
-                    blobProp.RangeChanged += BinaryRangeSlider_RangeChanged;
+
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
@@ -101,11 +101,11 @@ namespace JidamVision
                     colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
                     _inspProp = colorBlobProp;
                     break;
-                case InspectType.InspFilter:
-                    FilterInspProp filterProp = new FilterInspProp();
-                    filterProp.FilterSelected += FilterSelect_FilterChanged;
-                    _inspProp = filterProp;
-                    break;
+                //case InspectType.InspFilter:
+                //    FilterInspProp filterProp = new FilterInspProp();
+                //    filterProp.FilterSelected += FilterSelect_FilterChanged;
+                //    _inspProp = filterProp;
+                //    break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;
@@ -142,33 +142,8 @@ namespace JidamVision
 
         }
 
-        public void UpdateColorBinaryImageFilter(int hCenter, int sMin, int vMin, ShowBinaryMode showMode)
-        {
-            this.HCenter = hCenter;
-            this.SMin = sMin;
-            this.VMin = vMin;
-
-                        matchProp.SetAlgorithm(matchAlgo);
-                    }
-                    else if (uc is BinaryInspProp binaryProp)
-                    {
-                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
-                        if (blobAlgo is null)
-                            continue;
-
-                        binaryProp.SetAlgorithm(blobAlgo);
-                    }
-                    else if(uc is ColorBinaryInspProp colorBinProp)
-                    {
-                        ColorBlobAlgorithm colorBlobAlgo = (ColorBlobAlgorithm)window.FindInspAlgorithm(InspectType.InspColorBinary);
-                        if (colorBlobAlgo is null)
-                            continue;
-                        colorBinProp.SetAlgorithm(colorBlobAlgo);
-                    }
-                   
-                }
-            }
-        }
+        
+        
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void BinaryRangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
