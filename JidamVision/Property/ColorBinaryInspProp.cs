@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
+using JidamVision.Property;
 using JidamVision.Core;
 using JidamVision.Teach;
 using log4net.Repository.Hierarchy;
@@ -53,6 +54,7 @@ namespace JidamVision.Property
         private String _selected_effect;
         private int _selected_effect2 = -1;
         ColorBlobAlgorithm _colorBlobAlgo = null;
+        public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<RangeChangedEventArgs> RangeChanged; //HSV임계값 이벤트 추가
         private ColorBlobAlgorithm colorBlobAlgorithm;
         // HSV 색상 범위 내에서 특정 색상의 Blob(객체)을 감지하는 알고리즘 객체
@@ -116,6 +118,12 @@ namespace JidamVision.Property
 
         }
 
+        public void SetAlgorithm(ColorBlobAlgorithm colorBlobAlgo)
+        {
+            _colorBlobAlgo = colorBlobAlgo;
+            SetProperty();
+        }
+
         public void SetProperty()
         {
             if (_colorBlobAlgo is null)
@@ -169,11 +177,26 @@ namespace JidamVision.Property
             _colorBlobAlgo.AreaFilter = hueArea;
             _colorBlobAlgo.AreaFilter = satArea;
             _colorBlobAlgo.AreaFilter = valArea;
+
+            HsvRange threshold = new HsvRange();
+            threshold.HueLower = _hsvMin.Item0;
+            threshold.HueUpper = _hsvMax.Item0;
+            threshold.SaturationLower = _hsvMin.Item1;
+            threshold.SaturationUpper = _hsvMax.Item1;
+            threshold.ValueLower = _hsvMin.Item2;
+            threshold.ValueUpper = _hsvMax.Item2;
+            threshold.Invert = chkInvert.Checked;
+
+            _colorBlobAlgo.HsvMin = new Vec3b((byte)threshold.HueLower, (byte)threshold.SaturationLower, (byte)threshold.ValueLower);
+            _colorBlobAlgo.HsvMax = new Vec3b((byte)threshold.HueUpper, (byte)threshold.SaturationUpper, (byte)threshold.ValueUpper);
+
         }
 
         //#COLOR BINARY FILTER#10 컬러이진화 옵션을 선택할때마다, 컬러이진화 이미지가 갱신되도록 하는 함수
         private void UpdateColorBinary()
         {
+            GetProperty();
+
             bool invert = chkInvert.Checked;
             bool highlight = chkHighlight.Checked;
 
@@ -291,9 +314,6 @@ namespace JidamVision.Property
 
 
 
-
-
-
      private void btnApplyHSV_Click(object sender, EventArgs e)
         {
             InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
@@ -316,7 +336,9 @@ namespace JidamVision.Property
 
 
 
-            colorBlobAlgo.ColorRange = threshold;
+            _colorBlobAlgo.HsvMin = new Vec3b((byte)threshold.HueLower, (byte)threshold.SaturationLower, (byte)threshold.ValueLower);
+            _colorBlobAlgo.HsvMax = new Vec3b((byte)threshold.HueUpper, (byte)threshold.SaturationUpper, (byte)threshold.ValueUpper);
+
 
             int hueArea = int.Parse(txtH.Text);
             int satArea = int.Parse(txtS.Text);

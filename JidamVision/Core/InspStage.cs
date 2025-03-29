@@ -368,6 +368,21 @@ namespace JidamVision.Core
             Global.Inst.InspStage.PreView.SetInspWindow(inspWindow);
         }
 
+        private void InitInspWindow()
+        {
+            SLogger.Write("검사 속성창 초기화!");
+
+            var propForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propForm != null)
+            {
+                //#ABSTRACT ALGORITHM#8 InspAlgorithm을 추상화하였으므로, 
+                //모든 검사 타입을 for문을 통해서 추가,
+                //함수명 변경 SetInspType -> AddInspType
+                for (int i = 0; i < (int)InspectType.InspCount; i++)
+                    propForm.AddInspType((InspectType)i);
+            }
+        }
+
         //#MODEL#9 ImageViwer에서 ROI를 추가하여, InspWindow생성하는 함수
         public void AddInspWindow(InspWindowType windowType, Rect rect)
         {

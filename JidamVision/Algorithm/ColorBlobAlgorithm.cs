@@ -14,14 +14,18 @@ namespace JidamVision.Algorithm
         public int ValueLower, ValueUpper; // Value 범위
         public bool Invert;  // 결과 반전 여부
 
-        public HsvRange(int hueL, int hueU, int satL, int satU, int valL, int valU, bool invert)
+
+        //public Vec3b HsvMin { get; set; } = new Vec3b(0, 0, 0);
+
+        //public Vec3b HsvMax { get; set; } = new Vec3b(0, 0, 0);
+        public HsvRange(Vec3d HsvMin, Vec3d HsvMax, bool invert)
         {
-            HueLower = hueL;
-            HueUpper = hueU;
-            SaturationLower = satL;
-            SaturationUpper = satU;
-            ValueLower = valL;
-            ValueUpper = valU;
+            HueLower = (int)HsvMin.Item0;
+            HueUpper = (int)HsvMax.Item0;
+            SaturationLower = (int)HsvMin.Item1;
+            SaturationUpper = (int)HsvMax.Item1;
+            ValueLower = (int)HsvMin.Item2;
+            ValueUpper = (int)HsvMax.Item2;
             Invert = invert;
         }
     }
@@ -36,6 +40,8 @@ namespace JidamVision.Algorithm
             set { _srcImage = value; }
         }
         private List<Rect> _findArea;
+
+        public HsvRange HsvRange { get; set; }
 
         public HsvRange ColorRange { get; set; } = new HsvRange();
 
@@ -55,7 +61,7 @@ namespace JidamVision.Algorithm
         // HSV 값을 바탕으로 색상 범위를 설정
         public void SetColorRange(int hueL, int hueU, int satL, int satU, int valL, int valU, bool invert)
         {
-            ColorRange = new HsvRange(hueL, hueU, satL, satU, valL, valU, invert);
+            ColorRange = new HsvRange(Ver3d.HsvMin,Ver3d.HsvMax, invert);
         }
 
         // 컬러 이진화 후 원하는 영역을 얻음 
