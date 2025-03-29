@@ -35,18 +35,21 @@ namespace JidamVision
             // 
             // tabPropControl
             // 
-            this.tabPropControl.Location = new System.Drawing.Point(12, 12);
+            this.tabPropControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabPropControl.Location = new System.Drawing.Point(0, 0);
+            this.tabPropControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabPropControl.Name = "tabPropControl";
             this.tabPropControl.SelectedIndex = 0;
-            this.tabPropControl.Size = new System.Drawing.Size(318, 366);
+            this.tabPropControl.Size = new System.Drawing.Size(494, 613);
             this.tabPropControl.TabIndex = 0;
             // 
             // PropertiesForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(342, 390);
+            this.ClientSize = new System.Drawing.Size(494, 613);
             this.Controls.Add(this.tabPropControl);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "PropertiesForm";
             this.Text = "PropertiesForm";
             this.ResumeLayout(false);

@@ -1,6 +1,7 @@
 ﻿using JidamVision.Core;
 using JidamVision.Setting;
 using JidamVision.Util;
+using JidamVision.Teach;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -254,6 +255,7 @@ namespace JidamVision
         private void ModelSaveAsMenuItem_Click(object sender, EventArgs e)
         {
             //다른이름으로 모델 파일 저장
+
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
                 saveFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
@@ -280,6 +282,7 @@ namespace JidamVision
                 {
                     string filePath = openFileDialog.FileName;
                     Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
                 }
             }
         }
@@ -307,10 +310,11 @@ namespace JidamVision
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            Global.Inst.Dispose();
 
+            this.FormClosed -= MainForm_FormClosed;
         }
 
         private void tabPage3_Click(object sender, EventArgs e)

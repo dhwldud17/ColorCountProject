@@ -1,10 +1,16 @@
 ﻿using JidamVision.Core;
+using JidamVision.Setting;
+using JidamVision.Teach;
+using JidamVision.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.ServiceModel.Description;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace JidamVision.Algorithm
 {
@@ -13,7 +19,7 @@ namespace JidamVision.Algorithm
     public class MatchAlgorithm : InspAlgorithm
     {
         //템플릿 매칭용 이미지(찾을 이미지)
-        private Mat _templateImage;
+        private Mat _templateImage = null;
 
         //찾을 이미지의 매칭율
         public int MatchScore { get; set; } = 60;
@@ -43,10 +49,15 @@ namespace JidamVision.Algorithm
             _templateImage = templateImage;
         }
 
+        public Mat GetTemplateImage()
+        {
+            return _templateImage;
+        }
+
         /// <summary>
         /// 하나의 최적 매칭 위치만 찾기
         /// </summary>
-        public bool MatchTemplateSingle(Mat image)
+        public bool MatchTemplateSingle(Mat image, Point leftTopPos)
         {
             if (_templateImage is null)
                 return false;
@@ -60,10 +71,9 @@ namespace JidamVision.Algorithm
             Cv2.MinMaxLoc(result, out _, out double maxVal, out _, out Point maxLoc);
 
             OutScore = (int)(maxVal * 100);
+            OutPoint = maxLoc + leftTopPos;
 
-            Console.WriteLine($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxVal:F2}");
-
-            OutPoint = new Point(maxLoc.X + _templateImage.Width, maxLoc.Y + _templateImage.Height);
+            SLogger.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxVal:F2}");
 
             return true;
         }
@@ -71,7 +81,7 @@ namespace JidamVision.Algorithm
         /// <summary>
         /// 여러 개의 매칭 위치 찾기 (임계값 이상인 경우)
         /// </summary>
-        public int MatchTemplateMultiple(Mat image, out List<Point> matchedPositions)
+        public int MatchTemplateMultiple(Mat image, Point leftTopPos, out List<Point> matchedPositions)
         {
             matchedPositions = new List<Point>();
             float matchThreshold = MatchScore / 100.0f;
@@ -166,7 +176,8 @@ namespace JidamVision.Algorithm
                         continue;
 
                     // 매칭된 위치 리스트에 추가
-                    Point matchPos = new Point(bestPoint.X + templateWidth, bestPoint.Y + templateHeight);
+                    //Point matchPos = new Point(bestPoint.X + templateWidth, bestPoint.Y + templateHeight);
+                    Point matchPos = bestPoint + leftTopPos;
                     matchedPositions.Add(matchPos);
                     detectedRegions.Add(new Rect(bestPoint.X - halfWidth, bestPoint.Y - halfHeight, templateWidth, templateHeight));
                 }
@@ -178,30 +189,89 @@ namespace JidamVision.Algorithm
         //#ABSTRACT ALGORITHM#3 매칭 알고리즘 검사 구현
         public override bool DoInspect()
         {
-            IsInspected = false;
+            ResetResult();
 
-            Mat srcImage = Global.Inst.InspStage.GetMat();
+            OutPoint = new Point(0, 0);
+            OutPoints.Clear();
+            MatchScore = 0;
+
+            if (_templateImage is null)
+            {
+                MessageBox.Show("티칭 이미지는 유효하지 않습니다!");
+                return false;
+            }
+
+            if (_templateImage.Type() == MatType.CV_8UC3)
+            {
+                MessageBox.Show("티칭 이미지는 칼라를 허용하지 않습니다!");
+                return false;
+            }
+
+            Mat srcImage = Global.Inst.InspStage.GetMat(0, ImageChannel);
+
+            Rect ExtArea = InspRect;
+            ExtArea.Inflate(ExtSize);
+
+            if (ExtArea.X < 0) { ExtArea.X = 0; }
+            if (ExtArea.Y < 0) { ExtArea.Y = 0; }
+            if (ExtArea.Right > srcImage.Width) { ExtArea.Width = srcImage.Width - ExtArea.X; }
+            if (ExtArea.Bottom > srcImage.Height) { ExtArea.Height = srcImage.Height - ExtArea.Y; }
+
+            Mat targetImage = srcImage[ExtArea];
+
+            int halfWidth = (int)(_templateImage.Width * 0.5f + 0.5f);
+            int halfHeight = (int)(_templateImage.Height * 0.5f + 0.5f);
 
             if (MatchCount == 1)
             {
-                if (MatchTemplateSingle(srcImage) == false)
+                if (MatchTemplateSingle(targetImage, ExtArea.TopLeft) == false)
                     return false;
 
-                OutPoints.Clear();
                 OutPoints.Add(OutPoint);
+
+                Point matchPos = new Point(OutPoint.X + halfWidth, OutPoint.Y + halfHeight);
+                IsDefect = (OutScore >= MatchScore) ? true : false;
+                string defectInfo = IsDefect ? "NG" : "OK";
+                string resultInfo = $"[{defectInfo}] 매칭 결과 : X {matchPos.X}, Y {matchPos.Y}, Score {OutScore}";
+                ResultString.Add(resultInfo);
             }
             else
             {
                 List<Point> outPoints = new List<Point>();
-                int matchCount = MatchTemplateMultiple(srcImage, out outPoints);
+                int matchCount = MatchTemplateMultiple(targetImage, ExtArea.TopLeft, out outPoints);
                 if (matchCount <= 0)
                     return false;
 
                 OutPoints = outPoints;
+
+                string resultInfo;
+                resultInfo = $"[Match Result] match count : {matchCount}";
+                ResultString.Add(resultInfo);
+
+                for (int i = 0; i < matchCount; i++)
+                {
+                    Point pos = outPoints[i];
+                    Point matchPos = new Point(pos.X + halfWidth, pos.Y + halfHeight);
+                    resultInfo = $"[매칭 결과 : X {matchPos.X}, Y {matchPos.Y}";
+                    ResultString.Add(resultInfo);
+                }
             }
 
             IsInspected = true;
             return true;
+        }
+
+        public Point GetOffset()
+        {
+            Point offset = new Point(0, 0);
+
+            if (IsInspected)
+            {
+                offset.X = OutPoint.X - InspRect.X;
+                offset.Y = OutPoint.Y - InspRect.Y;
+            }
+
+            return offset;
         }
 
         //#ABSTRACT ALGORITHM#4 매칭 검사로 찾을 Rect 리스트 반환
@@ -219,12 +289,13 @@ namespace JidamVision.Algorithm
 
             foreach (var point in OutPoints)
             {
-                Console.WriteLine($"매칭된 위치: {OutPoints}");
-                resultArea.Add(new Rect(point.X - halfWidth, point.Y - halfHeight, _templateImage.Width, _templateImage.Height));
+                SLogger.Write($"매칭된 위치: {OutPoints}");
+                resultArea.Add(new Rect(point.X, point.Y, _templateImage.Width, _templateImage.Height));
             }
 
             return resultArea.Count;
         }
+
     }
 
 }

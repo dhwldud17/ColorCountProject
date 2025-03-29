@@ -39,6 +39,7 @@
             this.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.Name = "ImageViewCCtrl";
             this.Size = new System.Drawing.Size(480, 375);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ImageViewCCtrl_MouseDoubleClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ImageViewCCtrl_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ImageViewCCtrl_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ImageViewCCtrl_MouseUp);

@@ -15,6 +15,7 @@ using JidamVision.Teach;
 using System.IO;
 using OpenCvSharp;
 using JidamVision.Util;
+using System.Diagnostics.Eventing.Reader;
 
 namespace JidamVision
 {
@@ -26,7 +27,8 @@ namespace JidamVision
         public CameraForm()
         {
             InitializeComponent();
-
+            imageViewer.Dock = DockStyle.Fill;
+            Controls.Add(imageViewer);
             this.FormClosed += CameraForm_FormClosed;
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
@@ -35,8 +37,16 @@ namespace JidamVision
 
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
+            SLogger.Write($"ImageViewer Action {e.ActionType.ToString()}");
             switch (e.ActionType)
             {
+                case EntityActionType.Select:
+                    Global.Inst.InspStage.SelectInspWindow(e.InspWindow);
+                    imageViewer.Focus();
+                    break;
+                case EntityActionType.Inspect:
+                    Global.Inst.InspStage.TryInspection(e.InspWindow);
+                    break;
                 case EntityActionType.Add:
                     Global.Inst.InspStage.AddInspWindow(e.WindowType, e.Rect);
                     break;
@@ -58,6 +68,15 @@ namespace JidamVision
                 case EntityActionType.Break:
                     Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
                     break;
+                case EntityActionType.UpdateImage:
+                    Global.Inst.InspStage.SetTeachingImage(e.InspWindow);
+                    break;
+                    
+                case EntityActionType.PickColor:
+                    Rect rect = imageViewer.GetPickColorRect();
+                    Global.Inst.InspStage.PickColorWindow(rect);
+                    break;
+
             }
         }
 
@@ -99,6 +118,7 @@ namespace JidamVision
             imageViewer.LoadBitmap(bitmap);
 
             //#BINARY FILTER#12 이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정
+            //#COLOR BINARY FILTER#12 컬러이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정
             //현재 선택된 이미지로 Previwe이미지 갱신
             Mat curImage = Global.Inst.InspStage.GetMat();
             Global.Inst.InspStage.PreView.SetImage(curImage);
@@ -120,6 +140,8 @@ namespace JidamVision
             btnInspect.Location = new System.Drawing.Point(xPos, btnInspect.Location.Y);
             btnStop.Location = new System.Drawing.Point(xPos, btnStop.Location.Y);
             chkCycle.Location = new System.Drawing.Point(xPos, chkCycle.Location.Y);
+            chkPreview.Location = new System.Drawing.Point(xPos, chkPreview.Location.Y);
+            chkShowROI.Location = new System.Drawing.Point(xPos, chkShowROI.Location.Y);
             groupBox1.Location = new System.Drawing.Point(xPos, groupBox1.Location.Y);
 
             imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
@@ -183,12 +205,6 @@ namespace JidamVision
 
         }
 
-        //#INSP WORKER#8 CaearaForm에 검사 버튼을 추가하고, 전체 검사 함수 추가
-        private void btnInspect_Click(object sender, EventArgs e)
-        {
-            Global.Inst.InspStage.InspWorker.RunInspect();
-        }
-
         public void AddRoi(InspWindowType inspWindowType)
         {
             imageViewer.NewRoi(inspWindowType);
@@ -215,7 +231,8 @@ namespace JidamVision
                             EntityROI = new Rectangle(
                                 member.WindowArea.X, member.WindowArea.Y,
                                 member.WindowArea.Width, member.WindowArea.Height),
-                            EntityColor = imageViewer.GetWindowColor(member.InspWindowType)
+                            EntityColor = imageViewer.GetWindowColor(member.InspWindowType),
+                            IsHold = member.IsTeach,
                         };
                         diagramEntityList.Add(entity);
                     }
@@ -228,7 +245,8 @@ namespace JidamVision
                         EntityROI = new Rectangle(
                             window.WindowArea.X, window.WindowArea.Y,
                                 window.WindowArea.Width, window.WindowArea.Height),
-                        EntityColor = imageViewer.GetWindowColor(window.InspWindowType)
+                        EntityColor = imageViewer.GetWindowColor(window.InspWindowType),
+                        IsHold = window.IsTeach
                     };
                     diagramEntityList.Add(entity);
                 }
@@ -246,6 +264,12 @@ namespace JidamVision
             imageViewer.Invalidate();
         }
 
+        public Mat GetCurrentImage()
+        {
+            return Global.Inst.InspStage.GetMat();
+        }
+
+
         private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
@@ -253,9 +277,33 @@ namespace JidamVision
             this.FormClosed -= CameraForm_FormClosed;
         }
 
+        //#INSP WORKER#8 CaearaForm에 검사 버튼을 추가하고, 전체 검사 함수 추가
+        private void btnInspect_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.CycleInspect(chkCycle.Checked);
+        }
+
         private void btnStop_Click(object sender, EventArgs e)
         {
+            Global.Inst.InspStage.StopCycle();
 
+        }
+
+        private void chkPreview_CheckedChanged(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.PreView.SetPreview(chkPreview.Checked);
+        }
+
+        private void chkShowROI_CheckedChanged(object sender, EventArgs e)
+        {
+            if(chkShowROI.Checked)
+            {
+                UpdateDiagramEntity();
+            }
+            else
+            {
+                imageViewer.ResetEntity();
+            }
         }
     }
 }

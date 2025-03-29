@@ -39,12 +39,7 @@
             this.ImageSaveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SetupTopMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SetupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -55,12 +50,11 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.FileTopMenuItem,
             this.SetupTopMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 639);
+            this.menuStrip1.Location = new System.Drawing.Point(0, 640);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1143, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(1143, 35);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
-            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // FileTopMenuItem
             // 
@@ -79,47 +73,47 @@
             // ModelNewMenuItem
             // 
             this.ModelNewMenuItem.Name = "ModelNewMenuItem";
-            this.ModelNewMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ModelNewMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ModelNewMenuItem.Text = "Model New";
             this.ModelNewMenuItem.Click += new System.EventHandler(this.ModelNewMenuItem_Click);
             // 
             // ModelOpenMenuItem
             // 
             this.ModelOpenMenuItem.Name = "ModelOpenMenuItem";
-            this.ModelOpenMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ModelOpenMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ModelOpenMenuItem.Text = "Model Open";
             this.ModelOpenMenuItem.Click += new System.EventHandler(this.ModelOpenMenuItem_Click);
             // 
             // ModelSaveMenuItem
             // 
             this.ModelSaveMenuItem.Name = "ModelSaveMenuItem";
-            this.ModelSaveMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ModelSaveMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ModelSaveMenuItem.Text = "Model Save";
             this.ModelSaveMenuItem.Click += new System.EventHandler(this.ModelSaveMenuItem_Click);
             // 
             // ModelSaveAsMenuItem
             // 
             this.ModelSaveAsMenuItem.Name = "ModelSaveAsMenuItem";
-            this.ModelSaveAsMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ModelSaveAsMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ModelSaveAsMenuItem.Text = "Model SaveAs";
             this.ModelSaveAsMenuItem.Click += new System.EventHandler(this.ModelSaveAsMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(228, 6);
             // 
             // ImageLoadMenuItem
             // 
             this.ImageLoadMenuItem.Name = "ImageLoadMenuItem";
-            this.ImageLoadMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ImageLoadMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ImageLoadMenuItem.Text = "Image Load";
             this.ImageLoadMenuItem.Click += new System.EventHandler(this.ImageLoadMenuItem_Click);
             // 
             // ImageSaveMenuItem
             // 
             this.ImageSaveMenuItem.Name = "ImageSaveMenuItem";
-            this.ImageSaveMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.ImageSaveMenuItem.Size = new System.Drawing.Size(231, 34);
             this.ImageSaveMenuItem.Text = "Image Save";
             this.ImageSaveMenuItem.Click += new System.EventHandler(this.ImageSaveMenuItem_Click);
             // 
@@ -134,46 +128,15 @@
             // SetupMenuItem
             // 
             this.SetupMenuItem.Name = "SetupMenuItem";
-            this.SetupMenuItem.Size = new System.Drawing.Size(161, 34);
+            this.SetupMenuItem.Size = new System.Drawing.Size(270, 34);
             this.SetupMenuItem.Text = "Setup";
             this.SetupMenuItem.Click += new System.EventHandler(this.SetupMenuItem_Click);
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(481, 298);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(8, 8);
-            this.tabControl1.TabIndex = 1;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 28);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(0, 0);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 28);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(0, 0);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1143, 675);
-            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
@@ -181,7 +144,6 @@
             this.Text = "MainForm";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -200,9 +162,5 @@
         private System.Windows.Forms.ToolStripMenuItem ImageSaveMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem ModelNewMenuItem;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }

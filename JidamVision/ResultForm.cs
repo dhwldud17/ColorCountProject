@@ -12,6 +12,7 @@ using BrightIdeasSoftware;
 using JidamVision.Inspect;
 using JidamVision.Core;
 using JidamVision.Teach;
+using OpenCvSharp;
 
 namespace JidamVision
 {
@@ -38,9 +39,6 @@ namespace JidamVision
 
             //#RESULT FORM#3 컨트롤 초기화, 아래 함수 구현할것
             InitTreeListView();
-
-            //테스트를 위한 임의 데이터 로드, 추후 삭제 할것
-            LoadTestData();
         }
 
         private void InitTreeListView()
@@ -50,9 +48,9 @@ namespace JidamVision
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Horizontal,
-                SplitterDistance = 250,
-                Panel1MinSize = 100,
-                Panel2MinSize = 100
+                SplitterDistance = 120,
+                Panel1MinSize = 70,
+                Panel2MinSize = 70
             };
 
             //TreeListView 검사 결과 트리 생성
@@ -68,35 +66,69 @@ namespace JidamVision
             };
             _treeListView.SelectionChanged += TreeListView_SelectionChanged;
 
-            //컬럼 추가
-            var colBaseID = new OLVColumn("Base ID", "BaseID")
+            _treeListView.CanExpandGetter = x => true;
+
+            _treeListView.ChildrenGetter = x =>
             {
-                Width = 100,
-                IsEditable = false
+                if (x is InspWindow w)
+                    return w.InspResultList;
+                return new List<InspResult>();
             };
 
-            var colObjectID = new OLVColumn("Object ID", "ObjectID")
+            //컬럼 추가
+            var colUID = new OLVColumn("UID", "")
+            {
+                Width = 100,
+                IsEditable = false,
+                AspectGetter = obj =>
+                {
+                    if (obj is InspWindow win)
+                        return win.UID;
+                    if (obj is InspResult res)
+                        return res.InspType.ToString();
+                    return "";
+                }
+            };
+
+            var colAlgo = new OLVColumn("Algorithm", "")
             {
                 Width = 150,
-                IsEditable = false
+                IsEditable = false,
+                AspectGetter = obj =>
+                {
+                    if (obj is InspResult res)
+                        return res.InspType.ToString();
+                    return "";
+                }
             };
 
             var colStatus = new OLVColumn("Status", "IsDefect")
             {
                 Width = 80,
                 TextAlign = HorizontalAlignment.Center,
-                AspectGetter = obj => ((InspResult)obj).IsDefect ? "NG" : "OK"
+                AspectGetter = obj =>
+                {
+                    if (obj is InspResult res)
+                        return res.IsDefect ? "NG" : "OK";
+                    return "";
+                }
             };
 
-            var colScore = new OLVColumn("Score", "ResultScore")
+            var colValue = new OLVColumn("Result", "Result")
             {
                 Width = 80,
                 TextAlign = HorizontalAlignment.Center,
-                AspectToStringFormat = "{0:F2}"
+                AspectGetter = obj =>
+                {
+                    if (obj is InspResult res)
+                        return res.ResultValue;
+                    return "";
+                }
             };
 
             // 컬럼 추가
-            _treeListView.Columns.AddRange(new OLVColumn[] {colBaseID, colObjectID, colStatus, colScore});
+            _treeListView.Columns.AddRange(new OLVColumn[] { colUID, colAlgo, colStatus, colValue });
+
 
             // 검사 상세 정보 텍스트박스 생성
             _txtDetails = new TextBox()
@@ -114,10 +146,32 @@ namespace JidamVision
             Controls.Add(_splitContainer);
         }
 
-        //실제 검사가 되었을때, 검사 결과를 추가하는 함수
-        public void AddResult(InspResult result)
+        public void AddModelResult(Model curModel)
         {
-            if (result == null)
+            if (curModel is null)
+                return;
+
+            _treeListView.SetObjects(curModel.InspWindowList);
+
+            foreach (var window in curModel.InspWindowList)
+            {
+                _treeListView.Expand(window);
+            }
+        }
+
+        public void AddWindowResult(InspWindow inspWindow)
+        {
+            if (inspWindow is null)
+                return;
+
+            _treeListView.SetObjects(new List<InspWindow> { inspWindow });
+            _treeListView.Expand(inspWindow);
+        }
+
+        //실제 검사가 되었을때, 검사 결과를 추가하는 함수
+        public void AddInspResult(InspResult inspResult)
+        {
+            if (inspResult is null)
                 return;
 
             // 현재 트리에 있는 객체 리스트 가져오기
@@ -127,41 +181,12 @@ namespace JidamVision
                 existingResults = new List<InspResult>();
 
             // 기존 검사 결과에서 같은 BodyID를 가진 부모 찾기
-            var parentResult = existingResults.FirstOrDefault(r => r.BaseID == result.BaseID);
+            var parentResult = existingResults.FirstOrDefault(r => r.GroupID == inspResult.GroupID);
 
-            existingResults.Add(result);
-            
+            existingResults.Add(inspResult);
+
             // TreeListView 업데이트
             _treeListView.SetObjects(existingResults);
-        }
-
-        private void LoadTestData()
-        {
-            // 부모 ROI
-            var parentRoi = new InspResult(new InspWindow(), "Body-1", "ROI-001", InspWindowType.Global)
-            {
-                IsDefect = false,
-                ResultScore = 95.5f,
-                ResultInfo = "정상 검사 완료"
-            };
-
-            //// 하위 ROI - NG 발생
-            //var child1 = new InspResult(new InspWindow(), "Body-1", "ROI-001-1", InspWindowType.Sub)
-            //{
-            //    IsDefect = true,
-            //    ResultScore = 70.2f,
-            //    ResultInfo = "이물 감지됨 (크기: 1.5mm)"
-            //};
-
-            //var child2 = new InspResult(new InspWindow(), "Body-1", "ROI-001-2", InspWindowType.Sub)
-            //{
-            //    IsDefect = false,
-            //    ResultScore = 89.3f,
-            //    ResultInfo = "치수 정상"
-            //};
-
-            // ObjectListView에 데이터 설정
-            _treeListView.SetObjects(new List<InspResult> { parentRoi });
         }
 
         //해당 트리 리스트 뷰 선택시, 상세 정보 텍스트 박스에 표시
@@ -172,12 +197,26 @@ namespace JidamVision
                 _txtDetails.Text = string.Empty;
                 return;
             }
-            var result = (InspResult)_treeListView.SelectedObject;
-            _txtDetails.Text = $"Base ID: {result.BaseID}\r\n" +
-                              $"Object ID: {result.ObjectID}\r\n" +
-                              $"Result Score: {result.ResultScore:F2}\r\n" +
-                              $"Result Value: {result.ResultValue:F2}\r\n" +
-                              $"Result Info: {result.ResultInfo}";
+
+            if (_treeListView.SelectedObject is InspResult result)
+            {
+                _txtDetails.Text = result.ResultInfos.ToString();
+
+                if (result.ResultRectList != null)
+                {
+                    CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+                    if (cameraForm != null)
+                    {
+                        cameraForm.AddRect(result.ResultRectList);
+                    }
+                }
+            }
+            else if (_treeListView.SelectedObject is InspWindow window)
+            {
+                var infos = window.InspResultList.Select(r => $" -{r.ObjectID}: {r.ResultInfos}").ToList();
+                _txtDetails.Text = $"{window.UID}\r\n" +
+                    string.Join("\r\n", infos);
+            }
         }
     }
 }

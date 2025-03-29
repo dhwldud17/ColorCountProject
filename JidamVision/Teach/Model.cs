@@ -23,16 +23,17 @@ namespace JidamVision.Teach
     //#MODEL#3 모델 클래스 생성
     public class Model
     {
-
         //#MODEL SAVE#1 모델 정보 저장을 위해 추가한 프로퍼티
         public string ModelName { get; set; } = "";
         public string ModelInfo { get; set; } = "";
         public string ModelPath { get; set; } = "";
 
+        public string InspectImagePath { get; set; } = "";
+
         //#MODEL#1 InspStage에 있던 InspWindowList 위치를 이곳으로 변경
         [XmlElement("InspWindow")]
-        public List<InspWindow> InspWindowList {  get; set; } 
-            
+        public List<InspWindow> InspWindowList { get; set; }
+
         public Model()
         {
             InspWindowList = new List<InspWindow>();
@@ -50,7 +51,7 @@ namespace JidamVision.Teach
         //#MODEL#5 기존 InspWindow를 삭제할때
         public bool DelInspWindow(InspWindow inspWindow)
         {
-            if(InspWindowList.Contains(inspWindow))
+            if (InspWindowList.Contains(inspWindow))
             {
                 InspWindowList.Remove(inspWindow);
                 return true;
@@ -68,7 +69,7 @@ namespace JidamVision.Teach
         public GroupWindow AddGroupWindow(List<InspWindow> inspWindowList)
         {
             bool hasParentWindow = inspWindowList.Any(m => m.Parent != null);
-            if( hasParentWindow)
+            if (hasParentWindow)
             {
                 MessageBox.Show("이미 그룹에 속한 윈도우 입니다!");
                 return null;
@@ -99,7 +100,7 @@ namespace JidamVision.Teach
                 return false;
 
             //전체 리스트에서 그룹을 제거
-            if(InspWindowList.Contains(groupWindow))
+            if (InspWindowList.Contains(groupWindow))
             {
                 InspWindowList.Remove(groupWindow);
             }
@@ -131,6 +132,11 @@ namespace JidamVision.Teach
             if (model == null)
                 return null;
 
+            foreach (var window in model.InspWindowList)
+            {
+                window.LoadInspWindow(model);
+            }
+
             return model;
         }
 
@@ -138,6 +144,11 @@ namespace JidamVision.Teach
         public void Save()
         {
             XmlHelper.SaveXml(ModelPath, this);
+
+            foreach (var window in InspWindowList)
+            {
+                window.SaveInspWindow(this);
+            }
         }
 
         //모델 다른 이름으로 저장함수
