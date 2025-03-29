@@ -13,6 +13,8 @@ using JidamVision.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using JidamVision.Algorithm;
 using JidamVision.Teach;
+using static JidamVision.Property.ColorBinaryInspProp;
+using OpenCvSharp;
 
 
 namespace JidamVision
@@ -90,6 +92,7 @@ namespace JidamVision
             switch (inspPropType)
             {
                 case InspectType.InspBinary:
+                   // Console.WriteLine("InspBinary UserControl 생성 시도"); // 디버깅용 출력
                     BinaryInspProp blobProp = new BinaryInspProp();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     blobProp.PropertyChanged += PropertyChanged;
@@ -97,15 +100,22 @@ namespace JidamVision
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
+                   // Console.WriteLine("InspColorBinary UserControl 생성 시도"); // 디버깅용 출력
                     ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
-                    colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
+                    if (colorBlobProp == null)
+                    {
+                        Console.WriteLine("colorBlobProp이 null입니다.");
+                        return null; // 생성 실패 시 종료
+                    }
+                    colorBlobProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
+                    colorBlobProp.PropertyChanged += PropertyChanged;
                     _inspProp = colorBlobProp;
                     break;
-                //case InspectType.InspFilter:
-                //    FilterInspProp filterProp = new FilterInspProp();
-                //    filterProp.FilterSelected += FilterSelect_FilterChanged;
-                //    _inspProp = filterProp;
-                //    break;
+                case InspectType.InspMatch:
+                    MatchInspProp matchProp = new MatchInspProp();
+                    matchProp.PropertyChanged += PropertyChanged;
+                    _inspProp = matchProp;
+                    break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;
@@ -117,6 +127,7 @@ namespace JidamVision
         {
             foreach (InspAlgorithm algo in window.AlgorithmList)
             {
+                Console.WriteLine($"AlgorithmList 포함된 타입: {algo.InspectType}");
                 LoadOptionControl(algo.InspectType);
             }
 
@@ -128,37 +139,66 @@ namespace JidamVision
             tabPropControl.TabPages.Clear();
         }
 
-        public void AddInspType(InspectType inspPropType)
+     
+
+
+        public void UpdateProperty(InspWindow window)
         {
-            LoadOptionControl(inspPropType);
+            if (window is null)
+                return;
+
+            foreach (TabPage tabPage in tabPropControl.TabPages)
+            {
+                if (tabPage.Controls.Count > 0)
+                {
+                    UserControl uc = tabPage.Controls[0] as UserControl;
+
+                    if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
+
+                        matchProp.SetAlgorithm(matchAlgo);
+                    }
+                    else if (uc is BinaryInspProp binaryProp)
+                    {
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
+
+                        binaryProp.SetAlgorithm(blobAlgo);
+                    }
+                    else if (uc is ColorBinaryInspProp colorbinaryProp)
+                    {
+                        ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)window.FindInspAlgorithm(InspectType.InspColorBinary);
+                        if (colorblobAlgo is null)
+                            continue;
+
+                        colorbinaryProp.SetAlgorithm(colorblobAlgo);
+                    }
+                }
+            }
         }
-        private void ColorRangeSlider_RangeChanged(object sender, ColorBinaryInspProp.RangeChangedEventArgs e)
-        {
-            // 이벤트 인자에서 H, S, V 값과 ShowBinaryMode 값을 가져옴
-            ShowBinaryMode showColorBinMode = e.ShowBinaryMode;
 
-            bool invert = e.Invert;         
-            Global.Inst.InspStage.PreView?.SetColorBinary(e.HsvMin, e.HsvMax, invert, showColorBinMode);
 
-        }
 
-        
-        
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
-        private void BinaryRangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        private void ColorRangeSlider_RangeChanged(object sender, ColorRangeChangedEventArgs e)
         {
-            // 속성값을 이용하여 이진화 임계값 설정
-            int lowerValue = e.LowerValue;
-            int upperValue = e.UpperValue;
+            // HSV 범위를 Vec3b 타입으로 변환
+            Vec3b hsvMin = new Vec3b((byte)e.LowerHue, (byte)e.LowerSaturation, (byte)e.LowerValue);  // 최소값 (S, V는 임의 값)
+            Vec3b hsvMax = new Vec3b((byte)e.UpperHue, (byte)e.UpperSaturation, (byte)e.UpperValue); // 최대값 (S, V는 최대 값)
             bool invert = e.Invert;
-            ShowBinaryMode showBinMode = e.ShowBinMode;
-            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+            ShowColorBinaryMode showBinMode = e.ShowColorBinaryMode;
+
+
+
+            Global.Inst.InspStage.PreView?.SetColorBinary(hsvMin, hsvMax, invert, showBinMode);
 
 
         }
-
-        //#COLOR BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
         {
             // 속성값을 이용하여 이진화 임계값 설정
@@ -167,18 +207,18 @@ namespace JidamVision
             bool invert = e.Invert;
             ShowBinaryMode showBinMode = e.ShowBinMode;
             Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
-
-
         }
 
-        private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
-        {
-            //선택된 필터값 PrieviewImage의 ApplyFilter로 보냄
-            string filter1 = e.FilterSelected1;
-            int filter2 = e.FilterSelected2;
-            Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
 
-        }
+
+        //private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
+        //{
+        //    선택된 필터값 PrieviewImage의 ApplyFilter로 보냄
+        //    string filter1 = e.FilterSelected1;
+        //    int filter2 = e.FilterSelected2;
+        //    Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
+
+        //}
 
         private void PropertyChanged(object sender, EventArgs e)
         {

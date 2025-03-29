@@ -119,7 +119,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(64, 18);
             this.label8.TabIndex = 38;
-            this.label8.Text = "360.00";
+            this.label8.Text = "128.00";
             // 
             // label11
             // 
@@ -133,7 +133,7 @@
             // hTrackBarUpper
             // 
             this.hTrackBarUpper.Location = new System.Drawing.Point(103, 99);
-            this.hTrackBarUpper.Maximum = 255;
+            this.hTrackBarUpper.Maximum = 128;
             this.hTrackBarUpper.Name = "hTrackBarUpper";
             this.hTrackBarUpper.Size = new System.Drawing.Size(367, 69);
             this.hTrackBarUpper.TabIndex = 36;
@@ -145,7 +145,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(64, 18);
             this.label3.TabIndex = 35;
-            this.label3.Text = "360.00";
+            this.label3.Text = "255.00";
             // 
             // label5
             // 
@@ -163,7 +163,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 18);
             this.label1.TabIndex = 32;
-            this.label1.Text = "360.00";
+            this.label1.Text = "255.00";
             // 
             // label2
             // 
@@ -269,7 +269,7 @@
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(64, 18);
             this.label10.TabIndex = 18;
-            this.label10.Text = "360.00";
+            this.label10.Text = "255.00";
             // 
             // label12
             // 
@@ -287,7 +287,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(64, 18);
             this.label7.TabIndex = 13;
-            this.label7.Text = "360.00";
+            this.label7.Text = "255.00";
             // 
             // label9
             // 
@@ -305,7 +305,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(64, 18);
             this.label6.TabIndex = 8;
-            this.label6.Text = "360.00";
+            this.label6.Text = "128.00";
             // 
             // label4
             // 
@@ -362,11 +362,10 @@
             // hTrackBarLower
             // 
             this.hTrackBarLower.Location = new System.Drawing.Point(96, 24);
-            this.hTrackBarLower.Maximum = 255;
+            this.hTrackBarLower.Maximum = 128;
             this.hTrackBarLower.Name = "hTrackBarLower";
             this.hTrackBarLower.Size = new System.Drawing.Size(367, 69);
             this.hTrackBarLower.TabIndex = 0;
-            this.hTrackBarLower.Scroll += new System.EventHandler(this.hTrackBarLower_Scroll);
             // 
             // sTrackBarLower
             // 

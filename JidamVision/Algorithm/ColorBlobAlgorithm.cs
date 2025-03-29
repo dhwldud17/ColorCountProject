@@ -17,15 +17,10 @@ namespace JidamVision.Algorithm
     {
         public HSVThreshold HSVThreshold { get; set; } = new HSVThreshold();
         // 픽셀 영역 필터링 (기본값 100)
+       
+       
 
-        public int HueMin { get; set; } = 0;
-        public int HueMax { get; set; } = 360;
 
-        public int SaturationMin { get; set; } = 0;
-        public int SaturationMax { get; set; } = 360;
-
-        public int ValueMin { get; set; } = 0;
-        public int ValueMax { get; set; } = 360;
         public ColorBlobAlgorithm()
         {
             InspectType = InspectType.InspColorBinary; // 새로운 타입 추가

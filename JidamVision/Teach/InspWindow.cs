@@ -115,6 +115,9 @@ namespace JidamVision.Teach
                 case InspectType.InspMatch:
                     inspAlgo = new MatchAlgorithm();
                     break;
+                case InspectType.InspColorBinary:
+                    inspAlgo = new ColorBlobAlgorithm();
+                    break;
             }
 
             if (inspAlgo is null)

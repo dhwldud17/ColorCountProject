@@ -181,7 +181,7 @@ namespace JidamVision.Core
 
 
         //#COLOR BINARY FILTER#15 기존 이진화 프리뷰에, 배경없이 이진화 이미지만 보이는 모드 추가
-        public void SetColorBinary(Vec3b hsvMin, Vec3b hsvMax, bool invert, ShowBinaryMode showBinMode)
+        public void SetColorBinary(Vec3b hsvMin, Vec3b hsvMax, bool invert, ShowColorBinaryMode showBinMode)
         {
             if (_orinalImage == null)
                 return;
@@ -191,7 +191,7 @@ namespace JidamVision.Core
                 return;
 
             Bitmap bmpImage;
-            if (showBinMode == ShowBinaryMode.ShowBinaryNone)
+            if (showBinMode == ShowColorBinaryMode.ShowBinaryNone)
             {
                 bmpImage = BitmapConverter.ToBitmap(_orinalImage);
                 cameraForm.UpdateDisplay(bmpImage);
@@ -209,7 +209,7 @@ namespace JidamVision.Core
             if (invert)
                 binaryMask = ~binaryMask;
 
-            if (showBinMode == ShowBinaryMode.ShowBinaryOnly)
+            if (showBinMode == ShowColorBinaryMode.ShowBinaryOnly)
             {
                 bmpImage = BitmapConverter.ToBitmap(binaryMask);
                 cameraForm.UpdateDisplay(bmpImage);
