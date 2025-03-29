@@ -97,7 +97,6 @@ namespace JidamVision.Teach
                     name = "CABEL";
                     prefix = "CABLE";
                     break;
-                
                 default:
                     return false;
             }

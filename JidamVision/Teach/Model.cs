@@ -23,6 +23,7 @@ namespace JidamVision.Teach
     //#MODEL#3 모델 클래스 생성
     public class Model
     {
+
         //#MODEL SAVE#1 모델 정보 저장을 위해 추가한 프로퍼티
         public string ModelName { get; set; } = "";
         public string ModelInfo { get; set; } = "";

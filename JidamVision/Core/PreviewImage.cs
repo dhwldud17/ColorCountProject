@@ -121,6 +121,7 @@ namespace JidamVision.Core
                 grayImage = orgRoi;
 
             Mat binaryMask = new Mat();
+            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
             Cv2.InRange(grayImage, lowerValue, upperValue, binaryMask);
 
             if (invert)
@@ -276,10 +277,14 @@ namespace JidamVision.Core
             Mat dst = new Mat();
 
             switch (operation)
-            {          
+            {
+                case ImageOperation.OpMin:
+                    Cv2.Min(src1, src2, dst);  // 두 이미지의 최소값 비교
+                    break;
                 case ImageOperation.OpSubtract:
                     Cv2.Subtract(src1, src2, dst);  // 두 이미지의 차이 구하기
-                    break;              
+                    break;
+
                 case ImageOperation.OpAbsDiff:
                     Mat matMul = new Mat();
                     Cv2.Multiply(src1, src2, matMul);
@@ -298,7 +303,8 @@ namespace JidamVision.Core
             Mat dst = new Mat();
             Mat src2 = src1.Flip(FlipMode.Y); //Y축 기준으로 반전한 이미지 
             switch (operation)
-            {                
+            {
+
                 case Bitwise.OnNot:
                     Cv2.BitwiseNot(src1, dst);  // NOT 연산
                     break;
@@ -309,19 +315,21 @@ namespace JidamVision.Core
             resultImage = dst;
         }
 
-                
 
         //필터 효과 기능
         public void ApplyFilter(String selected_filter1, int selected_filter2)
         {
             if (_orinalImage == null)
                 return;
+
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm == null)
                 return;
+
             Mat filteredImage = new Mat();
             Bitmap bmpImage;
 
+            // 선택된 필터에 따라 필터 적용
             switch (selected_filter1)
             {
                 case "연산":
@@ -334,7 +342,8 @@ namespace JidamVision.Core
                     // 비트 연산 관련 enum 값 매핑
                     Bitwise bitwise = (Bitwise)selected_filter2;
                     ApplyBitwiseOperation(bitwise, _orinalImage, out filteredImage);
-                    break;                
+                    break;
+
                 default:
                     return;
             }
@@ -348,7 +357,14 @@ namespace JidamVision.Core
             //    Bitmap bmpImage  = BitmapConverter.ToBitmap(_previewImage);
             //    cameraForm.UpdateDisplay(bmpImage);
             //}
-
         }
     }
 }
+
+    
+
+
+
+
+    
+

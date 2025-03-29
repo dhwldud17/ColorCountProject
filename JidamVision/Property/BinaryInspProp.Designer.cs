@@ -58,6 +58,7 @@
             this.lbWidth = new System.Windows.Forms.Label();
             this.txtAreaMin = new System.Windows.Forms.TextBox();
             this.lbArea = new System.Windows.Forms.Label();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.grpBinary.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarUpper)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarLower)).BeginInit();
@@ -293,6 +294,7 @@
         private System.Windows.Forms.GroupBox grpFilter;
         private System.Windows.Forms.TextBox txtAreaMin;
         private System.Windows.Forms.Label lbArea;
+		private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.CheckBox chkShowBinary;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label3;

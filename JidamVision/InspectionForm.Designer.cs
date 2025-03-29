@@ -231,6 +231,7 @@
         }
 
         #endregion
+
         private System.Windows.Forms.Button bntStart;
         private System.Windows.Forms.Button bntStop;
         private System.Windows.Forms.RichTextBox rtbTotalnumber;

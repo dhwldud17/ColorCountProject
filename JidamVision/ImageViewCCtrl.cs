@@ -117,7 +117,7 @@ namespace JidamVision
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
-        private bool _isPickColor = false;
+        public bool _isPickColor = false;
         private Rectangle _pickColorRect;
         public ImageViewCCtrl()
         {
@@ -252,6 +252,7 @@ namespace JidamVision
                 NewHeight
             );
 
+            // 변경된 화면을 다시 그리도록 요청
             Invalidate();
         }
 

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using static JidamVision.Core.ImageSpace;
 
 namespace JidamVision.Inspect
-{
+{ 
     /*
     #INSP WORKER# - <<<검사 알고리즘 통합 및 검사 관리 클래스 추가>>> 
     검사 관리 클래스 : 전체 검사 또는 개별 검사 동작
@@ -125,6 +125,7 @@ namespace JidamVision.Inspect
 
             foreach (var inspWindow in inspWindowList)
             {
+                inspWindow.DoInpsect(InspectType.InspNone);
                 DisplayResult(inspWindow, InspectType.InspNone);
             }
 
@@ -193,20 +194,20 @@ namespace JidamVision.Inspect
                             break;
                         }
 
-                    //case InspectType.InspMatch:
-                    //    {
-                    //        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+                    case InspectType.InspMatch:
+                        {
+                            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
 
-                    //        Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
-                    //        matchAlgo.SetInspData(srcImage);
-                    //        break;
-                    //     }
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
+                            matchAlgo.SetInspData(srcImage);
+                            break;
+                        }
                     case InspectType.InspColorBinary:
                         {
-                           ColorBlobAlgorithm ColorAlgo = (ColorBlobAlgorithm)inspAlgo;
+                           ColorBlobAlgorithm colorBlobAlgo = (ColorBlobAlgorithm)inspAlgo;
 
-                            Mat srcImage = Global.Inst.InspStage.GetMat(0, ColorAlgo.ImageChannel);
-                            ColorAlgo.SetInspData(srcImage);
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, colorBlobAlgo.ImageChannel);
+                            colorBlobAlgo.SetInspData(srcImage);
                             break;
                         }
                     default:
@@ -224,7 +225,7 @@ namespace JidamVision.Inspect
         //인자가 None이면 모든 알고리즘의 검사 결과(Rect 영역)를 얻어, cameraForm에 출력한다.
         private bool DisplayResult(InspWindow inspObj, InspectType inspType)
         {
-            if (inspObj is null)
+            if(inspObj is null)
                 return false;
 
             List<Rect> totalArea = new List<Rect>();
@@ -232,7 +233,7 @@ namespace JidamVision.Inspect
             List<InspAlgorithm> inspAlgorithmList = inspObj.AlgorithmList;
             foreach (var algorithm in inspAlgorithmList)
             {
-                if (algorithm.InspectType != inspType && inspType != InspectType.InspNone)
+                if (algorithm.InspectType != inspType && algorithm.InspectType != InspectType.InspNone)
                     continue;
 
                 List<Rect> resultArea = new List<Rect>();
@@ -242,7 +243,7 @@ namespace JidamVision.Inspect
                     totalArea.AddRange(resultArea);
                 }
             }
-
+            
             if (totalArea.Count > 0)
             {
                 //찾은 위치를 이미지상에서 표시

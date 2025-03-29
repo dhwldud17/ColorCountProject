@@ -97,9 +97,8 @@ namespace JidamVision
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
-                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
-                    colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
-                    _inspProp = colorBlobProp;
+                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();                    colorBlobProp.RangeChanged += ColorRangeSlider_RangeChanged;
+                    colorBlobProp.PropertyChanged += PropertyChanged;
                     break;
                 //case InspectType.InspFilter:
                 //    FilterInspProp filterProp = new FilterInspProp();

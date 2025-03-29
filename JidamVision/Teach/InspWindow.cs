@@ -21,10 +21,13 @@ namespace JidamVision.Teach
 
     public class InspWindow
     {
+        //템플릿 매칭할 윈도우 크기
+        private System.Drawing.Rectangle _rect;
         //템플릿 매칭 이미지
         private Mat _teachingImage;
 
         public InspWindowType InspWindowType { get; set; }
+
 
         //#MODEL SAVE#5 모델 저장을 위한 Serialize를 위해서, prvate set -> set으로 변경
         //public string Name {  get; private set; }
@@ -112,6 +115,9 @@ namespace JidamVision.Teach
                 case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
                     break;
+                case InspectType.InspColorBinary:
+                    inspAlgo = new ColorBlobAlgorithm();
+                    break;
                 case InspectType.InspMatch:
                     inspAlgo = new MatchAlgorithm();
                     break;
@@ -129,6 +135,13 @@ namespace JidamVision.Teach
         //#ABSTRACT ALGORITHM#11 알고리즘을 리스트로 관리하므로, 필요한 타입의 알고리즘을 찾는 함수
         public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
+			foreach (var algorithm in AlgorithmList)
+            {
+                if (algorithm.InspectType == inspType)
+                    return algorithm;
+            }
+            return null;
+
             return AlgorithmList.Find(algo => algo.InspectType == inspType);
         }
 

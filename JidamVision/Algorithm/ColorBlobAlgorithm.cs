@@ -100,7 +100,7 @@ namespace JidamVision.Algorithm
                 {
                     _findArea.Add(rect);
                 }
-            }
+            };
 
             // 검출된 전선 개수 출력
             int wireCount = _findArea.Count;
