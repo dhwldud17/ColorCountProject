@@ -26,15 +26,14 @@ namespace JidamVision
         public CameraForm()
         {
             InitializeComponent();
-            imageViewer.Dock = DockStyle.Fill;
-            Controls.Add(imageViewer);
+
             this.FormClosed += CameraForm_FormClosed;
 
-            imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
+            imageViewer.DiagramEntityEvent += ImageViewer_ModifyROI;
             rbtnColor.Checked = true;
         }
 
-        private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
+        private void ImageViewer_ModifyROI(object sender, DiagramEntityEventArgs e)
         {
             switch (e.ActionType)
             {
@@ -59,11 +58,6 @@ namespace JidamVision
                 case EntityActionType.Break:
                     Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
                     break;
-                case EntityActionType.PickColor:
-                    Rect rect = imageViewer.GetPickColorRect();
-                    Global.Inst.InspStage.PickColorWindow(rect);
-                    break;
-
             }
         }
 
@@ -90,7 +84,6 @@ namespace JidamVision
             return eImageChannel.Color;
         }
 
-
         public void UpdateDisplay(Bitmap bitmap = null)
         {
             if (bitmap == null)
@@ -106,7 +99,6 @@ namespace JidamVision
             imageViewer.LoadBitmap(bitmap);
 
             //#BINARY FILTER#12 이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정
-            //#COLOR BINARY FILTER#12 컬러이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정
             //현재 선택된 이미지로 Previwe이미지 갱신
             Mat curImage = Global.Inst.InspStage.GetMat();
             Global.Inst.InspStage.PreView.SetImage(curImage);
@@ -121,16 +113,14 @@ namespace JidamVision
         {
             int margin = 10;
 
-            int xPos = Location.X + this.Width - btnGrab.Width - margin;
+            //int xPos = Location.X + this.Width - btnGrab.Width - margin;
 
-            btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
-            btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
-            btnInspect.Location = new System.Drawing.Point(xPos, btnInspect.Location.Y);
-            btnStop.Location = new System.Drawing.Point(xPos, btnStop.Location.Y);
-            chkCycle.Location = new System.Drawing.Point(xPos, chkCycle.Location.Y);
-            groupBox1.Location = new System.Drawing.Point(xPos, groupBox1.Location.Y);
+            //btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
+            //btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
+            //btnInspect.Location = new System.Drawing.Point(xPos, btnInspect.Location.Y);
+            //groupBox1.Location = new System.Drawing.Point(xPos, groupBox1.Location.Y);
 
-            imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
+            //imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
 
             imageViewer.Location = new System.Drawing.Point(margin, margin);
@@ -151,7 +141,7 @@ namespace JidamVision
 
         private void CameraForm_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         #region Select Channel
@@ -181,39 +171,30 @@ namespace JidamVision
         }
         #endregion
 
-        // ROI를 가져오는 공통 함수 
-        public bool TryGetROI(out Mat roiImage, out Rect roiRect)
-        {
-            roiImage = null;
-            roiRect = new Rect(); // 기본값
+        ///*
+        // #SAVE ROI# - <<<ROI 영역 이미지 파일 저장>>> 
+        //이미지 상에서 ROI 영역을 파일로 저장하여, 템플릿 매칭에서 사용
+        //*/
+        //private void btnSave_Click(object sender, EventArgs e)
+        //{
+        //    //# SAVE ROI#5 현재 채널 이미지에서, 설정된 ROI 영역을 파일로 저장
+        //    OpenCvSharp.Mat currentImage = Global.Inst.InspStage.GetMat(0, _currentImageChannel);
+        //    if (currentImage != null)
+        //    {
+        //        //현재 설정된 ROI 영역을 가져옴
+        //        Rectangle roiRect = imageViewer.GetRoiRect();
+        //        if (roiRect.IsEmpty == true)
+        //            return;
 
-            OpenCvSharp.Mat currentImage = Global.Inst.InspStage.GetMat(0, _currentImageChannel);
-            if (currentImage == null)
-                return false;
+        //        //전체 이미지에서 ROI 영역만을 roiImage에 저장
+        //        Mat roiImage = new Mat(currentImage, new Rect(roiRect.X, roiRect.Y, roiRect.Width, roiRect.Height));
 
-            Rectangle roi = imageViewer.GetRoiRect();
-            if (roi.Width == 0 || roi.Height == 0)
-                return false;
-
-            roiRect = new Rect(roi.X, roi.Y, roi.Width, roi.Height);
-            roiImage = new Mat(currentImage, roiRect);
-            return true;
-        }
-
-        /*
-         #SETROI# - <<<ROI 설정 개발>>> 
-        이미지 상에서 ROI(Region of Interest)를 설정하는 기능
-         */
-        private void btnApplyFilter(object sender, EventArgs e)
-        {
-            //#SETROI#2 ROI 모드 토글 설정
-            imageViewer.RoiMode = !imageViewer.RoiMode;
-            imageViewer.Invalidate();
-        }
-
-        /*
-         
-
+        //        //현재 실행파일이 있는 경로에, 저장할 경로 만들기
+        //        string savePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
+        //        //이미지 저장
+        //        Cv2.ImWrite(savePath, roiImage);
+        //    }
+        //}
 
         //#MATCH PROP#14 템플릿 매칭 위치 입력 받는 함수
         public void AddRect(List<Rect> rects)
@@ -278,26 +259,11 @@ namespace JidamVision
 
             imageViewer.SetDiagramEntityList(diagramEntityList);
         }
-        public void SelectDiagramEntity(InspWindow window)
-        {
-            imageViewer.SelectDiagramEntity(window);
-        }
-
-        public void UpdateImageViewer()
-        {
-            imageViewer.Invalidate();
-        }
-
         private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
+            imageViewer.DiagramEntityEvent -= ImageViewer_ModifyROI;
 
             this.FormClosed -= CameraForm_FormClosed;
-        }
-
-        private void btnStop_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

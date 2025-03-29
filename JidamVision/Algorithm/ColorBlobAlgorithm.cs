@@ -28,13 +28,13 @@ namespace JidamVision.Algorithm
 
     public class ColorBlobAlgorithm : InspAlgorithm
     {
-        private Mat _srcImage; // 원본 이미지 저장
+        //private Mat _srcImage; // 원본 이미지 저장
 
-        public Mat SourceImage
-        {
-            get { return _srcImage; }
-            set { _srcImage = value; }
-        }
+        //public Mat SourceImage
+        //{
+        //    get { return _srcImage; }
+        //    set { _srcImage = value; }
+        //}
         private List<Rect> _findArea;
 
         public HsvRange ColorRange { get; set; } = new HsvRange();
@@ -52,11 +52,11 @@ namespace JidamVision.Algorithm
             InspectType = InspectType.InspColorBinary; // 새로운 타입 추가
         }
 
-        // HSV 값을 바탕으로 색상 범위를 설정
-        public void SetColorRange(int hueL, int hueU, int satL, int satU, int valL, int valU, bool invert)
-        {
-            ColorRange = new HsvRange(hueL, hueU, satL, satU, valL, valU, invert);
-        }
+        //// HSV 값을 바탕으로 색상 범위를 설정
+        //public void SetColorRange(int hueL, int hueU, int satL, int satU, int valL, int valU, bool invert)
+        //{
+        //    ColorRange = new HsvRange(hueL, hueU, satL, satU, valL, valU, invert);
+        //}
 
         // 컬러 이진화 후 원하는 영역을 얻음 
         public override bool DoInspect()
@@ -100,7 +100,7 @@ namespace JidamVision.Algorithm
                 {
                     _findArea.Add(rect);
                 }
-            }
+            };
 
             // 검출된 전선 개수 출력
             int wireCount = _findArea.Count;

@@ -232,7 +232,9 @@ namespace JidamVision.Core
 
             switch (operation)
             {
-
+                case ImageOperation.OpMin:
+                    Cv2.Min(src1, src2, dst);  // 두 이미지의 최소값 비교
+                    break;
                 case ImageOperation.OpSubtract:
                     Cv2.Subtract(src1, src2, dst);  // 두 이미지의 차이 구하기
                     break;
@@ -276,120 +278,45 @@ namespace JidamVision.Core
             if (cameraForm == null)
                 return;
 
-            // 원본 이미지를 다시 가져와서 작업하도록 수정
-            Mat originalImage = _orinalImage.Clone();  //깊은복사. 원본이미지를 보존하기 위해
-            //Clone()을 사용하지 않으면 얉은 복사가 되서 원본이 같이 변경됨. 우리는 원본이미지를 보존해야함. 
             Mat filteredImage = new Mat();
-
-            // ROI가 설정된 경우 또는 설정되지 않은 경우
-            Rect roiRect = new Rect();  // roiRect를 여기에 한 번만 선언
-            Mat imageToProcess = originalImage; // 기본적으로 원본 이미지로 설정
-
-            //ROI영역이 존재하면 
-            if (cameraForm.TryGetROI(out Mat roiImage, out roiRect))
-            {
-                // ROI가 있을 때는 ROI만 필터 적용
-                imageToProcess = roiImage;
-            }
+            Bitmap bmpImage;
 
             // 선택된 필터에 따라 필터 적용
             switch (selected_filter1)
             {
                 case "연산":
+                    // 연산 관련 enum 값 매핑
                     ImageOperation operation = (ImageOperation)selected_filter2;
-                    string op_values = "30 30 30";
-                    FilterFunction.ApplyImageOperation(operation, imageToProcess, op_values, out filteredImage);
+                    string op_values = "30 30 30";  //연산값 지정
+                    ApplyImageOperation(operation, _orinalImage, op_values, out filteredImage);
                     break;
                 case "비트연산(Bitwise)":
+                    // 비트 연산 관련 enum 값 매핑
                     Bitwise bitwise = (Bitwise)selected_filter2;
-                    FilterFunction.ApplyBitwiseOperation(bitwise, imageToProcess, out filteredImage);
+                    ApplyBitwiseOperation(bitwise, _orinalImage, out filteredImage);
                     break;
 
                 default:
                     return;
             }
 
-            //// ROI가 설정된 경우, 필터링된 이미지를 해당 영역에만 반영
-            if (cameraForm.TryGetROI(out _, out roiRect))
-            {
-                filteredImage.CopyTo(originalImage[roiRect]);
-            }
-            else
-            {
-                // ROI가 없으면 필터링된 이미지를 원본 이미지 전체에 반영
-                originalImage = filteredImage.Clone(); // Clone()을 사용하여 새로운 이미지로 대체
-            }
-
-            // 필터링된 이미지를 화면에 표시
-            _previewImage = originalImage;
-            Bitmap bmpImage = BitmapConverter.ToBitmap(_previewImage);
+            _previewImage = filteredImage;
+            bmpImage = BitmapConverter.ToBitmap(_previewImage);
             cameraForm.UpdateDisplay(bmpImage);
+            //var cameraForm = MainForm.GetDockForm<CameraForm>();
+            //if (cameraForm != null)
+            //{
+            //    Bitmap bmpImage  = BitmapConverter.ToBitmap(_previewImage);
+            //    cameraForm.UpdateDisplay(bmpImage);
+            //}
         }
-
-
     }
-
-
-
 }
 
-static void ApplyBitwiseOperation(Bitwise operation, Mat src1, out Mat resultImage)  // 이미지 Bitwise 연산 코드
-                                                                                     // 두 이미지를 비트 연산(AND, OR, XOR, NOT 등)으로 결합하는 예시
-{
-    Mat dst = new Mat();
-    Mat src2 = src1.Flip(FlipMode.Y); //Y축 기준으로 반전한 이미지 
-    switch (operation)
-    {
-        case Bitwise.OnNot:
-            Cv2.BitwiseNot(src1, dst);  // NOT 연산
-            break;
-        case Bitwise.OnCompare:
-            // 비트 비교 연산 추가 가능
-            break;
-    }
-    resultImage = dst;
-}
+    
 
 
 
-//필터 효과 기능
-public void ApplyFilter(String selected_filter1, int selected_filter2)
-{
-    if (_orinalImage == null)
-        return;
-    var cameraForm = MainForm.GetDockForm<CameraForm>();
-    if (cameraForm == null)
-        return;
-    Mat filteredImage = new Mat();
-    Bitmap bmpImage;
 
-    switch (selected_filter1)
-    {
-        case "연산":
-            // 연산 관련 enum 값 매핑
-            ImageOperation operation = (ImageOperation)selected_filter2;
-            string op_values = "30 30 30";  //연산값 지정
-            ApplyImageOperation(operation, _orinalImage, op_values, out filteredImage);
-            break;
-        case "비트연산(Bitwise)":
-            // 비트 연산 관련 enum 값 매핑
-            Bitwise bitwise = (Bitwise)selected_filter2;
-            ApplyBitwiseOperation(bitwise, _orinalImage, out filteredImage);
-            break;
-        default:
-            return;
-    }
-
-    _previewImage = filteredImage;
-    bmpImage = BitmapConverter.ToBitmap(_previewImage);
-    cameraForm.UpdateDisplay(bmpImage);
-    //var cameraForm = MainForm.GetDockForm<CameraForm>();
-    //if (cameraForm != null)
-    //{
-    //    Bitmap bmpImage  = BitmapConverter.ToBitmap(_previewImage);
-    //    cameraForm.UpdateDisplay(bmpImage);
-    //}
-
-}
     
 
