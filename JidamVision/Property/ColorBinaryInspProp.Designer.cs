@@ -366,6 +366,7 @@
             this.hTrackBarLower.Name = "hTrackBarLower";
             this.hTrackBarLower.Size = new System.Drawing.Size(367, 69);
             this.hTrackBarLower.TabIndex = 0;
+            this.hTrackBarLower.Scroll += new System.EventHandler(this.hTrackBarLower_Scroll);
             // 
             // sTrackBarLower
             // 
@@ -407,7 +408,6 @@
             this.select_effect2.Size = new System.Drawing.Size(121, 26);
             this.select_effect2.TabIndex = 1;
             this.select_effect2.Text = "선택2";
-            this.select_effect2.SelectedIndexChanged += new System.EventHandler(this.select_effect2_SelectedIndexChanged);
             // 
             // select_effect
             // 

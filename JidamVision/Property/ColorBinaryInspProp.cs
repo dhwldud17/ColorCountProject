@@ -365,4 +365,9 @@ namespace JidamVision.Property
         
 
     }
-}
+
+        private void hTrackBarLower_Scroll(object sender, EventArgs e)
+        {
+
+        }
+    }
