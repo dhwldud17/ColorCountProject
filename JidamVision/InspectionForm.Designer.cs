@@ -187,12 +187,11 @@
             this.imageViewer.AutoSize = true;
             this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewer.Location = new System.Drawing.Point(316, 112);
+            this.imageViewer.Location = new System.Drawing.Point(265, 112);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(217, 176);
+            this.imageViewer.Size = new System.Drawing.Size(268, 206);
             this.imageViewer.TabIndex = 16;
-            this.imageViewer.Load += new System.EventHandler(this.imageViewer_Load);
             // 
             // btImageLode
             // 
@@ -202,7 +201,7 @@
             this.btImageLode.TabIndex = 17;
             this.btImageLode.Text = "불러오기";
             this.btImageLode.UseVisualStyleBackColor = true;
-            this.btImageLode.Click += new System.EventHandler(this.btImageLode_Click);
+            this.btImageLode.Click += new System.EventHandler(this.btImageLode_Click_1);
             // 
             // lblResult
             // 
@@ -228,7 +227,7 @@
             // 
             this.InspectionImage.Location = new System.Drawing.Point(30, 133);
             this.InspectionImage.Name = "InspectionImage";
-            this.InspectionImage.Size = new System.Drawing.Size(502, 445);
+            this.InspectionImage.Size = new System.Drawing.Size(522, 445);
             this.InspectionImage.TabIndex = 20;
             this.InspectionImage.TabStop = false;
             // 

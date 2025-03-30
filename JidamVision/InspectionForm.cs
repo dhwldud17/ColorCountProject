@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
+using JidamVision.Teach;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Flann;
 using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using static JidamVision.Core.ImageSpace;
 
 namespace JidamVision
 {
@@ -29,16 +31,14 @@ namespace JidamVision
         private int faultyCount = 0; // 불량 개수
         private string[] imageFiles; // 이미지 파일 목록
         private ColorBlobAlgorithm colorBlobAlgorithm;
+        private Rect selectedROI; // ROI 영역 저장
+        private InspWindow _inspWindow;
 
-
+        private Model currentModel;
+        private Mat inspectedImage;
+        private List<InspWindow> currentROIs;
         // ✅검사할 색상 정의 (추가된 부분)
-        private readonly List<Color> expectedColors = new List<Color>
-        {
-            Color.Red,   // 빨강
-            Color.Yellow, // 노랑
-            Color.Blue,  // 파랑
-            Color.Black // 검정
-        };
+   
         public InspectionForm()
         {
             InitializeComponent();
@@ -48,7 +48,108 @@ namespace JidamVision
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             InitializeDataGridView();  // DataGridView 초기화
             colorBlobAlgorithm = new ColorBlobAlgorithm();
+            // 모델 불러오기 (예시)
+            currentModel = new Model().Load("C:\\Users\\ajisj\\OneDrive\\바탕 화면\\model.xml\\model.xml.xml");
+            List<InspWindow> inspWindows = currentModel.InspWindowList; // 모델에서 ROI 정보 가져오기
+            // ROI 정보 가져오기
+            currentROIs = currentModel.InspWindowList.Where(w => w is InspWindow).ToList();
+            CompareROIWithInspection();
         }
+
+       
+
+        // 검사 이미지 불러오기
+        public void LoadImage(string imagePath)
+        {
+            inspectedImage = Cv2.ImRead(imagePath);
+            // 검사 이미지 로드 후 화면에 표시하는 코드 추가
+            InspectionImage.Image = BitmapConverter.ToBitmap(inspectedImage);
+        }
+        public void CompareROIWithInspection()
+        {
+            foreach (var roi in currentROIs)
+            {// ROI 위치 정보와 비교할 이미지에서 해당 영역 추출
+                var roiRect = roi.WindowArea;  // ROI의 위치 및 크기 정보
+                var roiImage = inspectedImage[roiRect];
+
+                // ROI 이미지와 검사가 올바른지 비교 (여기서 컬러 이진화 알고리즘을 사용할 수도 있음)
+                bool isMatch = CompareROI(roiImage, roi);
+
+                // 결과에 따라 표시 (초록색/빨간색)
+                if (isMatch)
+                {
+                    DrawResult(roiRect, Color.Green);  // 초록색 표시
+                }
+                else
+                {
+                    DrawResult(roiRect, Color.Red);    // 빨간색 표시
+                }
+            }
+        }
+
+        // ROI 비교 함수 (간단한 예시로, 실제 비교 로직은 컬러 이진화 등으로 확장 가능)
+        private bool CompareROI(Mat roiImage, InspWindow roi)
+        {
+            // 예시: 단순히 색상값 비교 또는 이진화 알고리즘을 통한 비교
+            return ColorMatch(roiImage, roi); // ColorMatch는 예시 함수
+        }
+
+        // 검사 결과 그리기
+        private void DrawResult(Rect rect, Color color)
+        {
+            // 이미지를 그리기 위해서는 OpenCV의 그리기 함수를 사용할 수 있음
+            Scalar colorScalar = new Scalar(color.B, color.G, color.R); // OpenCV에서 색상은 BGR 순서
+            Cv2.Rectangle(inspectedImage, rect, colorScalar, 2);
+            // 그린 이미지를 화면에 표시
+            InspectionImage.Image = BitmapConverter.ToBitmap(inspectedImage);
+        }
+        // 색상 매칭 함수 (컬러 이진화 알고리즘을 이용한 예시)
+        private bool ColorMatch(Mat roiImage, InspWindow roi)
+        {
+            // 예시로 ColorBlobAlgorithm을 사용하여 색상 비교
+            // 실제로는 ROI에 대한 색상 비교 후, 매칭 여부 반환
+            colorBlobAlgorithm.SetSourceImage(roiImage);
+            return colorBlobAlgorithm.DoInspect();  // 컬러 이진화 알고리즘을 통해 색상 매칭
+        }
+
+
+
+
+        private void CheckInspectionImage(Mat inspectionImg)
+        {
+           
+
+            // 검사 이미지에서 ROI 영역 추출
+            Mat roiInspectionImage = new Mat(inspectionImg, selectedROI);
+
+            // 검사 이미지에서 해당 ROI 영역을 검사
+            colorBlobAlgorithm.SetInspData(roiInspectionImage);
+
+            // 검사 실행
+            bool result = colorBlobAlgorithm.DoInspect();
+
+            // 결과 출력
+            if (colorBlobAlgorithm.IsDefect)
+            {
+                lblResult.Text = "NG"; // 불량
+            }
+            else
+            {
+                lblResult.Text = "OK"; // 정상
+            }
+
+            // 검사 이미지 화면에 표시
+            Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
+            InspectionImage.Image = bmp; // PictureBox에 검사 이미지 표시
+        }
+
+
+
+
+
+
+
+
         private void InitializeInspection()
         {
             inspectionTimer = new Timer();
@@ -160,43 +261,43 @@ namespace JidamVision
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
             }
             // ✅ 이미지 색상 검사 추가
-            CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
+         //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
         // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
-        private void CheckColorsInImage(Mat image, int imageIndex)
-        {
-            Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
+        //private void CheckColorsInImage(Mat image, int imageIndex)
+        //{
+        //    Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
 
-            // 초기화 (모든 색상을 false로 설정)
-            foreach (var color in expectedColors)
-            {
-                colorResults[color] = false;
-            }
+        //    // 초기화 (모든 색상을 false로 설정)
+        //    foreach (var color in expectedColors)
+        //    {
+        //        colorResults[color] = false;
+        //    }
 
-            for (int x = 0; x < image.Width; x++)
-            {
-                for (int y = 0; y < image.Height; y++)
-                {
-                    Color pixelColor = GetPixelColor(image, x, y);
+        //    for (int x = 0; x < image.Width; x++)
+        //    {
+        //        for (int y = 0; y < image.Height; y++)
+        //        {
+        //            Color pixelColor = GetPixelColor(image, x, y);
 
-                    foreach (var expectedColor in expectedColors)
-                    {
-                        if (IsSimilarColor(pixelColor, expectedColor))
-                        {
-                            colorResults[expectedColor] = true;
-                        }
-                    }
-                }
-            }
+        //            foreach (var expectedColor in expectedColors)
+        //            {
+        //                if (IsSimilarColor(pixelColor, expectedColor))
+        //                {
+        //                    colorResults[expectedColor] = true;
+        //                }
+        //            }
+        //        }
+        //    }
 
-            // 검사 결과를 DataGridView에 추가
-            foreach (var kvp in colorResults)
-            {
-                string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
-                dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
-            }
-        }
+        //    // 검사 결과를 DataGridView에 추가
+        //    foreach (var kvp in colorResults)
+        //    {
+        //        string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
+        //        dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
+        //    }
+        //}
 
         // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
         private Color GetPixelColor(Mat image, int x, int y)
@@ -307,6 +408,23 @@ namespace JidamVision
         private void imageViewer_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void btImageLode_Click_1(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.tiff";
+                openFileDialog.Title = "이미지 파일 선택";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+                    LoadImage( filePath);
+                    // 이미지 로드
+                 
+                }
+            }
         }
     }
 }

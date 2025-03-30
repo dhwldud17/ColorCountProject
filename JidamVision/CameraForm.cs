@@ -25,6 +25,7 @@ namespace JidamVision
         //# SAVE ROI#1 현재 선택된 이미지 채널 저장을 위한 변수
         eImageChannel _currentImageChannel = eImageChannel.Color;
         private ColorBlobAlgorithm colorBlobAlgorithm;
+        private InspWindow _inspWindow;
         public CameraForm()
         {
             InitializeComponent();
@@ -34,6 +35,7 @@ namespace JidamVision
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
             rbtnColor.Checked = true;
+            _inspWindow = new InspWindow();
         }
 
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
@@ -195,6 +197,10 @@ namespace JidamVision
             UpdateDisplay();
         }
         #endregion
+
+
+   
+
 
         //#MATCH PROP#14 템플릿 매칭 위치 입력 받는 함수
         public void AddRect(List<Rect> rects)

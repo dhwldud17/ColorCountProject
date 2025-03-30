@@ -66,6 +66,7 @@ namespace JidamVision.Teach
             Name = name;
         }
 
+        //어진 영역(rect)의 이미지를 잘라 _teachingImage에 저장
         public bool SetTeachingImage(Mat image, System.Drawing.Rectangle rect)
         {
             _teachingImage = new Mat(image, new Rect(rect.X, rect.Y, rect.Width, rect.Height));

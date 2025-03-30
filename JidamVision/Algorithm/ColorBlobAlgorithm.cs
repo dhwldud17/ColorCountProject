@@ -31,6 +31,39 @@ namespace JidamVision.Algorithm
 
         // HSV 값을 바탕으로 색상 범위를 설정
         // 컬러 이진화 필터 함수
+
+        // 색상 비교 함수 (색상 매칭)
+        private bool CompareColorMatch(Mat referenceImage, Mat testImage, Rect referenceRect, Rect testRect)
+        {
+            // 두 이미지의 해당 영역을 추출
+            Mat referenceRegion = new Mat(referenceImage, referenceRect);
+            Mat testRegion = new Mat(testImage, testRect);
+
+            // 두 이미지의 평균 색상 계산 (HSV로 변환 후 평균 색상 계산)
+            Mat referenceHSV = new Mat();
+            Mat testHSV = new Mat();
+
+            Cv2.CvtColor(referenceRegion, referenceHSV, ColorConversionCodes.BGR2HSV);
+            Cv2.CvtColor(testRegion, testHSV, ColorConversionCodes.BGR2HSV);
+
+            // 평균 색상 계산
+            Scalar referenceMean = Cv2.Mean(referenceHSV);
+            Scalar testMean = Cv2.Mean(testHSV);
+
+            // 색상 차이 계산 (HSV의 H, S, V 값 차이)
+            double hDiff = Math.Abs(referenceMean.Val0 - testMean.Val0);
+            double sDiff = Math.Abs(referenceMean.Val1 - testMean.Val1);
+            double vDiff = Math.Abs(referenceMean.Val2 - testMean.Val2);
+
+            // 색상 차이가 일정 범위 이내이면 매칭 성공
+            double maxH = 10; // 허용하는 색상 차이 범위 (Hue)
+            double maxS = 50; // 허용하는 채도 차이 범위 (Saturation)
+            double maxV = 50; // 허용하는 명도 차이 범위 (Value)
+
+            return hDiff <= maxH && sDiff <= maxS && vDiff <= maxV;
+        }
+
+
         private Mat ColorBlobFilter(Mat hsvImage)
         {
             // 설정된 HSV 범위 적용
@@ -71,6 +104,12 @@ namespace JidamVision.Algorithm
 
             return foundAreas;
         }
+
+        // 검사 이미지 설정
+        public void SetSourceImage(Mat srcImage)
+        {
+            _srcImage = srcImage;
+        }
         // 기준 이미지 설정 (티칭)
         public void SetReferenceImage(Mat refImage)
         {
@@ -103,8 +142,16 @@ namespace JidamVision.Algorithm
             _findArea = ProcessImage(_srcImage);
 
             // 기준 이미지와 검사 이미지 비교
-            bool isMatch = CompareAreas(_referenceAreas, _findArea);
-            IsDefect = !isMatch;
+            bool isMatch = true;
+
+            for (int i = 0; i < _referenceAreas.Count; i++)
+            {
+                if (i >= _findArea.Count || !CompareColorMatch(_srcImage, _srcImage, _referenceAreas[i], _findArea[i]))
+                {
+                    isMatch = false;
+                    break;
+                }
+            }
             //Mat hsvImage = new Mat();
             //Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV); // 이미지 HSV로 변환
 
@@ -129,9 +176,11 @@ namespace JidamVision.Algorithm
             //    _findArea.Add(rect);
             //}
             // OK / NG 판단
+            IsDefect = !isMatch;
             ResultString = isMatch ? new List<string> { "OK" } : new List<string> { "NG" };
             IsInspected = true;
-            return true;
+
+            return true; ;
         }
         //결과값 보냄.
         // 검사 결과가 Rect정보로 출력이 가능하다면, 이 함수를 상속 받아서, 정보 반환
