@@ -59,10 +59,10 @@ namespace JidamVision.Inspect
 
                 switch (algo.InspectType)
                 {
-                    //case InspectType.InspMatch:
-                    //    MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
-                    //    inspResult.ResultValue = $"{matchAlgo.OutScore}";
-                    //    break;
+                    case InspectType.InspMatch:
+                        MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
+                        inspResult.ResultValue = $"{matchAlgo.OutScore}";
+                        break;
                     case InspectType.InspBinary:
                         BlobAlgorithm blobAlgo = algo as BlobAlgorithm;
                         inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{blobAlgo.BlobCount}";
@@ -99,11 +99,11 @@ namespace JidamVision.Inspect
                     if (!InspectWindow(idWindow))
                         return false;
 
-                    //if (matchAlgo.IsInspected)
-                    //{
-                    //    alignOffset = matchAlgo.GetOffset();
-                    //    idWindow.InspArea = idWindow.WindowArea + alignOffset;
-                    //}
+                    if (matchAlgo.IsInspected)
+                    {
+                        alignOffset = matchAlgo.GetOffset();
+                        idWindow.InspArea = idWindow.WindowArea + alignOffset;
+                    }
                 }
             }
 

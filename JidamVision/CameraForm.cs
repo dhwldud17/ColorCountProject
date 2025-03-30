@@ -16,6 +16,7 @@ using System.IO;
 using OpenCvSharp;
 using JidamVision.Util;
 using System.Diagnostics.Eventing.Reader;
+using JidamVision.Algorithm;
 
 namespace JidamVision
 {
@@ -23,14 +24,14 @@ namespace JidamVision
     {
         //# SAVE ROI#1 현재 선택된 이미지 채널 저장을 위한 변수
         eImageChannel _currentImageChannel = eImageChannel.Color;
-
+        private ColorBlobAlgorithm colorBlobAlgorithm;
         public CameraForm()
         {
             InitializeComponent();
             imageViewer.Dock = DockStyle.Fill;
             Controls.Add(imageViewer);
             this.FormClosed += CameraForm_FormClosed;
-
+            colorBlobAlgorithm = new ColorBlobAlgorithm();
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
             rbtnColor.Checked = true;
         }
@@ -305,5 +306,8 @@ namespace JidamVision
                 imageViewer.ResetEntity();
             }
         }
+
+        
+        
     }
 }

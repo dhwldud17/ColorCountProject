@@ -28,6 +28,8 @@ namespace JidamVision
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
         private string[] imageFiles; // 이미지 파일 목록
+        private ColorBlobAlgorithm colorBlobAlgorithm;
+
 
         // ✅검사할 색상 정의 (추가된 부분)
         private readonly List<Color> expectedColors = new List<Color>
@@ -45,6 +47,7 @@ namespace JidamVision
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             InitializeDataGridView();  // DataGridView 초기화
+            colorBlobAlgorithm = new ColorBlobAlgorithm();
         }
         private void InitializeInspection()
         {
@@ -243,34 +246,48 @@ namespace JidamVision
 
         private void btImageLode_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            // 파일 탐색기 열기
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                folderDialog.Description = "이미지가 있는 폴더를 선택하세요.";
+                openFileDialog.Title = "검사할 이미지 파일 선택";
+                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif"; // 이미지 확장자 필터
+                openFileDialog.Multiselect = false; // 여러 파일 선택 안됨
 
-                if (folderDialog.ShowDialog() == DialogResult.OK)
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string selectedFolder = folderDialog.SelectedPath;
+                    // 선택된 이미지 경로 가져오기
+                    string filePath = openFileDialog.FileName;
 
-                    // 선택한 폴더 내의 이미지 파일(.jpg, .png, .bmp) 목록 가져오기
-                    imageFiles = Directory.GetFiles(selectedFolder, "*.*")
-                                          .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                                      f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                                      f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase))
-                                          .ToArray();
+                    // 이미지 불러오기
+                    Mat inspectionImage = Cv2.ImRead(filePath);
 
-                    // 이미지가 있으면 첫 번째 이미지 표시
-                    if (imageFiles.Length > 0)
+                    if (inspectionImage.Empty())
                     {
-                        currentImageIndex = 0;
-                        ShowImage(currentImageIndex);
+                        MessageBox.Show("이미지 로드 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    // 검사할 이미지 설정
+                    colorBlobAlgorithm.SetInspData(inspectionImage);
+
+                    // 검사 실행
+                    bool result = colorBlobAlgorithm.DoInspect();
+
+                    // 검사 결과 출력
+                    if (colorBlobAlgorithm.IsDefect)
+                    {
+                        lblResult.Text = "NG";
                     }
                     else
                     {
-                        MessageBox.Show("선택한 폴더에 이미지가 없습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        lblResult.Text = "OK";
                     }
+
+                    // Mat를 Bitmap으로 변환하여 PictureBox에 표시
+                    Bitmap bmp = BitmapConverter.ToBitmap(inspectionImage);
+                    InspectionImage.Image = bmp; // PictureBox에 이미지 설정
                 }
             }
-
         }
 
         private void ShowImage(int index)
@@ -287,5 +304,9 @@ namespace JidamVision
             }
         }
 
+        private void imageViewer_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

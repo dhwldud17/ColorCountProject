@@ -14,11 +14,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using JidamVision.Algorithm;
 
 namespace JidamVision
 {
     public partial class MainForm : Form
     {
+        private ColorBlobAlgorithm colorBlobAlgorithm;
+
         private static DockPanel _dockPanel;
         private CameraForm _teachWindow;
         private InspectionForm _inspectionWindow; // 기존 검사 실행 창
@@ -39,8 +42,8 @@ namespace JidamVision
             _dockPanel.Theme = new VS2015BlueTheme();
 
                LoadDockingWindows();
-       
-           
+
+            colorBlobAlgorithm = new ColorBlobAlgorithm();
             ShowInspectionUI();
 
             // 활성화된 도킹 창이 변경될 때 이벤트 핸들러 등록
@@ -283,6 +286,10 @@ namespace JidamVision
                     string filePath = openFileDialog.FileName;
                     Global.Inst.InspStage.SetImageBuffer(filePath);
                     Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
+
+                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
+                    Mat referenceImage = Cv2.ImRead(filePath);
+                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
                 }
             }
         }
@@ -322,6 +329,49 @@ namespace JidamVision
 
         }
 
-        
+        private void FileTopMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void referenceImageToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "이미지 파일 선택";
+                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+                openFileDialog.Multiselect = false;
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
+
+                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
+                    Mat referenceImage = Cv2.ImRead(filePath);
+                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
+                }
+            }
+        }
+
+        private void inspectImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "이미지 파일 선택";
+                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+                openFileDialog.Multiselect = false;
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
+
+                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
+                    Mat referenceImage = Cv2.ImRead(filePath);
+                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
+                }
+            }
+        }
     }
 }

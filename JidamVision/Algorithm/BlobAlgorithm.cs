@@ -21,7 +21,7 @@ namespace JidamVision.Algorithm
     {
         //이진화 필터로 찾은 영역
         private List<Rect> _findArea;
-
+       
         public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
 
         //픽셀 영역으로 이진화 필터

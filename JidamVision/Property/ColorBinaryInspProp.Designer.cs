@@ -250,6 +250,7 @@
             this.btnTeachinColor.TabIndex = 22;
             this.btnTeachinColor.Text = "TeachinColor";
             this.btnTeachinColor.UseVisualStyleBackColor = true;
+            this.btnTeachinColor.Click += new System.EventHandler(this.btnTeachinColor_Click);
             // 
             // chkHighlight
             // 
