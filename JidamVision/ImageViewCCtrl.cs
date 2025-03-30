@@ -1,5 +1,6 @@
 ﻿using JidamVision.Algorithm;
 using JidamVision.Core;
+using JidamVision.Property;
 using JidamVision.Teach;
 using OpenCvSharp.Dnn;
 using OpenCvSharp.Internal.Vectors;
@@ -18,6 +19,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using static JidamVision.Algorithm.ColorBlobAlgorithm;
+using static JidamVision.Property.ColorBinaryInspProp;
 using static System.Windows.Forms.MonthCalendar;
 
 namespace JidamVision
@@ -69,7 +72,7 @@ namespace JidamVision
         public event EventHandler<MouseEventArgs> MouseEvent;
         private Point startPoint;
         private Rectangle selectedArea;
-        private bool isSelecting = false;
+        
 
         // 현재 로드된 이미지
         private Bitmap _bitmapImage = null;
@@ -117,8 +120,17 @@ namespace JidamVision
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private bool isSelecting = false;
         private bool _isPickColor = false;
         private Rectangle _pickColorRect;
+        private ColorBinaryInspProp _colorBinaryInspProp = new ColorBinaryInspProp();
+
+        public EventHandler<ColorBinaryInspProp.ColorEventArgs> ColorBinaryInspProp_ColorPicked { get; }
+
+        public event Action OnColorExtracted;
+
+        
+
         public ImageViewCCtrl()
         {
             InitializeComponent();
@@ -139,6 +151,8 @@ namespace JidamVision
             // UserControl1_MouseWheel 메서드를 MouseEventHandler 델리게이트(delegate) 형식으로 변환
             // MouseWheel += UserControl1_MouseWheel; 델리게이트 직접 지정없이해도 자동변환됨
             MouseWheel += new MouseEventHandler(ImageViewCCtrl_MouseWheel);
+            _colorBinaryInspProp.ColorPicked += ColorBinaryInspProp_ColorPicked;
+
         }
 
         private void InitializeCanvas()
@@ -686,14 +700,16 @@ namespace JidamVision
             }
         }
 
+       
+
         private void ImageViewCCtrl_MouseUp(object sender, MouseEventArgs e)
         {
             if (isSelecting)
             {
                 isSelecting = false;
-                this.Cursor = Cursors.Default;
+                this.Cursor = Cursors.Cross;
                 Invalidate(); // 화면 갱신
-                ExtractColorFromSelection(); // 선택한 영역에서 색상 추출
+                _colorBinaryInspProp.ExtractColorFromSelection();  // 선택한 영역에서 색상 추출
             }
 
             //#SETROI#5 ROI 크기 변경 또는 이동 완료
@@ -702,15 +718,18 @@ namespace JidamVision
             {
                 if (_isPickColor)
                 {
+                    Color pickedColor = GetColorAtPoint(e.Location); // 마우스 클릭한 위치의 색상 추출
+                    _colorBinaryInspProp.PickColor(pickedColor); // 이벤트 발생
+                    ColorBlobAlgorithm.Instance.SetColor(pickedColor);
                     Size sampleSize = new Size(10, 10);
                     Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
                         sampleSize.Width, sampleSize.Height);
 
                     _pickColorRect = ScreenToVirtual(pickRect);
 
-                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.PickColor, null));
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, isSelecting, _isPickColor, new Point()));
 
-                    _isPickColor = false;
+                    _isPickColor = true;
                     return;
                 }
 
@@ -808,6 +827,29 @@ namespace JidamVision
                     _contextMenu.Show(this, e.Location);
                 }
             }
+        }
+
+        private Color GetColorAtPoint(Point location)
+        {
+            if (_bitmapImage == null)
+                return Color.Empty;
+
+
+            // 화면 좌표를 컨트롤 내부 좌표로 변환한 후, 
+            // 실제 이미지 좌표로 변환 (줌이나 오프셋이 있다면 그에 맞게 변환)
+            // 여기서는 간단히 컨트롤 좌표 그대로 사용한다고 가정
+            int x = location.X;
+            int y = location.Y;
+
+            // _bitmapImage에서 픽셀 읽기 (필요시 좌표 변환)
+            return _bitmapImage.GetPixel(x, y);
+            //Bitmap bitmap = new Bitmap(this.Width, this.Height);
+            //using (Graphics g = Graphics.FromImage(bitmap))
+            //{
+            //    g.CopyFromScreen(this.PointToScreen(location), Point.Empty, this.Size);
+            //}
+
+            //return bitmap.GetPixel(location.X, location.Y);
         }
 
         private void AddSelectedROI(DiagramEntity entity)
@@ -1038,72 +1080,9 @@ namespace JidamVision
             }
         }
 
-        private void ExtractColorFromSelection()
-        {
-            if (selectedArea.Width == 0 || selectedArea.Height == 0)
-                return;
+       
 
-            // 이미지에서 선택된 영역 추출
-            //Bitmap selectedBitmap = new Bitmap(pictureBox.Image);
-            //Bitmap maskBitmap = new Bitmap(selectedBitmap.Width, selectedBitmap.Height);
-
-            //// 영역의 색상 추출
-            //Color averageColor = GetAverageColor(selectedBitmap, selectedArea);
-
-            //// 마스크 이미지 생성 (선택된 영역을 빨간색으로 마스크)
-            //for (int y = selectedArea.Top; y < selectedArea.Bottom; y++)
-            //{
-            //    for (int x = selectedArea.Left; x < selectedArea.Right; x++)
-            //    {
-            //        Color pixelColor = selectedBitmap.GetPixel(x, y);
-            //        if (IsColorMatch(pixelColor, averageColor))
-            //        {
-            //            maskBitmap.SetPixel(x, y, Color.Red); // 빨간색으로 마스크 씌우기
-            //        }
-            //        else
-            //        {
-            //            maskBitmap.SetPixel(x, y, Color.Transparent); // 해당되지 않으면 투명
-            //        }
-            //    }
-            //}
-
-            // 화면 갱신: 마스크 이미지 갱신
-            //pictureBox.Image = maskBitmap;
-        }
-
-        // 평균 색상 계산
-        private Color GetAverageColor(Bitmap bitmap, Rectangle area)
-        {
-            long r = 0, g = 0, b = 0;
-            int pixelCount = 0;
-
-            for (int y = area.Top; y < area.Bottom; y++)
-            {
-                for (int x = area.Left; x < area.Right; x++)
-                {
-                    Color pixelColor = bitmap.GetPixel(x, y);
-                    r += pixelColor.R;
-                    g += pixelColor.G;
-                    b += pixelColor.B;
-                    pixelCount++;
-                }
-            }
-
-            r /= pixelCount;
-            g /= pixelCount;
-            b /= pixelCount;
-
-            return Color.FromArgb((int)r, (int)g, (int)b);
-        }
-
-        // 색상 비교 (상당히 유사한 색상만 선택)
-        private bool IsColorMatch(Color color, Color targetColor)
-        {
-            int tolerance = 30; // 색상 차이를 허용하는 범위
-            return Math.Abs(color.R - targetColor.R) < tolerance &&
-                   Math.Abs(color.G - targetColor.G) < tolerance &&
-                   Math.Abs(color.B - targetColor.B) < tolerance;
-        }
+   
 
         //#GROUP ROI#4 팝업 메뉴 함수 
         #region Group Create and Break
@@ -1267,6 +1246,10 @@ namespace JidamVision
     #region EventArgs
     public class DiagramEntityEventArgs : EventArgs
     {
+        private bool isSelecting;
+        private bool isPickColor;
+        private Point point;
+
         public EntityActionType ActionType { get; private set; }
         public InspWindow InspWindow { get; private set; }
         public InspWindowType WindowType { get; private set; }
@@ -1296,6 +1279,13 @@ namespace JidamVision
             InspWindow = null;
             InspWindowList = inspWindowList;
             WindowType = windowType;
+        }
+
+        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow, bool isSelecting, bool isPickColor, Point point) : this(actionType, inspWindow)
+        {
+            this.isSelecting = isSelecting;
+            this.isPickColor = isPickColor;
+            this.point = point;
         }
     }
 

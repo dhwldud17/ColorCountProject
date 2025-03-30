@@ -101,15 +101,15 @@ namespace JidamVision
                     break;
                 case InspectType.InspColorBinary:
                    // Console.WriteLine("InspColorBinary UserControl 생성 시도"); // 디버깅용 출력
-                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
-                    if (colorBlobProp == null)
+                    ColorBinaryInspProp colorBinaryInspProp = new ColorBinaryInspProp();
+                    if (colorBinaryInspProp == null)
                     {
                         Console.WriteLine("colorBlobProp이 null입니다.");
                         return null; // 생성 실패 시 종료
                     }
-                    colorBlobProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
-                    colorBlobProp.PropertyChanged += PropertyChanged;
-                    _inspProp = colorBlobProp;
+                    colorBinaryInspProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
+                    colorBinaryInspProp.PropertyChanged += PropertyChanged;
+                    _inspProp = colorBinaryInspProp;
                     break;
                 case InspectType.InspMatch:
                     MatchInspProp matchProp = new MatchInspProp();

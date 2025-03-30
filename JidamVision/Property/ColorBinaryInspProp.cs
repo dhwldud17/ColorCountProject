@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,8 +35,14 @@ namespace JidamVision.Property
     public partial class ColorBinaryInspProp : UserControl
 
     {
-        public event EventHandler TeahcingcolorClicked;
+        private Bitmap _bitmapImage;
+        private Rectangle _pickColorRect;
         private bool isSelecting = false;
+        private bool _isPickColor = false;
+
+        public event EventHandler<ColorEventArgs> ColorPicked;
+        public event EventHandler<EventArgs> TeahcingcolorClicked;
+        
         public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<ColorRangeChangedEventArgs> ColorRangeChanged;
 
@@ -69,7 +76,9 @@ namespace JidamVision.Property
             vTrackBarLower.Value = 100;
             vTrackBarUpper.Value = 200;
 
-
+            this.btnTeachingColor.Click += new System.EventHandler(this.btnTeachingColor_Click);
+            // 이벤트 핸들러 등록
+            this.ColorPicked += ColorPicked;
         }
         public void SetAlgorithm(ColorBlobAlgorithm colorblobAlgo)
         {
@@ -133,7 +142,7 @@ namespace JidamVision.Property
         {
             GetProperty();
             bool invert = chkInvert.Checked;
-            bool highlight = chkHighlight.Checked;
+            bool highlight = chkHighlight.Checked; 
 
             ShowColorBinaryMode showBinaryMode = ShowColorBinaryMode.ShowBinaryNone;
             if (highlight)
@@ -246,48 +255,109 @@ namespace JidamVision.Property
             }
         }
 
-        //학습 버튼 클릭 시
+        protected virtual void OnColorPicked(Color color)
+        {
+            if (ColorPicked == null)
+            {
+                Console.WriteLine("⚠ ColorPicked 이벤트가 구독되지 않음!");
+                return;
+            }
+
+            Console.WriteLine($"ColorPicked 이벤트 발생: {color}");
+            ColorPicked?.Invoke(this, new ColorEventArgs(color)); // 이벤트 발생!
+        }
+
+        public void PickColor(Color color)
+        {
+            OnColorPicked(color); // 이벤트 실행
+        }
+
+        //색상 선택 이벤트 발생시, 전달할 값 추가
+        public class ColorEventArgs : EventArgs
+        {
+            public Color PickedColor { get; }
+            public ColorEventArgs(Color pickedColor)
+            {
+                this.PickedColor = pickedColor;
+            }
+        }
+
+        //색상 추출 메서드
+        public void ExtractColorFromSelection()
+        {
+            if (_bitmapImage == null || _pickColorRect.Width == 0 || _pickColorRect.Height == 0)
+                return;
+
+            // 선택된 영역에서 색상 추출 (예: 이미지의 픽셀 색상 평균값)
+            Bitmap bmpImage = new Bitmap(_bitmapImage); // 이미지 복제
+            Color pixelColor = bmpImage.GetPixel(_pickColorRect.X + _pickColorRect.Width / 2,
+                                            _pickColorRect.Y + _pickColorRect.Height / 2); // 중간 픽셀 추출
+
+            // 추출된 색상을 변수에 저장하거나, UI에 표시
+            ColorPicked?.Invoke(this, new ColorEventArgs(pixelColor));  // 이벤트로 색상 전달
+        }
+
+        //학습 버튼 클릭 시 색상 추출 호출
         private void btnTeachingColor_Click(object sender, EventArgs e)
         {
             isSelecting = true;
+            _isPickColor = true;
             this.Cursor = Cursors.Cross;
             TeahcingcolorClicked?.Invoke(this, e);
+            ExtractColorFromSelection();
+            ColorBinaryInspProp_ColorPicked(this, new ColorEventArgs(Color.Red));
+            
         }
 
-        //public Mat ProcessColor(Mat inputImage, int hue, int sat, int val, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
-        //{
-        //    if (inputImage.Empty())
-        //        return null;
+        // ColorPicked 이벤트 핸들러
+        private void ColorBinaryInspProp_ColorPicked(object sender, ColorEventArgs e)
+        {
+            Color pickedColor = e.PickedColor;
 
-        //    Mat hsvImage = new Mat();
-        //    Cv2.CvtColor(inputImage, hsvImage, ColorConversionCodes.BGR2HSV);
+            // 색상에 대한 처리 (예: UI에 색상 표시)
+            Console.WriteLine($"Picked color: {pickedColor}");
 
-        //    // HSV 범위 설정
-        //    Scalar lowerBound = new Scalar(hue - thresholdH, Math.Max(sat - thresholdS, 0), Math.Max(val - thresholdV, 0));
-        //    Scalar upperBound = new Scalar(hue + thresholdH, Math.Min(sat + thresholdS, 255), Math.Min(val + thresholdV, 255));
+            // 예시: 배경색을 추출된 색상으로 변경
+            this.BackColor = pickedColor;
+        }
 
-        //    Mat binaryMask = new Mat();
-        //    Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
-
-        //    if (mode == ShowColorBinaryMode.ShowColorBinaryHighlight)
-        //    {
-        //        Mat highlightedImage = new Mat();
-        //        inputImage.CopyTo(highlightedImage); // 원본 이미지 복사
-
-        //        // 빨간색(또는 원하는 색)으로 강조 (bitwise 연산 활용)
-        //        Mat redHighlight = new Mat(inputImage.Size(), inputImage.Type(), new Scalar(0, 0, 255));
-        //        redHighlight.CopyTo(highlightedImage, binaryMask);
-
-        //        return highlightedImage;
-        //    }
-        //    else if (mode == ShowColorBinaryMode.ShowColorBinaryOnly)
-        //    {
-        //        return binaryMask; // 컬러 이진화된 이미지 반환
-        //    }
-
-        //    return inputImage; // 기본적으로 원본 유지
-        //}
+        
     }
+
+    //public Mat ProcessColor(Mat inputImage, int hue, int sat, int val, ShowColorBinaryMode mode, int thresholdH = 10, int thresholdS = 50, int thresholdV = 50)
+    //{
+    //    if (inputImage.Empty())
+    //        return null;
+
+    //    Mat hsvImage = new Mat();
+    //    Cv2.CvtColor(inputImage, hsvImage, ColorConversionCodes.BGR2HSV);
+
+    //    // HSV 범위 설정
+    //    Scalar lowerBound = new Scalar(hue - thresholdH, Math.Max(sat - thresholdS, 0), Math.Max(val - thresholdV, 0));
+    //    Scalar upperBound = new Scalar(hue + thresholdH, Math.Min(sat + thresholdS, 255), Math.Min(val + thresholdV, 255));
+
+    //    Mat binaryMask = new Mat();
+    //    Cv2.InRange(hsvImage, lowerBound, upperBound, binaryMask);
+
+    //    if (mode == ShowColorBinaryMode.ShowColorBinaryHighlight)
+    //    {
+    //        Mat highlightedImage = new Mat();
+    //        inputImage.CopyTo(highlightedImage); // 원본 이미지 복사
+
+    //        // 빨간색(또는 원하는 색)으로 강조 (bitwise 연산 활용)
+    //        Mat redHighlight = new Mat(inputImage.Size(), inputImage.Type(), new Scalar(0, 0, 255));
+    //        redHighlight.CopyTo(highlightedImage, binaryMask);
+
+    //        return highlightedImage;
+    //    }
+    //    else if (mode == ShowColorBinaryMode.ShowColorBinaryOnly)
+    //    {
+    //        return binaryMask; // 컬러 이진화된 이미지 반환
+    //    }
+
+    //    return inputImage; // 기본적으로 원본 유지
+    //}
+}
 
         //필터 선택시, 적용할 필터 효과를 선택하고, 필터 옵션을 선택할 수 있도록 개선
 
@@ -298,5 +368,5 @@ namespace JidamVision.Property
      
 
       
-    }
+    
 

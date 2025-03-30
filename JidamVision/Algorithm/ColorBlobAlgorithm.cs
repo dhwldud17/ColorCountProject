@@ -15,6 +15,9 @@ namespace JidamVision.Algorithm
     }
     public class ColorBlobAlgorithm : InspAlgorithm
     {
+        internal static readonly object Instance;
+        internal static readonly object SetColor;
+
         public HSVThreshold HSVThreshold { get; set; } = new HSVThreshold();
         // 픽셀 영역 필터링 (기본값 100)
        
@@ -72,6 +75,7 @@ namespace JidamVision.Algorithm
 
             IsInspected = true;
             return true;
+
         }
     }
 }
