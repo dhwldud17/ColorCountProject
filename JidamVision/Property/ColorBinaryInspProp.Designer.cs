@@ -44,7 +44,7 @@
             this.txtS = new System.Windows.Forms.TextBox();
             this.txtH = new System.Windows.Forms.TextBox();
             this.panelColorPreview = new System.Windows.Forms.Panel();
-            this.btnTeachinColor = new System.Windows.Forms.Button();
+            this.btnTeachingColor = new System.Windows.Forms.Button();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
@@ -90,7 +90,7 @@
             this.grpHSV.Controls.Add(this.txtS);
             this.grpHSV.Controls.Add(this.txtH);
             this.grpHSV.Controls.Add(this.panelColorPreview);
-            this.grpHSV.Controls.Add(this.btnTeachinColor);
+            this.grpHSV.Controls.Add(this.btnTeachingColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
             this.grpHSV.Controls.Add(this.label10);
             this.grpHSV.Controls.Add(this.label12);
@@ -242,14 +242,15 @@
             this.panelColorPreview.Size = new System.Drawing.Size(72, 40);
             this.panelColorPreview.TabIndex = 23;
             // 
-            // btnTeachinColor
+            // btnTeachingColor
             // 
-            this.btnTeachinColor.Location = new System.Drawing.Point(19, 663);
-            this.btnTeachinColor.Name = "btnTeachinColor";
-            this.btnTeachinColor.Size = new System.Drawing.Size(187, 40);
-            this.btnTeachinColor.TabIndex = 22;
-            this.btnTeachinColor.Text = "TeachinColor";
-            this.btnTeachinColor.UseVisualStyleBackColor = true;
+            this.btnTeachingColor.Location = new System.Drawing.Point(19, 663);
+            this.btnTeachingColor.Name = "btnTeachingColor";
+            this.btnTeachingColor.Size = new System.Drawing.Size(187, 40);
+            this.btnTeachingColor.TabIndex = 22;
+            this.btnTeachingColor.Text = "Teaching Color";
+            this.btnTeachingColor.UseVisualStyleBackColor = true;
+            this.btnTeachingColor.Click += new System.EventHandler(this.btnTeachingColor_Click);
             // 
             // chkHighlight
             // 
@@ -458,7 +459,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox chkHighlight;
-        private System.Windows.Forms.Button btnTeachinColor;
+        private System.Windows.Forms.Button btnTeachingColor;
         private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBarUpper;
         private System.Windows.Forms.TextBox txtV;
