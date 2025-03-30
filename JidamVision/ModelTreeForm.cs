@@ -1,6 +1,7 @@
 ﻿using JidamVision.Core;
 using JidamVision.Teach;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +30,8 @@ namespace JidamVision
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private PictureBox pictureBoxBinary;
+
         private Label lblWireCount;
 
         private Button btnCountWires;
@@ -42,7 +45,7 @@ namespace JidamVision
             // ROI 리셋 버튼 생성
             Button btnResetROI = new Button();
             btnResetROI.Text = "ROI 리셋";  // 버튼에 표시될 텍스트
-            btnResetROI.Location = new System.Drawing.Point(370, 10);
+            btnResetROI.Location = new System.Drawing.Point(370, 0);
             btnResetROI.Click += BtnResetROI_Click;  // 클릭 이벤트 추가
 
             this.Controls.Add(btnResetROI); // 폼에 버튼 추가
@@ -51,7 +54,7 @@ namespace JidamVision
             btnCountWires = new Button();
             btnCountWires.Text = "전선 카운트";
             btnCountWires.Font = new System.Drawing.Font("맑은 고딕", 8);
-            btnCountWires.Location = new System.Drawing.Point(370, 50);
+            btnCountWires.Location = new System.Drawing.Point(370, 30);
             btnCountWires.Enabled = false;  // 초기엔 비활성화
             btnCountWires.Click += BtnCountWires_Click;
             this.Controls.Add(btnCountWires);
@@ -59,9 +62,17 @@ namespace JidamVision
             // 전선 개수 표시용 라벨
             lblWireCount = new Label();
             lblWireCount.Text = "전선 개수: 0";
-            lblWireCount.Location = new System.Drawing.Point(470, 50);
+            lblWireCount.Location = new System.Drawing.Point(372, 60);
             lblWireCount.AutoSize = true;
             this.Controls.Add(lblWireCount);
+
+            // ROI 영역 이미지 창 UI로 띄우기
+            pictureBoxBinary = new PictureBox();
+            pictureBoxBinary.Name = "pictureBoxBinary";
+            pictureBoxBinary.Location = new System.Drawing.Point(500, -10);
+            pictureBoxBinary.Size = new System.Drawing.Size(320, 100);
+            pictureBoxBinary.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(pictureBoxBinary);
 
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
@@ -245,7 +256,10 @@ namespace JidamVision
             Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
             Cv2.MorphologyEx(binary, binary, MorphTypes.Open, kernel);
 
-            Cv2.ImShow("binary", binary); Cv2.WaitKey();
+            Bitmap bitmap = BitmapConverter.ToBitmap(binary);
+            pictureBoxBinary.Image = bitmap;
+
+            //Cv2.ImShow("binary", binary); Cv2.WaitKey();
 
             // Blob 분석
             OpenCvSharp.Point[][] contours;
@@ -259,8 +273,9 @@ namespace JidamVision
                 if (area >= 30) // 너무 작은 노이즈 제외
                     count++;
             }
-
+            
             return count;
+
         }
 
         private void tvModelTree_AfterSelect(object sender, TreeViewEventArgs e)
