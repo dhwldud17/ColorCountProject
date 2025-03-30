@@ -601,7 +601,13 @@ namespace JidamVision
         }
 
         private void ImageViewCCtrl_MouseMove(object sender, MouseEventArgs e)
-        {
+        {   
+            // Teaching Color 모드일 때, 항상 커서를 십자가로 표시
+            if (isSelecting)
+            {
+                Cursor = Cursors.Cross;
+            }
+
             if (isSelecting && e.Button == MouseButtons.Left)
             {
                 selectedArea.Width = e.X - startPoint.X;
@@ -720,7 +726,7 @@ namespace JidamVision
                 {
                     Color pickedColor = GetColorAtPoint(e.Location); // 마우스 클릭한 위치의 색상 추출
                     _colorBinaryInspProp.PickColor(pickedColor); // 이벤트 발생
-                    ColorBlobAlgorithm.Instance.SetColor(pickedColor);
+                    //ColorBlobAlgorithm.Instance.SetColor(pickedColor);
                     Size sampleSize = new Size(10, 10);
                     Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
                         sampleSize.Width, sampleSize.Height);
