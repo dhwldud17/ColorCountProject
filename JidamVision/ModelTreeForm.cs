@@ -254,7 +254,7 @@ namespace JidamVision
             Cv2.CvtColor(roiImage, gray, ColorConversionCodes.BGR2GRAY);
 
             Mat binary = new Mat();
-            Cv2.Threshold(gray, binary, 70, 255, ThresholdTypes.Binary);
+            Cv2.Threshold(gray, binary, 60, 255, ThresholdTypes.Binary);
 
             // 전선 사이 분리 보장 (Morphology)
             Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
