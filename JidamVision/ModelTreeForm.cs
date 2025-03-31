@@ -35,6 +35,10 @@ namespace JidamVision
         private Label lblWireCount;
 
         private Button btnCountWires;
+
+        private ContextMenuStrip _contextMenuRoot;
+        
+        private ContextMenuStrip _contextMenuRoi;
         public ModelTreeForm()
         {
 
@@ -83,14 +87,25 @@ namespace JidamVision
             pictureBoxBinary.SizeMode = PictureBoxSizeMode.Zoom;
             this.Controls.Add(pictureBoxBinary);
 
-            // 컨텍스트 메뉴 초기화
-            _contextMenu = new ContextMenuStrip();
-            ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
-            ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
+            //// 컨텍스트 메뉴 초기화
+            //_contextMenu = new ContextMenuStrip();
+            //ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
+            //ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
 
-            _contextMenu.Items.Add(addBaseRoiItem);
-            _contextMenu.Items.Add(addCabelRoiItem);
+            //_contextMenu.Items.Add(addBaseRoiItem);
+            //_contextMenu.Items.Add(addCabelRoiItem);
 
+            //_contextMenuRoi = new ContextMenuStrip();
+            //ToolStripMenuItem deleteRoiItem = new ToolStripMenuItem("삭제", null, DeleteNode_Click) { Tag = "Delete" };
+
+            // Root 노드 전용 컨텍스트 메뉴 초기화
+            _contextMenuRoot = new ContextMenuStrip();
+            _contextMenuRoot.Items.Add(new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" });
+            _contextMenuRoot.Items.Add(new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" });
+
+            // ROI 노드 전용 컨텍스트 메뉴 초기화
+            _contextMenuRoi = new ContextMenuStrip();
+            _contextMenuRoi.Items.Add(new ToolStripMenuItem("삭제", null, DeleteNode_Click) { Tag = "Delete" });
         }
 
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
@@ -99,10 +114,18 @@ namespace JidamVision
             if (e.Button == MouseButtons.Right)
             {
                 TreeNode clickedNode = tvModelTree.GetNodeAt(e.X, e.Y);
-                if (clickedNode != null && clickedNode.Text == "Root")
+                if (clickedNode != null)
                 {
                     tvModelTree.SelectedNode = clickedNode;
-                    _contextMenu.Show(tvModelTree, e.Location);
+
+                    if (clickedNode.Text == "Root")
+                    {
+                        _contextMenuRoot.Show(tvModelTree, e.Location);
+                    }
+                    else
+                    {
+                        _contextMenu.Show(tvModelTree, e.Location);
+                    }
                 }
             }
         }
@@ -345,5 +368,64 @@ namespace JidamVision
                 tvModelTree.ExpandAll(); // 자동 펼치기
             }));
         }
+
+        private void DeleteNode_Click(object sender, EventArgs e)
+        {
+            TreeNode selectedNode = tvModelTree.SelectedNode;
+            if (selectedNode != null && selectedNode.Text != "Root")
+            {
+                string uid = selectedNode.Text;
+
+                // 모델에서도 삭제
+                Model model = Global.Inst.InspStage.CurModel;
+                var target = model.InspWindowList.FirstOrDefault(w => w.UID == uid);
+                if (target != null)
+                {
+                    model.InspWindowList.Remove(target);
+                }
+
+                // 트리뷰에서 삭제
+                selectedNode.Remove();
+
+                // 화면 갱신
+                CameraForm cam = MainForm.GetDockForm<CameraForm>();
+                if (cam != null)
+                {
+                    cam.UpdateDiagramEntity();
+                    cam.UpdateImageViewer();
+                }
+            }
+
+            //TreeNode selectedNode = tvModelTree.SelectedNode;
+            //if (tvModelTree.SelectedNode != null && tvModelTree.SelectedNode.Text != "Root")
+            //{
+            //    tvModelTree.Nodes.Remove(selectedNode);
+
+            //    string uid = tvModelTree.SelectedNode.Text;
+
+            //    // 모델에서 해당 UID를 가진 ROI 제거
+            //    Model model = Global.Inst.InspStage.CurModel;
+            //    var roiToRemove = model.InspWindowList.FirstOrDefault(w => w.UID == uid);
+            //    if (roiToRemove != null)
+
+            //        model.InspWindowList.Remove(roiToRemove);
+
+
+            //    // 트리뷰에서 노드 제거
+            //    tvModelTree.SelectedNode.Remove();
+
+            //    // 이미지 뷰어 갱신
+            //    CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            //    if (cameraForm != null)
+            //    {
+            //        cameraForm.UpdateDiagramEntity();
+            //        cameraForm.UpdateImageViewer();
+            //    }
+
+            //MessageBox.Show($"ROI [{uid}] 삭제 완료!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+       
+
+
     }
 }
