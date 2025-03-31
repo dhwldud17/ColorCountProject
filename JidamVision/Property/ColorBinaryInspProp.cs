@@ -346,8 +346,19 @@ namespace JidamVision.Property
         //학습 버튼 클릭 시 색상 추출 호출
         private void btnTeachingColor_Click(object sender, EventArgs e)
         {
-            TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
-            btnTeachingColor.BackColor = Color.LightGreen;
+            if (!_isPickColor)
+            {
+                TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
+                _isPickColor = true;
+                btnTeachingColor.BackColor = Color.LightGreen;
+            }
+            else
+            {
+                _isPickColor = false;
+                btnTeachingColor.BackColor = Color.LightGray;
+                ExtractColorFromSelection();
+            }
+         
         }
 
         private void panelColorPreview_Paint(object sender, PaintEventArgs e)

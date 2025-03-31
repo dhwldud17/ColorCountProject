@@ -716,8 +716,7 @@ namespace JidamVision
         {
             if (isSelecting)
             {
-                isSelecting = true;
-                this.Cursor = Cursors.Cross;
+                isSelecting = true;               
                 Invalidate(); // 화면 갱신
                 
             }

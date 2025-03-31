@@ -252,7 +252,7 @@ namespace JidamVision
             var cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
-                cameraForm.SetPickColorMode();
+                cameraForm.TogglePickColorMode();
             }
         }
 
