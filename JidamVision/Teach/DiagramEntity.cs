@@ -19,6 +19,8 @@ namespace JidamVision.Teach
         //ROI 위치 이동을 하지 못하게 할지 여부
         public bool IsHold { get; set; }
 
+        public bool IsSelected { get; set; } = false;
+
         public DiagramEntity()
         {
             LinkedWindow = null;

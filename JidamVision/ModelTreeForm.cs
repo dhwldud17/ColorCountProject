@@ -1,6 +1,7 @@
 ﻿using JidamVision.Core;
 using JidamVision.Teach;
 using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,10 +30,23 @@ namespace JidamVision
         //개별 트리 노트에서 팝업 메뉴 보이기를 위한 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private PictureBox pictureBoxBinary;
+
+        private Label lblWireCount;
+
         private Button btnCountWires;
         public ModelTreeForm()
         {
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.RoiAdded += CameraForm_RoiAdded; // ROI 이벤트 연결
+            }
+
             InitializeComponent();
+
+            tvModelTree.AfterSelect += tvModelTree_AfterSelect;
 
             //초기 트리 노트의 기본값은 "Root"
             tvModelTree.Nodes.Add("Root");
@@ -40,7 +54,7 @@ namespace JidamVision
             // ROI 리셋 버튼 생성
             Button btnResetROI = new Button();
             btnResetROI.Text = "ROI 리셋";  // 버튼에 표시될 텍스트
-            btnResetROI.Location = new System.Drawing.Point(370, 10);
+            btnResetROI.Location = new System.Drawing.Point(370, 0);
             btnResetROI.Click += BtnResetROI_Click;  // 클릭 이벤트 추가
 
             this.Controls.Add(btnResetROI); // 폼에 버튼 추가
@@ -49,30 +63,33 @@ namespace JidamVision
             btnCountWires = new Button();
             btnCountWires.Text = "전선 카운트";
             btnCountWires.Font = new System.Drawing.Font("맑은 고딕", 8);
-            btnCountWires.Location = new System.Drawing.Point(370, 50);
+            btnCountWires.Location = new System.Drawing.Point(370, 30);
             btnCountWires.Enabled = false;  // 초기엔 비활성화
             btnCountWires.Click += BtnCountWires_Click;
             this.Controls.Add(btnCountWires);
+
+            // 전선 개수 표시용 라벨
+            lblWireCount = new Label();
+            lblWireCount.Text = "전선 개수: 0";
+            lblWireCount.Location = new System.Drawing.Point(372, 60);
+            lblWireCount.AutoSize = true;
+            this.Controls.Add(lblWireCount);
+
+            // ROI 영역 이미지 창 UI로 띄우기
+            pictureBoxBinary = new PictureBox();
+            pictureBoxBinary.Name = "pictureBoxBinary";
+            pictureBoxBinary.Location = new System.Drawing.Point(500, -10);
+            pictureBoxBinary.Size = new System.Drawing.Size(320, 100);
+            pictureBoxBinary.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(pictureBoxBinary);
 
             // 컨텍스트 메뉴 초기화
             _contextMenu = new ContextMenuStrip();
             ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
             ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
 
-
             _contextMenu.Items.Add(addBaseRoiItem);
             _contextMenu.Items.Add(addCabelRoiItem);
-
-
-
-
-
-
-
-
-
-
-
 
         }
 
@@ -191,7 +208,7 @@ namespace JidamVision
         private void BtnCountWires_Click(object sender, EventArgs e)
         {
             int count = CountWiresInBaseROI();
-            MessageBox.Show($"감지된 전선 개수: {count}개", "전선 카운트 결과", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            lblWireCount.Text = $"전선 개수: {count}";
         }
 
         private int CountWiresInBaseROI()
@@ -243,7 +260,10 @@ namespace JidamVision
             Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
             Cv2.MorphologyEx(binary, binary, MorphTypes.Open, kernel);
 
-            Cv2.ImShow("binary", binary); Cv2.WaitKey();
+            Bitmap bitmap = BitmapConverter.ToBitmap(binary);
+            pictureBoxBinary.Image = bitmap;
+
+            //Cv2.ImShow("binary", binary); Cv2.WaitKey();
 
             // Blob 분석
             OpenCvSharp.Point[][] contours;
@@ -257,13 +277,73 @@ namespace JidamVision
                 if (area >= 30) // 너무 작은 노이즈 제외
                     count++;
             }
-
+            
             return count;
+
         }
 
         private void tvModelTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            //string selectedName = e.Node.Text;
 
+            //if (selectedName.StartsWith("CABLE_") || selectedName.StartsWith("BAS_"))
+            //{
+            //    // 현재 모델에서 선택된 이름과 UID가 같은 ROI 찾기
+            //    Model model = Global.Inst.InspStage.CurModel;
+            //    InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedName);
+
+            //    if (selectedWindow != null)
+            //    {
+            //        CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            //        if (cameraForm != null)
+            //        {
+            //            // ROI 선택 (화면에서 강조됨)
+            //            cameraForm.SelectDiagramEntity(selectedWindow);
+            //        }
+            //    }
+            //}
+
+            // 선택된 노드 이름
+            string selectedUID = e.Node.Text;
+
+            // 모델에서 해당 UID를 가진 ROI 찾기
+            Model model = Global.Inst.InspStage.CurModel;
+            InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedUID);
+
+            if (selectedWindow != null)
+            {
+                // CameraForm 불러오기
+                CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
+                {
+                    // 선택된 ROI를 화면에서 강조
+                    cameraForm.SelectDiagramEntity(selectedWindow);
+                }
+            }
+
+            //MessageBox.Show("선택된 UID: " + selectedUID);
+        }
+
+        private void CameraForm_RoiAdded(object sender, InspWindow e)
+        {
+            if (!this.IsHandleCreated) return;
+
+            this.Invoke(new Action(() =>
+            {
+                // ROI가 Base라면 전선 자동 카운트 + 이미지 표시
+                if (e.InspWindowType == InspWindowType.Base)
+                {
+                    int count = CountWiresInBaseROI();
+                    lblWireCount.Text = $"전선 개수: {count}";
+                }
+
+                // TreeView에 ROI 추가
+                TreeNode rootNode = tvModelTree.Nodes[0]; // Root 노드
+                TreeNode node = new TreeNode(e.UID);      // UID를 노드 이름으로
+                rootNode.Nodes.Add(node);
+
+                tvModelTree.ExpandAll(); // 자동 펼치기
+            }));
         }
     }
 }

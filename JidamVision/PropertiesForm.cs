@@ -117,7 +117,7 @@ namespace JidamVision
                     _inspProp = matchProp;
                     break;
                 default:
-                    MessageBox.Show("유효하지 않은 옵션입니다.");
+                    //MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;
             }
             return _inspProp;

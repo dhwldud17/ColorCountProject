@@ -22,6 +22,8 @@ namespace JidamVision
 {
     public partial class CameraForm : DockContent
     {
+        public event EventHandler<InspWindow> RoiAdded;
+
         //# SAVE ROI#1 현재 선택된 이미지 채널 저장을 위한 변수
         eImageChannel _currentImageChannel = eImageChannel.Color;
         private ColorBlobAlgorithm colorBlobAlgorithm;
@@ -215,6 +217,19 @@ namespace JidamVision
         public void AddRoi(InspWindowType inspWindowType)
         {
             imageViewer.NewRoi(inspWindowType);
+
+            // 현재 모델에서 마지막으로 추가된 ROI 가져오기
+            Model model = Global.Inst.InspStage.CurModel;
+            var lastROI = model.InspWindowList.LastOrDefault(w => w.InspWindowType == inspWindowType);
+
+            if (lastROI != null)
+            {
+                // 여기에 UID 자동 설정!
+                lastROI.UID = $"{inspWindowType.ToString().ToUpper()}_{model.InspWindowList.Count:D6}";
+
+                // 이벤트 발생 (ModelTreeForm 연결 시 자동 반응)
+                RoiAdded?.Invoke(this, lastROI);
+            }
         }
 
         //#MODEL#13 모델 정보를 이용해, ROI 갱신
