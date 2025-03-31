@@ -241,6 +241,7 @@
             this.panelColorPreview.Name = "panelColorPreview";
             this.panelColorPreview.Size = new System.Drawing.Size(72, 40);
             this.panelColorPreview.TabIndex = 23;
+            this.panelColorPreview.Paint += new System.Windows.Forms.PaintEventHandler(this.panelColorPreview_Paint);
             // 
             // btnTeachingColor
             // 

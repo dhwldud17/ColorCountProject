@@ -270,6 +270,29 @@ namespace JidamVision.Property
         public void PickColor(Color color)
         {
             OnColorPicked(color); // 이벤트 실행
+            SetHSVRangeFromColor(color); // 👈 추가: 자동 HSV 범위 설정
+            UpdateColorBinary();   // 👈 추가: 이진화 반영
+        }
+
+        private void SetHSVRangeFromColor(Color color)
+        {
+            // RGB → HSV 변환
+            Mat rgbMat = new Mat(1, 1, MatType.CV_8UC3, new Scalar(color.B, color.G, color.R));
+            Mat hsvMat = new Mat();
+            Cv2.CvtColor(rgbMat, hsvMat, ColorConversionCodes.BGR2HSV);
+            Vec3b hsv = hsvMat.At<Vec3b>(0, 0);
+
+            int h = hsv.Item0;
+            int s = hsv.Item1;
+            int v = hsv.Item2;
+
+            // ±범위로 트랙바 자동 설정 (안정적 범위 설정)
+            hTrackBarLower.Value = Math.Max(0, h - 10);
+            hTrackBarUpper.Value = Math.Min(180, h + 10);
+            sTrackBarLower.Value = Math.Max(0, s - 50);
+            sTrackBarUpper.Value = Math.Min(255, s + 50);
+            vTrackBarLower.Value = Math.Max(0, v - 50);
+            vTrackBarUpper.Value = Math.Min(255, v + 50);
         }
 
         //색상 선택 이벤트 발생시, 전달할 값 추가
@@ -287,6 +310,7 @@ namespace JidamVision.Property
         {
             if (_bitmapImage == null || _pickColorRect.Width == 0 || _pickColorRect.Height == 0)
                 return;
+            Console.WriteLine($"_pickColorRect: {_pickColorRect}, Width: {_pickColorRect.Width}, Height: {_pickColorRect.Height}");
 
             // 선택된 영역에서 색상 추출 (예: 이미지의 픽셀 색상 평균값)
             Bitmap bmpImage = new Bitmap(_bitmapImage); // 이미지 복제
@@ -305,20 +329,31 @@ namespace JidamVision.Property
             this.Cursor = Cursors.Cross;
             TeahcingcolorClicked?.Invoke(this, e);
             ExtractColorFromSelection();
-            ColorBinaryInspProp_ColorPicked(this, new ColorEventArgs(Color.Red));
+            //ColorBinaryInspProp_ColorPicked(this, new ColorEventArgs(Color.Red));
 
         }
 
-        // ColorPicked 이벤트 핸들러
-        private void ColorBinaryInspProp_ColorPicked(object sender, ColorEventArgs e)
+
+        //// ColorPicked 이벤트 핸들러
+        //private void ColorBinaryInspProp_ColorPicked(object sender, ColorEventArgs e)
+        //{
+        //    Color pickedColor = e.PickedColor;
+
+        //    // 색상에 대한 처리 (예: UI에 색상 표시)
+        //    Console.WriteLine($"Picked color: {pickedColor}");
+
+        //    // 예시: 배경색을 추출된 색상으로 변경
+        //    this.BackColor = pickedColor;
+        //}
+
+        private void panelColorPreview_Paint(object sender, PaintEventArgs e)
         {
-            Color pickedColor = e.PickedColor;
-
-            // 색상에 대한 처리 (예: UI에 색상 표시)
-            Console.WriteLine($"Picked color: {pickedColor}");
-
-            // 예시: 배경색을 추출된 색상으로 변경
-            this.BackColor = pickedColor;
+            if (_isPickColor)
+            {
+                Graphics g = e.Graphics;
+                g.FillRectangle(new SolidBrush(Color.Red), _pickColorRect);
+            }
+           
         }
     }
 }

@@ -256,14 +256,39 @@ namespace JidamVision.Teach
             return true;
         }
 
-        public void ResetInspResult()
-        {
-            InspResultList.Clear();
-        }
+//        colorBinaryInspProp.ColorRangeChanged += (s, e) =>
+//{
+//    // 알고리즘에 HSV 값 반영
+//    var algo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
 
-        public void AddInspResult(InspResult inspResult)
-        {
-            InspResultList.Add(inspResult);
-        }
+//    if (algo != null)
+//    {
+//        algo.HSVThreshold = new HSVThreshold
+//        {
+//            lower = new Scalar(e.LowerHue, e.LowerSaturation, e.LowerValue),
+//            upper = new Scalar(e.UpperHue, e.UpperSaturation, e.UpperValue),
+//            invert = e.Invert
+//    };
+
+//    // 이미지 설정
+//    algo.SetImage(Global.Inst.InspStage.GetMat());
+
+//        // 검사 실행
+//        algo.DoInspect();
+
+//        // 결과 표시
+//        Global.Inst.InspStage.PreView.SetImage(algo.GetOutput());
+//    }
+//};
+
+public void ResetInspResult()
+{
+    InspResultList.Clear();
+}
+
+public void AddInspResult(InspResult inspResult)
+{
+    InspResultList.Add(inspResult);
+}
     }
 }

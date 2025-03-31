@@ -77,5 +77,15 @@ namespace JidamVision.Algorithm
             return true;
 
         }
+
+        public Mat GetOutput()
+        {
+            return _srcImage; // 빨간색 영역이 덮인 최종 이미지
+        }
+
+        public void SetImage(Mat image)
+        {
+            _srcImage = image;
+        }
     }
 }

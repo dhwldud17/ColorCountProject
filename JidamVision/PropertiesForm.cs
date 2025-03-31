@@ -43,6 +43,10 @@ namespace JidamVision
     {
         Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
 
+        
+        
+        private System.Windows.Forms.Panel panelProperty;
+
         public PropertiesForm()
         {
             InitializeComponent();
@@ -122,17 +126,10 @@ namespace JidamVision
             }
             return _inspProp;
         }
-        
-        public void ShowProperty(InspWindow window)
-        {
-            foreach (InspAlgorithm algo in window.AlgorithmList)
-            {
-                Console.WriteLine($"AlgorithmList 포함된 타입: {algo.InspectType}");
-                LoadOptionControl(algo.InspectType);
-            }
 
-            tabPropControl.SelectedIndex = 0;
-        }
+       
+         
+
 
         public void ResetProperty()
         {
@@ -225,8 +222,54 @@ namespace JidamVision
             Global.Inst.InspStage.RedrawMainView();
         }
 
-        
+        public void ShowProperty(InspWindow inspWindow)
+        {
+            foreach (InspAlgorithm algo in inspWindow.AlgorithmList)
+            {
+                Console.WriteLine($"AlgorithmList 포함된 타입: {algo.InspectType}");
+                LoadOptionControl(algo.InspectType);
+            }
+
+            tabPropControl.SelectedIndex = 0;
+
+            var colorProp = new ColorBinaryInspProp();
+            colorProp.SetAlgorithm((ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary));
+
+            // HSV 변경 시 필터 적용
+            colorProp.ColorRangeChanged += (s, e) =>
+            {
+                var algo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+                if (algo != null)
+                {
+                    algo.HSVThreshold = new HSVThreshold
+                    {
+                        lower = new Scalar(e.LowerHue, e.LowerSaturation, e.LowerValue),
+                        upper = new Scalar(e.UpperHue, e.UpperSaturation, e.UpperValue),
+                        invert = e.Invert
+                    };
+
+                    Mat srcImage = Global.Inst.InspStage.GetMat();
+                    algo.SetImage(srcImage); // 반드시 ColorBlobAlgorithm에 이 메서드 정의되어 있어야 함
+                    algo.DoInspect();
+
+                    Global.Inst.InspStage.PreView.SetImage(algo.GetOutput());
+                }
+            };
+
+
+            // 1. 탭 페이지 하나 가져오기 (혹은 새로 만들기)
+            if (tabPropControl.TabPages.Count == 0)
+                tabPropControl.TabPages.Add("Color Binary");
+
+            // 2. 첫 번째 탭에 컨트롤 넣기
+            var tabPage = tabPropControl.TabPages[0];
+            // ✅ 누락된 부분: UI에 표시!
+            tabPage.Controls.Clear();
+            tabPage.Controls.Add(colorProp);
+        }
+
+    
+        }
 
 
     }
-}
