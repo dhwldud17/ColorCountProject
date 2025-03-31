@@ -37,7 +37,16 @@ namespace JidamVision
         private Button btnCountWires;
         public ModelTreeForm()
         {
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.RoiAdded += CameraForm_RoiAdded; // ROI 이벤트 연결
+            }
+
             InitializeComponent();
+
+            tvModelTree.AfterSelect += tvModelTree_AfterSelect;
 
             //초기 트리 노트의 기본값은 "Root"
             tvModelTree.Nodes.Add("Root");
@@ -268,7 +277,66 @@ namespace JidamVision
 
         private void tvModelTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            //string selectedName = e.Node.Text;
 
+            //if (selectedName.StartsWith("CABLE_") || selectedName.StartsWith("BAS_"))
+            //{
+            //    // 현재 모델에서 선택된 이름과 UID가 같은 ROI 찾기
+            //    Model model = Global.Inst.InspStage.CurModel;
+            //    InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedName);
+
+            //    if (selectedWindow != null)
+            //    {
+            //        CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            //        if (cameraForm != null)
+            //        {
+            //            // ROI 선택 (화면에서 강조됨)
+            //            cameraForm.SelectDiagramEntity(selectedWindow);
+            //        }
+            //    }
+            //}
+
+            // 선택된 노드 이름
+            string selectedUID = e.Node.Text;
+
+            // 모델에서 해당 UID를 가진 ROI 찾기
+            Model model = Global.Inst.InspStage.CurModel;
+            InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedUID);
+
+            if (selectedWindow != null)
+            {
+                // CameraForm 불러오기
+                CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
+                {
+                    // 선택된 ROI를 화면에서 강조
+                    cameraForm.SelectDiagramEntity(selectedWindow);
+                }
+            }
+
+            //MessageBox.Show("선택된 UID: " + selectedUID);
+        }
+
+        private void CameraForm_RoiAdded(object sender, InspWindow e)
+        {
+            if (!this.IsHandleCreated) return;
+
+            this.Invoke(new Action(() =>
+            {
+                // ROI가 Base라면 전선 자동 카운트 + 이미지 표시
+                if (e.InspWindowType == InspWindowType.Base)
+                {
+                    int count = CountWiresInBaseROI();
+                    lblWireCount.Text = $"전선 개수: {count}";
+                }
+
+                // TreeView에 ROI 추가
+                TreeNode rootNode = tvModelTree.Nodes[0]; // Root 노드
+                TreeNode node = new TreeNode(e.UID);      // UID를 노드 이름으로
+                rootNode.Nodes.Add(node);
+
+                tvModelTree.ExpandAll(); // 자동 펼치기
+            }));
         }
     }
 }
