@@ -41,7 +41,7 @@ namespace JidamVision.Property
         private bool _isPickColor = false;
 
         public event EventHandler<ColorEventArgs> ColorPicked;
-        public event EventHandler<EventArgs> TeahcingcolorClicked;
+        public event EventHandler<EventArgs> TeachingColorClicked; 
 
         public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<ColorRangeChangedEventArgs> ColorRangeChanged;
@@ -76,7 +76,6 @@ namespace JidamVision.Property
             vTrackBarLower.Value = 100;
             vTrackBarUpper.Value = 200;
 
-            this.btnTeachingColor.Click += new System.EventHandler(this.btnTeachingColor_Click);
             // 이벤트 핸들러 등록
             this.ColorPicked += ColorPicked;
         }
@@ -99,16 +98,39 @@ namespace JidamVision.Property
             sTrackBarUpper.Value = (int)threshold.upper.Val1;
             vTrackBarLower.Value = (int)threshold.lower.Val2;
             vTrackBarUpper.Value = (int)threshold.upper.Val2;
-            txtH.Text = hUpper.ToString();
-            txtS.Text = sUpper.ToString();
-            txtV.Text = vUpper.ToString();
 
-            //txtAreaMax.Text = _blobAlgo.AreaMax.ToString();
-            //txtWidthMin.Text = _blobAlgo.WidthMin.ToString();
-            //txtWidthMax.Text = _blobAlgo.WidthMax.ToString();
-            //txtHeightMin.Text = _blobAlgo.HeightMin.ToString();
-            //txtHeightMax.Text = _blobAlgo.HeightMax.ToString();
-            //txtCount.Text = _blobAlgo.BlobCount.ToString();
+           txtMinH.Text = hTrackBarLower.Value.ToString();
+           txtMinS.Text = sTrackBarLower.Value.ToString();
+            txtMinV.Text = vTrackBarLower.Value.ToString();
+
+           txtMaxH.Text = hTrackBarUpper.Value.ToString();
+            txtMaxS.Text = sTrackBarUpper.Value.ToString();
+            txtMaxV.Text = vTrackBarUpper.Value.ToString();
+
+   
+        }
+
+        public void SetHSV(Vec3b minHSV, Vec3b maxHSV)
+        {
+            
+
+
+            hTrackBarLower.Value = (int)minHSV.Item0;
+            hTrackBarUpper.Value = (int)maxHSV.Item0;
+            sTrackBarLower.Value = (int)minHSV.Item1;
+            sTrackBarUpper.Value = (int)maxHSV.Item1;
+            vTrackBarLower.Value = (int)minHSV.Item2;
+            vTrackBarUpper.Value = (int)maxHSV.Item2;
+
+            txtMinH.Text = minHSV.Item0.ToString();
+            txtMinS.Text = minHSV.Item1.ToString();
+            txtMinV.Text = minHSV.Item2.ToString();
+
+            txtMaxH.Text = maxHSV.Item0.ToString();
+            txtMaxS.Text = maxHSV.Item1.ToString();
+            txtMaxV.Text = maxHSV.Item2.ToString();
+
+
         }
 
         public void GetProperty()
@@ -324,27 +346,8 @@ namespace JidamVision.Property
         //학습 버튼 클릭 시 색상 추출 호출
         private void btnTeachingColor_Click(object sender, EventArgs e)
         {
-            isSelecting = true;
-            _isPickColor = true;
-            this.Cursor = Cursors.Cross;
-            TeahcingcolorClicked?.Invoke(this, e);
-            ExtractColorFromSelection();
-            //ColorBinaryInspProp_ColorPicked(this, new ColorEventArgs(Color.Red));
-
+            TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
         }
-
-
-        //// ColorPicked 이벤트 핸들러
-        //private void ColorBinaryInspProp_ColorPicked(object sender, ColorEventArgs e)
-        //{
-        //    Color pickedColor = e.PickedColor;
-
-        //    // 색상에 대한 처리 (예: UI에 색상 표시)
-        //    Console.WriteLine($"Picked color: {pickedColor}");
-
-        //    // 예시: 배경색을 추출된 색상으로 변경
-        //    this.BackColor = pickedColor;
-        //}
 
         private void panelColorPreview_Paint(object sender, PaintEventArgs e)
         {
@@ -355,6 +358,7 @@ namespace JidamVision.Property
             }
            
         }
+
     }
 }
 

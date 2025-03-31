@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.grpHSV = new System.Windows.Forms.GroupBox();
+            this.txtMaxV = new System.Windows.Forms.TextBox();
+            this.txtMaxS = new System.Windows.Forms.TextBox();
+            this.txtMaxH = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.hTrackBarUpper = new System.Windows.Forms.TrackBar();
@@ -40,9 +43,9 @@
             this.chkShowColorBinaryOnly = new System.Windows.Forms.CheckBox();
             this.chkInvert = new System.Windows.Forms.CheckBox();
             this.btnApplyHSV = new System.Windows.Forms.Button();
-            this.txtV = new System.Windows.Forms.TextBox();
-            this.txtS = new System.Windows.Forms.TextBox();
-            this.txtH = new System.Windows.Forms.TextBox();
+            this.txtMinV = new System.Windows.Forms.TextBox();
+            this.txtMinS = new System.Windows.Forms.TextBox();
+            this.txtMinH = new System.Windows.Forms.TextBox();
             this.panelColorPreview = new System.Windows.Forms.Panel();
             this.btnTeachingColor = new System.Windows.Forms.Button();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
@@ -75,6 +78,9 @@
             // 
             // grpHSV
             // 
+            this.grpHSV.Controls.Add(this.txtMaxV);
+            this.grpHSV.Controls.Add(this.txtMaxS);
+            this.grpHSV.Controls.Add(this.txtMaxH);
             this.grpHSV.Controls.Add(this.label8);
             this.grpHSV.Controls.Add(this.label11);
             this.grpHSV.Controls.Add(this.hTrackBarUpper);
@@ -86,9 +92,9 @@
             this.grpHSV.Controls.Add(this.chkShowColorBinaryOnly);
             this.grpHSV.Controls.Add(this.chkInvert);
             this.grpHSV.Controls.Add(this.btnApplyHSV);
-            this.grpHSV.Controls.Add(this.txtV);
-            this.grpHSV.Controls.Add(this.txtS);
-            this.grpHSV.Controls.Add(this.txtH);
+            this.grpHSV.Controls.Add(this.txtMinV);
+            this.grpHSV.Controls.Add(this.txtMinS);
+            this.grpHSV.Controls.Add(this.txtMinH);
             this.grpHSV.Controls.Add(this.panelColorPreview);
             this.grpHSV.Controls.Add(this.btnTeachingColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
@@ -112,6 +118,27 @@
             this.grpHSV.TabStop = false;
             this.grpHSV.Text = "HSV";
             // 
+            // txtMaxV
+            // 
+            this.txtMaxV.Location = new System.Drawing.Point(166, 531);
+            this.txtMaxV.Name = "txtMaxV";
+            this.txtMaxV.Size = new System.Drawing.Size(86, 28);
+            this.txtMaxV.TabIndex = 41;
+            // 
+            // txtMaxS
+            // 
+            this.txtMaxS.Location = new System.Drawing.Point(166, 341);
+            this.txtMaxS.Name = "txtMaxS";
+            this.txtMaxS.Size = new System.Drawing.Size(86, 28);
+            this.txtMaxS.TabIndex = 40;
+            // 
+            // txtMaxH
+            // 
+            this.txtMaxH.Location = new System.Drawing.Point(166, 147);
+            this.txtMaxH.Name = "txtMaxH";
+            this.txtMaxH.Size = new System.Drawing.Size(88, 28);
+            this.txtMaxH.TabIndex = 39;
+            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -133,7 +160,7 @@
             // hTrackBarUpper
             // 
             this.hTrackBarUpper.Location = new System.Drawing.Point(103, 99);
-            this.hTrackBarUpper.Maximum = 128;
+            this.hTrackBarUpper.Maximum = 255;
             this.hTrackBarUpper.Name = "hTrackBarUpper";
             this.hTrackBarUpper.Size = new System.Drawing.Size(367, 69);
             this.hTrackBarUpper.TabIndex = 36;
@@ -214,26 +241,26 @@
             this.btnApplyHSV.UseVisualStyleBackColor = true;
             this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
             // 
-            // txtV
+            // txtMinV
             // 
-            this.txtV.Location = new System.Drawing.Point(9, 483);
-            this.txtV.Name = "txtV";
-            this.txtV.Size = new System.Drawing.Size(86, 28);
-            this.txtV.TabIndex = 26;
+            this.txtMinV.Location = new System.Drawing.Point(166, 440);
+            this.txtMinV.Name = "txtMinV";
+            this.txtMinV.Size = new System.Drawing.Size(86, 28);
+            this.txtMinV.TabIndex = 26;
             // 
-            // txtS
+            // txtMinS
             // 
-            this.txtS.Location = new System.Drawing.Point(9, 270);
-            this.txtS.Name = "txtS";
-            this.txtS.Size = new System.Drawing.Size(86, 28);
-            this.txtS.TabIndex = 25;
+            this.txtMinS.Location = new System.Drawing.Point(166, 239);
+            this.txtMinS.Name = "txtMinS";
+            this.txtMinS.Size = new System.Drawing.Size(86, 28);
+            this.txtMinS.TabIndex = 25;
             // 
-            // txtH
+            // txtMinH
             // 
-            this.txtH.Location = new System.Drawing.Point(9, 129);
-            this.txtH.Name = "txtH";
-            this.txtH.Size = new System.Drawing.Size(88, 28);
-            this.txtH.TabIndex = 24;
+            this.txtMinH.Location = new System.Drawing.Point(166, 64);
+            this.txtMinH.Name = "txtMinH";
+            this.txtMinH.Size = new System.Drawing.Size(88, 28);
+            this.txtMinH.TabIndex = 24;
             // 
             // panelColorPreview
             // 
@@ -241,7 +268,6 @@
             this.panelColorPreview.Name = "panelColorPreview";
             this.panelColorPreview.Size = new System.Drawing.Size(72, 40);
             this.panelColorPreview.TabIndex = 23;
-            this.panelColorPreview.Paint += new System.Windows.Forms.PaintEventHandler(this.panelColorPreview_Paint);
             // 
             // btnTeachingColor
             // 
@@ -364,7 +390,7 @@
             // hTrackBarLower
             // 
             this.hTrackBarLower.Location = new System.Drawing.Point(96, 24);
-            this.hTrackBarLower.Maximum = 128;
+            this.hTrackBarLower.Maximum = 255;
             this.hTrackBarLower.Name = "hTrackBarLower";
             this.hTrackBarLower.Size = new System.Drawing.Size(367, 69);
             this.hTrackBarLower.TabIndex = 0;
@@ -463,9 +489,9 @@
         private System.Windows.Forms.Button btnTeachingColor;
         private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBarUpper;
-        private System.Windows.Forms.TextBox txtV;
-        private System.Windows.Forms.TextBox txtS;
-        private System.Windows.Forms.TextBox txtH;
+        private System.Windows.Forms.TextBox txtMinV;
+        private System.Windows.Forms.TextBox txtMinS;
+        private System.Windows.Forms.TextBox txtMinH;
         private System.Windows.Forms.GroupBox grpFilter;
         private System.Windows.Forms.ComboBox select_effect;
         private System.Windows.Forms.ComboBox select_effect2;
@@ -482,5 +508,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TrackBar hTrackBarUpper;
+        private System.Windows.Forms.TextBox txtMaxH;
+        private System.Windows.Forms.TextBox txtMaxS;
+        private System.Windows.Forms.TextBox txtMaxV;
     }
 }

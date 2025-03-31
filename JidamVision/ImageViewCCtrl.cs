@@ -123,14 +123,8 @@ namespace JidamVision
         private bool isSelecting = false;
         private bool _isPickColor = false;
         private Rectangle _pickColorRect;
-        private ColorBinaryInspProp _colorBinaryInspProp = new ColorBinaryInspProp();
 
-        public EventHandler<ColorBinaryInspProp.ColorEventArgs> ColorBinaryInspProp_ColorPicked { get; }
-        public object clickPoint { get; private set; }
-
-        public event Action OnColorExtracted;
-
-        
+       
 
         public ImageViewCCtrl()
         {
@@ -152,7 +146,7 @@ namespace JidamVision
             // UserControl1_MouseWheel 메서드를 MouseEventHandler 델리게이트(delegate) 형식으로 변환
             // MouseWheel += UserControl1_MouseWheel; 델리게이트 직접 지정없이해도 자동변환됨
             MouseWheel += new MouseEventHandler(ImageViewCCtrl_MouseWheel);
-            _colorBinaryInspProp.ColorPicked += ColorBinaryInspProp_ColorPicked;
+           
 
         }
 
@@ -165,12 +159,20 @@ namespace JidamVision
             DoubleBuffered = true;
         }
 
+        //색상 선택 모드 활성화
+        public void SetPickColorMode()
+        {
+            _isPickColor = true;
+        }
+
         public OpenCvSharp.Rect GetPickColorRect()
         {
             OpenCvSharp.Rect rect = new OpenCvSharp.Rect(_pickColorRect.X, _pickColorRect.Y, _pickColorRect.Width, _pickColorRect.Height);
             return rect;
 
         }
+
+
 
         //#MULTI ROI#6 InspWindow 타입에 따른, 칼라 정보 얻는 함수
         public Color GetWindowColor(InspWindowType inspWindowType)
@@ -717,7 +719,7 @@ namespace JidamVision
                 isSelecting = true;
                 this.Cursor = Cursors.Cross;
                 Invalidate(); // 화면 갱신
-                _colorBinaryInspProp.ExtractColorFromSelection();  // 선택한 영역에서 색상 추출
+                
             }
 
             //#SETROI#5 ROI 크기 변경 또는 이동 완료
@@ -726,19 +728,20 @@ namespace JidamVision
             {
                 if (_isPickColor)
                 {
-                    Color pickedColor = GetColorAtPoint(e.Location); // 마우스 클릭한 위치의 색상 추출
-                    Point point = new Point(e.X, e.Y);
-                    ApplyRedMask(point);
-                    _colorBinaryInspProp.PickColor(pickedColor); // 이벤트 발생
-                    //GetProperty();
-                    //ColorBlobAlgorithm.Instance.SetColor(pickedColor);
                     Size sampleSize = new Size(10, 10);
                     Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
                         sampleSize.Width, sampleSize.Height);
 
                     _pickColorRect = ScreenToVirtual(pickRect);
 
-                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, isSelecting, _isPickColor, new Point()));
+
+                    //PointF virualPos = ScreenToVirtual(new PointF(e.X, e.Y));
+
+                    //_pickColorRect = new Rectangle((int)(virualPos.X - sampleSize.Width / 2 + 0.5f),
+                    //                                (int)(virualPos.Y - sampleSize.Height / 2 + 0.5f), sampleSize.Width, sampleSize.Height);
+
+
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.PickColor, null, isSelecting, _isPickColor, new Point()));
 
                     _isPickColor = true;
                     return;
@@ -1310,8 +1313,10 @@ namespace JidamVision
             WindowType = windowType;
         }
 
-        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow, bool isSelecting, bool isPickColor, Point point) : this(actionType, inspWindow)
+        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow, bool isSelecting, bool isPickColor, Point point) 
         {
+            ActionType = actionType;
+            InspWindow = inspWindow;
             this.isSelecting = isSelecting;
             this.isPickColor = isPickColor;
             this.point = point;
@@ -1319,5 +1324,5 @@ namespace JidamVision
     }
 
     #endregion
-
+    
 }

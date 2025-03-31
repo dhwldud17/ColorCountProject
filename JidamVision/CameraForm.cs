@@ -80,6 +80,12 @@ namespace JidamVision
             }
         }
 
+        public void SetPickColorMode()
+        {
+            imageViewer.SetPickColorMode();
+        }
+
+
         //# SAVE ROI#2 GUI상에서 선택된 채널 라디오 버튼에 따른 채널 정보를 반환
         private eImageChannel GetCurrentChannel()
         {
