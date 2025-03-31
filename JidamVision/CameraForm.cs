@@ -87,7 +87,9 @@ namespace JidamVision
 
         public void SetPickColorMode()
         {
+            
             imageViewer.SetPickColorMode();
+            this.Cursor = Cursors.Cross;
         }
 
 

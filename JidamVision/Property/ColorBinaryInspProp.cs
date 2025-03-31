@@ -347,6 +347,7 @@ namespace JidamVision.Property
         private void btnTeachingColor_Click(object sender, EventArgs e)
         {
             TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
+            btnTeachingColor.BackColor = Color.LightGreen;
         }
 
         private void panelColorPreview_Paint(object sender, PaintEventArgs e)
