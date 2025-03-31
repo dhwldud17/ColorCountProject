@@ -79,20 +79,8 @@ namespace JidamVision
             ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
             ToolStripMenuItem addCabelRoiItem = new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" };
 
-
             _contextMenu.Items.Add(addBaseRoiItem);
             _contextMenu.Items.Add(addCabelRoiItem);
-
-
-
-
-
-
-
-
-
-
-
 
         }
 
