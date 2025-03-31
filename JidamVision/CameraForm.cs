@@ -28,7 +28,8 @@ namespace JidamVision
         eImageChannel _currentImageChannel = eImageChannel.Color;
         private ColorBlobAlgorithm colorBlobAlgorithm;
         private InspWindow _inspWindow;
-        private bool SetPickColorMode = false;
+        private bool _isPickColorMode = false;
+        private MouseEventHandler OnImageClicked_PickColor;
 
         public MouseEventHandler TeachingColorClicked { get; private set; }
 
@@ -91,23 +92,26 @@ namespace JidamVision
 
         public void TogglePickColorMode()
         {
-            SetPickColorMode = !SetPickColorMode;
-            if (SetPickColorMode)
+            _isPickColorMode = !_isPickColorMode; //on/off
+            if (_isPickColorMode)
             {
                 if (imageViewer != null)
                 {
-                    imageViewer.SetPickColorMode();
+                    //ON
                     this.Cursor = Cursors.Cross;
-                    imageViewer.MouseClick += TeachingColorClicked;
+                    //imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
+                    imageViewer.SetPickColorMode();
                 }
             }
             else
             {
-                imageViewer.SetPickColorMode();
+                //OFF
                 this.Cursor = Cursors.Default;
+                //imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
+                imageViewer.ClearPickColorMode();
+
             }
-            imageViewer.SetPickColorMode();
-            this.Cursor = Cursors.Cross;
+            
         }
 
 

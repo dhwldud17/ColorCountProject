@@ -165,6 +165,11 @@ namespace JidamVision
             _isPickColor = true;
         }
 
+        public void ClearPickColorMode()
+        {
+            _isPickColor = false;
+        }
+
         public OpenCvSharp.Rect GetPickColorRect()
         {
             OpenCvSharp.Rect rect = new OpenCvSharp.Rect(_pickColorRect.X, _pickColorRect.Y, _pickColorRect.Width, _pickColorRect.Height);

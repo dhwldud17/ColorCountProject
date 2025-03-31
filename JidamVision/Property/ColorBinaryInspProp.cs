@@ -356,7 +356,7 @@ namespace JidamVision.Property
             {
                 _isPickColor = false;
                 btnTeachingColor.BackColor = Color.LightGray;
-                ExtractColorFromSelection();
+                //ExtractColorFromSelection();
             }
          
         }
