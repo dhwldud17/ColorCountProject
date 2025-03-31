@@ -44,7 +44,6 @@
             this.lbPercent = new System.Windows.Forms.Label();
             this.lbTotalnumber = new System.Windows.Forms.Label();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
-            this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
             this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
@@ -72,7 +71,7 @@
             // 
             // rtbTotalnumber
             // 
-            this.rtbTotalnumber.Location = new System.Drawing.Point(559, 338);
+            this.rtbTotalnumber.Location = new System.Drawing.Point(559, 271);
             this.rtbTotalnumber.Name = "rtbTotalnumber";
             this.rtbTotalnumber.Size = new System.Drawing.Size(184, 152);
             this.rtbTotalnumber.TabIndex = 3;
@@ -80,7 +79,7 @@
             // 
             // rtbGood
             // 
-            this.rtbGood.Location = new System.Drawing.Point(559, 532);
+            this.rtbGood.Location = new System.Drawing.Point(558, 447);
             this.rtbGood.Name = "rtbGood";
             this.rtbGood.Size = new System.Drawing.Size(85, 78);
             this.rtbGood.TabIndex = 4;
@@ -88,7 +87,7 @@
             // 
             // rtbFaulty
             // 
-            this.rtbFaulty.Location = new System.Drawing.Point(659, 532);
+            this.rtbFaulty.Location = new System.Drawing.Point(649, 447);
             this.rtbFaulty.Name = "rtbFaulty";
             this.rtbFaulty.Size = new System.Drawing.Size(84, 78);
             this.rtbFaulty.TabIndex = 5;
@@ -96,7 +95,7 @@
             // 
             // rtbPercent
             // 
-            this.rtbPercent.Location = new System.Drawing.Point(761, 532);
+            this.rtbPercent.Location = new System.Drawing.Point(558, 556);
             this.rtbPercent.Name = "rtbPercent";
             this.rtbPercent.Size = new System.Drawing.Size(183, 78);
             this.rtbPercent.TabIndex = 6;
@@ -112,11 +111,11 @@
             // dgvMetric
             // 
             this.dgvMetric.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMetric.Location = new System.Drawing.Point(761, 66);
+            this.dgvMetric.Location = new System.Drawing.Point(759, 66);
             this.dgvMetric.Name = "dgvMetric";
             this.dgvMetric.RowHeadersWidth = 62;
             this.dgvMetric.RowTemplate.Height = 30;
-            this.dgvMetric.Size = new System.Drawing.Size(183, 424);
+            this.dgvMetric.Size = new System.Drawing.Size(183, 568);
             this.dgvMetric.TabIndex = 8;
             // 
             // dtpCurrenttime
@@ -147,7 +146,7 @@
             // lbGood
             // 
             this.lbGood.AutoSize = true;
-            this.lbGood.Location = new System.Drawing.Point(559, 512);
+            this.lbGood.Location = new System.Drawing.Point(559, 426);
             this.lbGood.Name = "lbGood";
             this.lbGood.Size = new System.Drawing.Size(44, 18);
             this.lbGood.TabIndex = 12;
@@ -156,7 +155,7 @@
             // lbFaulty
             // 
             this.lbFaulty.AutoSize = true;
-            this.lbFaulty.Location = new System.Drawing.Point(656, 512);
+            this.lbFaulty.Location = new System.Drawing.Point(656, 426);
             this.lbFaulty.Name = "lbFaulty";
             this.lbFaulty.Size = new System.Drawing.Size(44, 18);
             this.lbFaulty.TabIndex = 13;
@@ -165,7 +164,7 @@
             // lbPercent
             // 
             this.lbPercent.AutoSize = true;
-            this.lbPercent.Location = new System.Drawing.Point(758, 511);
+            this.lbPercent.Location = new System.Drawing.Point(559, 535);
             this.lbPercent.Name = "lbPercent";
             this.lbPercent.Size = new System.Drawing.Size(62, 18);
             this.lbPercent.TabIndex = 14;
@@ -174,7 +173,7 @@
             // lbTotalnumber
             // 
             this.lbTotalnumber.AutoSize = true;
-            this.lbTotalnumber.Location = new System.Drawing.Point(559, 316);
+            this.lbTotalnumber.Location = new System.Drawing.Point(559, 238);
             this.lbTotalnumber.Name = "lbTotalnumber";
             this.lbTotalnumber.Size = new System.Drawing.Size(62, 18);
             this.lbTotalnumber.TabIndex = 15;
@@ -188,18 +187,8 @@
             this.imageViewer.Location = new System.Drawing.Point(27, 145);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(506, 446);
+            this.imageViewer.Size = new System.Drawing.Size(506, 489);
             this.imageViewer.TabIndex = 16;
-            // 
-            // btImageLode
-            // 
-            this.btImageLode.Location = new System.Drawing.Point(559, 231);
-            this.btImageLode.Name = "btImageLode";
-            this.btImageLode.Size = new System.Drawing.Size(181, 57);
-            this.btImageLode.TabIndex = 17;
-            this.btImageLode.Text = "불러오기";
-            this.btImageLode.UseVisualStyleBackColor = true;
-            this.btImageLode.Click += new System.EventHandler(this.btImageLode_Click_1);
             // 
             // lblResult
             // 
@@ -225,10 +214,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(954, 618);
+            this.ClientSize = new System.Drawing.Size(954, 651);
             this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.lblResult);
-            this.Controls.Add(this.btImageLode);
             this.Controls.Add(this.imageViewer);
             this.Controls.Add(this.lbTotalnumber);
             this.Controls.Add(this.lbPercent);
@@ -271,7 +259,6 @@
         private System.Windows.Forms.Label lbPercent;
         private System.Windows.Forms.Label lbTotalnumber;
         private ImageViewCCtrl imageViewer;
-        private System.Windows.Forms.Button btImageLode;
         private System.Windows.Forms.Label lblResult;
         private ImageViewCCtrl imageViewCCtrl1;
     }

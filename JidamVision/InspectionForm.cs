@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
 using JidamVision.Core;
@@ -14,10 +10,7 @@ using JidamVision.Teach;
 using JidamVision.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
-using OpenCvSharp.Flann;
 using WeifenLuo.WinFormsUI.Docking;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
-using static JidamVision.Core.ImageSpace;
 
 namespace JidamVision
 {
@@ -41,7 +34,7 @@ namespace JidamVision
         private Mat inspectedImage;
         private List<InspWindow> currentROIs;
         // ✅검사할 색상 정의 (추가된 부분)
-   
+
         public InspectionForm()
         {
             InitializeComponent();
@@ -55,8 +48,8 @@ namespace JidamVision
 
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
-           
-          
+
+
             Controls.Add(imageViewer);
         }
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
@@ -104,11 +97,8 @@ namespace JidamVision
             }
         }
 
-
         private eImageChannel GetCurrentChannel()
         {
-         
-
             return eImageChannel.Color;
         }
 
@@ -131,14 +121,6 @@ namespace JidamVision
                 Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
         }
-
-
-
-
-
-
-
-
         public void UpdateDiagramEntity()
         {
             Model model = Global.Inst.InspStage.CurModel;
@@ -186,47 +168,36 @@ namespace JidamVision
         {
             imageViewer.SelectDiagramEntity(window);
         }
-
         public void UpdateImageViewer()
         {
             imageViewer.Invalidate();
         }
-
-
         public void AddRect(List<Rect> rects)
         {
             //#BINARY FILTER#18 imageViewer는 Rectangle 타입으로 그래픽을 그리므로, 
             //아래 코드를 이용해, Rect -> Rectangle로 변환하는 람다식
             var rectangles = rects.Select(r => new Rectangle(r.X, r.Y, r.Width, r.Height)).ToList();
             imageViewer.AddRect(rectangles);
-
         }
-
         public void AddRoi(InspWindowType inspWindowType)
         {
             imageViewer.NewRoi(inspWindowType);
         }
-
-
-
-
-      
         // 검사 이미지 불러오기
         public void LoadImage(string imagePath)
         {
             inspectedImage = Cv2.ImRead(imagePath);
             // 검사 이미지 로드 후 화면에 표시하는 코드 추가
-          
         }
         public void CompareROIWithInspection()
         {
             foreach (var roi in currentROIs)
             {// ROI 위치 정보와 비교할 이미지에서 해당 영역 추출
                 var roiRect = roi.WindowArea;  // ROI의 위치 및 크기 정보
-          //      var roiImage = inspectedImage[roiRect];
+                                               //      var roiImage = inspectedImage[roiRect];
 
                 // ROI 이미지와 검사가 올바른지 비교 (여기서 컬러 이진화 알고리즘을 사용할 수도 있음)
-       //         bool isMatch = CompareROI(roiImage, roi);
+                //         bool isMatch = CompareROI(roiImage, roi);
 
                 // 결과에 따라 표시 (초록색/빨간색)
                 //if (isMatch)
@@ -254,7 +225,7 @@ namespace JidamVision
             Scalar colorScalar = new Scalar(color.B, color.G, color.R); // OpenCV에서 색상은 BGR 순서
             Cv2.Rectangle(inspectedImage, rect, colorScalar, 2);
             // 그린 이미지를 화면에 표시
-         
+
         }
         // 색상 매칭 함수 (컬러 이진화 알고리즘을 이용한 예시)
         private bool ColorMatch(Mat roiImage, InspWindow roi)
@@ -266,10 +237,10 @@ namespace JidamVision
         }
 
 
-    
+
         private void CheckInspectionImage(Mat inspectionImg)
         {
-           
+
 
             // 검사 이미지에서 ROI 영역 추출
             Mat roiInspectionImage = new Mat(inspectionImg, selectedROI);
@@ -292,11 +263,11 @@ namespace JidamVision
 
             // 검사 이미지 화면에 표시
             Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
-           
+
         }
 
 
-      
+
 
 
         private void InitializeInspection()
@@ -315,7 +286,7 @@ namespace JidamVision
             dgvMetric.Columns[1].Name = "기준 색상";
             dgvMetric.Columns[2].Name = "검사 결과";
         }
-      
+
         private void InitializeTimers()
         {
             // 현재 시간 자동 갱신 타이머 설정
@@ -350,9 +321,7 @@ namespace JidamVision
         }
         private void bntStart_Click(object sender, EventArgs e)
         {
-            if (receivedImages.Count > 0)
-            {
-                currentImageIndex = 0;
+               currentImageIndex = 0;
 
                 // 시작할 때 개수 초기화
                 totalCount = 0;
@@ -362,13 +331,9 @@ namespace JidamVision
 
                 StartInspection();
                 inspectionTimer.Start();
+                Global.Inst.InspStage.CycleInspect(true);
 
                 dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
-            }
-            else
-            {
-                MessageBox.Show("이미지가 없습니다.");
-            }
         }
         private void UpdateInspectionResults()
         {
@@ -383,7 +348,7 @@ namespace JidamVision
 
         private void bntStop_Click(object sender, EventArgs e)
         {
-            inspectionTimer.Stop();
+            Global.Inst.InspStage.StopCycle();
         }
         private void InspectionTimer_Tick(object sender, EventArgs e)
         {
@@ -410,7 +375,7 @@ namespace JidamVision
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
             }
             // ✅ 이미지 색상 검사 추가
-         //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
+            //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
         // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
@@ -467,7 +432,7 @@ namespace JidamVision
             int margin = 80;
 
             // 오른쪽 UI 요소들의 X 위치 조정
-            int xPos =  this.Width - dgvMetric.Width - margin;
+            int xPos = this.Width - dgvMetric.Width - margin;
 
             dtpStartTime.Location = new System.Drawing.Point(dtpStartTime.Location.X, dtpStartTime.Location.Y);
             lbStartTime.Location = new System.Drawing.Point(lbStartTime.Location.X, lbStartTime.Location.Y);
@@ -475,28 +440,27 @@ namespace JidamVision
             lbCurrenttime.Location = new System.Drawing.Point(lbCurrenttime.Location.X, lbCurrenttime.Location.Y);
 
 
-            bntStart.Location = new System.Drawing.Point(xPos-bntStart.Width-30, bntStart.Location.Y);
-            bntStop.Location = new System.Drawing.Point(xPos- bntStop.Width-30, bntStop.Location.Y);
-            rtbTotalnumber.Location = new System.Drawing.Point(xPos- rtbTotalnumber.Width-30, rtbTotalnumber.Location.Y);
+            bntStart.Location = new System.Drawing.Point(xPos - bntStart.Width - 30, bntStart.Location.Y);
+            bntStop.Location = new System.Drawing.Point(xPos - bntStop.Width - 30, bntStop.Location.Y);
+            rtbTotalnumber.Location = new System.Drawing.Point(xPos - rtbTotalnumber.Width - 30, rtbTotalnumber.Location.Y);
             lbTotalnumber.Location = new System.Drawing.Point(xPos - lbTotalnumber.Width - 120, lbTotalnumber.Location.Y);
             rtbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, rtbGood.Location.Y);
             lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, lbGood.Location.Y);
             rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y);
             lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y);
             dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
-            rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
-            lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
-            btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
+            rtbPercent.Location = new System.Drawing.Point(xPos- rtbPercent.Width -30, rtbPercent.Location.Y);
+            lbPercent.Location = new System.Drawing.Point(xPos- lbPercent.Width -120, lbPercent.Location.Y);
 
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
             imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
             imageViewer.Height = this.Height - margin * 2;
-            imageViewer.Location = new System.Drawing.Point(margin-50, margin);
+            imageViewer.Location = new System.Drawing.Point(margin - 50, margin);
         }
 
-      
-            
-        
+
+
+
 
         private void ShowImage(int index)
         {
@@ -519,7 +483,7 @@ namespace JidamVision
 
         private void btImageLode_Click_1(object sender, EventArgs e)
         {
-           
+
             UpdateDisplay();
         }
     }

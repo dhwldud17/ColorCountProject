@@ -342,15 +342,6 @@ namespace JidamVision.Core
 
             }
         }
-
-
-
-
-
-
-
-            
-
         public void SaveCurrentImage(string filePath)
         {
             var cameraForm = MainForm.GetDockForm<CameraForm>();
@@ -471,8 +462,6 @@ namespace JidamVision.Core
             _model.DelInspWindow(inspWindow);
             UpdateDiagramEntity();
         }
-
-
         public void DelInspWindow(List<InspWindow> inspWindowList)
         {
             _model.DelInspWindowList(inspWindowList);
@@ -501,10 +490,7 @@ namespace JidamVision.Core
             Console.WriteLine($"Min HSV Value: H = {minHSV.Item0}, S = {minHSV.Item1}, V = {minHSV.Item2}");
             Console.WriteLine($"Max HSV Value: H = {maxHSV.Item0}, S = {maxHSV.Item1}, V = {maxHSV.Item2}");
         }
-
-
-
-        //GroupWindow 생성
+  //GroupWindow 생성
         public void CreateGroupWindow(List<InspWindow> inspWindowList)
         {
             if (_model is null)

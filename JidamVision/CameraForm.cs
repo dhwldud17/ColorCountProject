@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using WeifenLuo.WinFormsUI.Docking;
-using JidamVision.Core;
-using OpenCvSharp.Extensions;
-using System.Web;
-using JidamVision.Teach;
-using System.IO;
-using OpenCvSharp;
-using JidamVision.Util;
-using System.Diagnostics.Eventing.Reader;
 using JidamVision.Algorithm;
+using JidamVision.Core;
+using JidamVision.Teach;
+using JidamVision.Util;
+using OpenCvSharp;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace JidamVision
 {
@@ -76,7 +69,7 @@ namespace JidamVision
                 case EntityActionType.UpdateImage:
                     Global.Inst.InspStage.SetTeachingImage(e.InspWindow);
                     break;
-                    
+
                 case EntityActionType.PickColor:
                     Rect rect = imageViewer.GetPickColorRect();
                     Global.Inst.InspStage.PickColorWindow(rect);
@@ -201,7 +194,7 @@ namespace JidamVision
         #endregion
 
 
-   
+
 
 
         //#MATCH PROP#14 템플릿 매칭 위치 입력 받는 함수
@@ -318,7 +311,7 @@ namespace JidamVision
 
         private void chkShowROI_CheckedChanged(object sender, EventArgs e)
         {
-            if(chkShowROI.Checked)
+            if (chkShowROI.Checked)
             {
                 UpdateDiagramEntity();
             }
@@ -328,7 +321,7 @@ namespace JidamVision
             }
         }
 
-        
-        
+
+
     }
 }
