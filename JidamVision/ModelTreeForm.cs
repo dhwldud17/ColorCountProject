@@ -173,6 +173,13 @@ namespace JidamVision
                 cameraForm.UpdateDiagramEntity();
                 cameraForm.UpdateImageViewer();
             }
+
+            InspectionForm inspectionForm = MainForm.GetDockForm<InspectionForm>();
+            if(inspectionForm != null)
+            {
+                inspectionForm.UpdateDiagramEntity();
+                inspectionForm.UpdateImageViewer();
+            }
         }
 
         private void BtnResetROI_Click(object sender, EventArgs e)

@@ -47,9 +47,7 @@
             this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
             this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
-            this.InspectionImage = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.InspectionImage)).BeginInit();
             this.SuspendLayout();
             // 
             // bntStart
@@ -187,10 +185,10 @@
             this.imageViewer.AutoSize = true;
             this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewer.Location = new System.Drawing.Point(265, 112);
+            this.imageViewer.Location = new System.Drawing.Point(27, 145);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(268, 206);
+            this.imageViewer.Size = new System.Drawing.Size(506, 446);
             this.imageViewer.TabIndex = 16;
             // 
             // btImageLode
@@ -223,20 +221,11 @@
             this.imageViewCCtrl1.Size = new System.Drawing.Size(4, 4);
             this.imageViewCCtrl1.TabIndex = 19;
             // 
-            // InspectionImage
-            // 
-            this.InspectionImage.Location = new System.Drawing.Point(30, 133);
-            this.InspectionImage.Name = "InspectionImage";
-            this.InspectionImage.Size = new System.Drawing.Size(522, 445);
-            this.InspectionImage.TabIndex = 20;
-            this.InspectionImage.TabStop = false;
-            // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
-            this.Controls.Add(this.InspectionImage);
             this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.btImageLode);
@@ -260,7 +249,6 @@
             this.Text = "InspectionForm";
             this.Resize += new System.EventHandler(this.InspectionForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.InspectionImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -286,6 +274,5 @@
         private System.Windows.Forms.Button btImageLode;
         private System.Windows.Forms.Label lblResult;
         private ImageViewCCtrl imageViewCCtrl1;
-        private System.Windows.Forms.PictureBox InspectionImage;
     }
 }

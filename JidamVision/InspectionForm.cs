@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
+using JidamVision.Core;
 using JidamVision.Teach;
+using JidamVision.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Flann;
@@ -48,42 +50,183 @@ namespace JidamVision
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             InitializeDataGridView();  // DataGridView 초기화
             colorBlobAlgorithm = new ColorBlobAlgorithm();
-            // 모델 불러오기 (예시)
-            currentModel = new Model().Load("C:\\Users\\ajisj\\OneDrive\\바탕 화면\\model.xml\\model.xml.xml");
-            List<InspWindow> inspWindows = currentModel.InspWindowList; // 모델에서 ROI 정보 가져오기
-            // ROI 정보 가져오기
-            currentROIs = currentModel.InspWindowList.Where(w => w is InspWindow).ToList();
-            CompareROIWithInspection();
+            // 모델 불러오기 
+
+
+            imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
+            UpdateDisplay();
+          
+            Controls.Add(imageViewer);
+        }
+        private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
+        {
+            SLogger.Write($"ImageViewer Action {e.ActionType.ToString()}");
+            switch (e.ActionType)
+            {
+                case EntityActionType.Select:
+                    Global.Inst.InspStage.SelectInspWindow(e.InspWindow);
+                    imageViewer.Focus();
+                    break;
+                case EntityActionType.Inspect:
+                    Global.Inst.InspStage.TryInspection(e.InspWindow);
+                    break;
+                case EntityActionType.Add:
+                    Global.Inst.InspStage.AddInspWindow(e.WindowType, e.Rect);
+                    break;
+                case EntityActionType.Move:
+                    Global.Inst.InspStage.MoveInspWindow(e.InspWindow, e.OffsetMove);
+                    break;
+                case EntityActionType.Resize:
+                    Global.Inst.InspStage.ModifyInspWindow(e.InspWindow, e.Rect);
+                    break;
+                case EntityActionType.Delete:
+                    Global.Inst.InspStage.DelInspWindow(e.InspWindow);
+                    break;
+                case EntityActionType.DeleteList:
+                    Global.Inst.InspStage.DelInspWindow(e.InspWindowList);
+                    break;
+                case EntityActionType.AddGroup:
+                    Global.Inst.InspStage.CreateGroupWindow(e.InspWindowList);
+                    break;
+                case EntityActionType.Break:
+                    Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
+                    break;
+                case EntityActionType.UpdateImage:
+                    Global.Inst.InspStage.SetTeachingImage(e.InspWindow);
+                    break;
+
+                case EntityActionType.PickColor:
+                    Rect rect = imageViewer.GetPickColorRect();
+                    Global.Inst.InspStage.PickColorWindow(rect);
+                    break;
+
+            }
         }
 
-       
 
+
+
+        public void UpdateDisplay(Bitmap bitmap = null)
+        {
+            if (bitmap == null)
+            {
+                return;
+            }
+
+            imageViewer.LoadBitmap(bitmap);
+
+            Mat curImage = Global.Inst.InspStage.GetMat();
+            Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
+        }
+
+
+
+
+
+
+
+
+        public void UpdateDiagramEntity()
+        {
+            Model model = Global.Inst.InspStage.CurModel;
+            List<DiagramEntity> diagramEntityList = new List<DiagramEntity>();
+
+            foreach (InspWindow window in model.InspWindowList)
+            {
+                if (window is null)
+                    continue;
+
+                if (window is GroupWindow group)
+                {
+                    foreach (InspWindow member in group.Members)
+                    {
+                        DiagramEntity entity = new DiagramEntity()
+                        {
+                            LinkedWindow = member,
+                            EntityROI = new Rectangle(
+                                member.WindowArea.X, member.WindowArea.Y,
+                                member.WindowArea.Width, member.WindowArea.Height),
+                            EntityColor = imageViewer.GetWindowColor(member.InspWindowType),
+                            IsHold = member.IsTeach,
+                        };
+                        diagramEntityList.Add(entity);
+                    }
+                }
+                else if (window.Parent == null)
+                {
+                    DiagramEntity entity = new DiagramEntity()
+                    {
+                        LinkedWindow = window,
+                        EntityROI = new Rectangle(
+                            window.WindowArea.X, window.WindowArea.Y,
+                                window.WindowArea.Width, window.WindowArea.Height),
+                        EntityColor = imageViewer.GetWindowColor(window.InspWindowType),
+                        IsHold = window.IsTeach
+                    };
+                    diagramEntityList.Add(entity);
+                }
+            }
+
+            imageViewer.SetDiagramEntityList(diagramEntityList);
+        }
+        public void SelectDiagramEntity(InspWindow window)
+        {
+            imageViewer.SelectDiagramEntity(window);
+        }
+
+        public void UpdateImageViewer()
+        {
+            imageViewer.Invalidate();
+        }
+
+
+        public void AddRect(List<Rect> rects)
+        {
+            //#BINARY FILTER#18 imageViewer는 Rectangle 타입으로 그래픽을 그리므로, 
+            //아래 코드를 이용해, Rect -> Rectangle로 변환하는 람다식
+            var rectangles = rects.Select(r => new Rectangle(r.X, r.Y, r.Width, r.Height)).ToList();
+            imageViewer.AddRect(rectangles);
+
+        }
+
+        public void AddRoi(InspWindowType inspWindowType)
+        {
+            imageViewer.NewRoi(inspWindowType);
+        }
+
+
+
+
+        public Mat GetCurrentImage()
+        {
+            return Global.Inst.InspStage.GetMat();
+        }
         // 검사 이미지 불러오기
         public void LoadImage(string imagePath)
         {
             inspectedImage = Cv2.ImRead(imagePath);
             // 검사 이미지 로드 후 화면에 표시하는 코드 추가
-            InspectionImage.Image = BitmapConverter.ToBitmap(inspectedImage);
+          
         }
         public void CompareROIWithInspection()
         {
             foreach (var roi in currentROIs)
             {// ROI 위치 정보와 비교할 이미지에서 해당 영역 추출
                 var roiRect = roi.WindowArea;  // ROI의 위치 및 크기 정보
-                var roiImage = inspectedImage[roiRect];
+          //      var roiImage = inspectedImage[roiRect];
 
                 // ROI 이미지와 검사가 올바른지 비교 (여기서 컬러 이진화 알고리즘을 사용할 수도 있음)
-                bool isMatch = CompareROI(roiImage, roi);
+       //         bool isMatch = CompareROI(roiImage, roi);
 
                 // 결과에 따라 표시 (초록색/빨간색)
-                if (isMatch)
-                {
-                    DrawResult(roiRect, Color.Green);  // 초록색 표시
-                }
-                else
-                {
-                    DrawResult(roiRect, Color.Red);    // 빨간색 표시
-                }
+                //if (isMatch)
+                //{
+                //    DrawResult(roiRect, Color.Green);  // 초록색 표시
+                //}
+                //else
+                //{
+                //    DrawResult(roiRect, Color.Red);    // 빨간색 표시
+                //}
             }
         }
 
@@ -101,7 +244,7 @@ namespace JidamVision
             Scalar colorScalar = new Scalar(color.B, color.G, color.R); // OpenCV에서 색상은 BGR 순서
             Cv2.Rectangle(inspectedImage, rect, colorScalar, 2);
             // 그린 이미지를 화면에 표시
-            InspectionImage.Image = BitmapConverter.ToBitmap(inspectedImage);
+         
         }
         // 색상 매칭 함수 (컬러 이진화 알고리즘을 이용한 예시)
         private bool ColorMatch(Mat roiImage, InspWindow roi)
@@ -113,8 +256,7 @@ namespace JidamVision
         }
 
 
-
-
+    
         private void CheckInspectionImage(Mat inspectionImg)
         {
            
@@ -140,14 +282,11 @@ namespace JidamVision
 
             // 검사 이미지 화면에 표시
             Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
-            InspectionImage.Image = bmp; // PictureBox에 검사 이미지 표시
+           
         }
 
 
-
-
-
-
+      
 
 
         private void InitializeInspection()
@@ -345,51 +484,9 @@ namespace JidamVision
             imageViewer.Location = new System.Drawing.Point(margin-50, margin);
         }
 
-        private void btImageLode_Click(object sender, EventArgs e)
-        {
-            // 파일 탐색기 열기
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Title = "검사할 이미지 파일 선택";
-                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif"; // 이미지 확장자 필터
-                openFileDialog.Multiselect = false; // 여러 파일 선택 안됨
-
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    // 선택된 이미지 경로 가져오기
-                    string filePath = openFileDialog.FileName;
-
-                    // 이미지 불러오기
-                    Mat inspectionImage = Cv2.ImRead(filePath);
-
-                    if (inspectionImage.Empty())
-                    {
-                        MessageBox.Show("이미지 로드 실패", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    // 검사할 이미지 설정
-                    colorBlobAlgorithm.SetInspData(inspectionImage);
-
-                    // 검사 실행
-                    bool result = colorBlobAlgorithm.DoInspect();
-
-                    // 검사 결과 출력
-                    if (colorBlobAlgorithm.IsDefect)
-                    {
-                        lblResult.Text = "NG";
-                    }
-                    else
-                    {
-                        lblResult.Text = "OK";
-                    }
-
-                    // Mat를 Bitmap으로 변환하여 PictureBox에 표시
-                    Bitmap bmp = BitmapConverter.ToBitmap(inspectionImage);
-                    InspectionImage.Image = bmp; // PictureBox에 이미지 설정
-                }
-            }
-        }
+      
+            
+        
 
         private void ShowImage(int index)
         {
@@ -412,19 +509,8 @@ namespace JidamVision
 
         private void btImageLode_Click_1(object sender, EventArgs e)
         {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.tiff";
-                openFileDialog.Title = "이미지 파일 선택";
+            Global.Inst.InspStage.PreView.SetPreview();
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string filePath = openFileDialog.FileName;
-                    LoadImage( filePath);
-                    // 이미지 로드
-                 
-                }
-            }
         }
     }
 }

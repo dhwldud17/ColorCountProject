@@ -177,7 +177,9 @@ namespace JidamVision.Core
             }
 
         }
-        public void SetImageBuffer(string filePath)
+
+        //불러온 이미지
+        public void SetImageBuffer(string filePath, bool reference)
         {
             if (_grabManager == null)
                 return;
@@ -220,11 +222,25 @@ namespace JidamVision.Core
 
             DisplayGrabImage(bufferIndex);
 
-            if (_previewImage != null)
+            if (reference)
             {
-                Bitmap bitmap = ImageSpace.GetBitmap(0);
-                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+                if (_previewImage != null)
+                {
+                    Bitmap bitmap = ImageSpace.GetBitmap(0);
+                    _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+                }
             }
+            else
+            {
+                if (_previewImage != null)
+                {
+                    Bitmap bitmap = ImageSpace.GetBitmap(0);
+                    _previewImage.SetImage_Inspection(BitmapConverter.ToMat(bitmap));
+                }
+            }
+
+
+            //Bitmap → Mat 형식으로 변환된 후 previewImage 클래스를 통해 화면에 뿌려짐
         }
 
         public void SetBuffer(int bufferCount)
@@ -252,7 +268,7 @@ namespace JidamVision.Core
             if (_grabManager == null)
                 return false;
 
-            if(!_grabManager.Grab(bufferIndex, true))
+            if (!_grabManager.Grab(bufferIndex, true))
                 return false;
 
             return true;
@@ -303,6 +319,14 @@ namespace JidamVision.Core
                     cameraForm.UpdateDisplay();
                 }
             }
+
+
+
+
+
+
+
+
         }
 
         public void SaveCurrentImage(string filePath)
@@ -456,7 +480,7 @@ namespace JidamVision.Core
             Console.WriteLine($"Max HSV Value: H = {maxHSV.Item0}, S = {maxHSV.Item1}, V = {maxHSV.Item2}");
         }
 
-        
+
 
         //GroupWindow 생성
         public void CreateGroupWindow(List<InspWindow> inspWindowList)
@@ -544,6 +568,12 @@ namespace JidamVision.Core
             {
                 modelTreeForm.UpdateDiagramEntity();
             }
+
+            InspectionForm InspectionForm = MainForm.GetDockForm<InspectionForm>();
+            if (InspectionForm != null)
+            {
+                InspectionForm.UpdateDiagramEntity();
+            }
         }
 
         public void RedrawMainView()
@@ -552,6 +582,11 @@ namespace JidamVision.Core
             if (cameraForm != null)
             {
                 cameraForm.UpdateImageViewer();
+            }
+            InspectionForm InspectionForm = MainForm.GetDockForm<InspectionForm>();
+            if (InspectionForm != null)
+            {
+                InspectionForm.UpdateDiagramEntity();
             }
         }
 
@@ -568,10 +603,11 @@ namespace JidamVision.Core
                 return false;
             }
 
-           string inspImagePath = _model.InspectImagePath;
+            string inspImagePath = _model.InspectImagePath;
             if (File.Exists(inspImagePath))
             {
-                Global.Inst.InspStage.SetImageBuffer(inspImagePath);
+                Global.Inst.InspStage.SetImageBuffer(inspImagePath,false);
+                Global.Inst.InspStage.SetImageBuffer(inspImagePath, true);
             }
 
             UpdateDiagramEntity();
@@ -611,9 +647,9 @@ namespace JidamVision.Core
 
         public bool OneCycle()
         {
-            if(UseCamera)
+            if (UseCamera)
             {
-                if(!Grab(0))
+                if (!Grab(0))
                     return false;
             }
             else
@@ -643,7 +679,7 @@ namespace JidamVision.Core
             if (imagePath == "")
                 return false;
 
-            Global.Inst.InspStage.SetImageBuffer(imagePath);
+            Global.Inst.InspStage.SetImageBuffer(imagePath,true);
 
             _imageSpace.Split(0);
 

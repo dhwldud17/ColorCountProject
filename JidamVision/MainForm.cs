@@ -276,22 +276,22 @@ namespace JidamVision
 
         private void ImageLoadMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Title = "이미지 파일 선택";
-                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
-                openFileDialog.Multiselect = false;
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string filePath = openFileDialog.FileName;
-                    Global.Inst.InspStage.SetImageBuffer(filePath);
-                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
+            //using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            //{
+            //    openFileDialog.Title = "이미지 파일 선택";
+            //    openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
+            //    openFileDialog.Multiselect = false;
+            //    if (openFileDialog.ShowDialog() == DialogResult.OK)
+            //    {
+            //        string filePath = openFileDialog.FileName;
+            //        Global.Inst.InspStage.SetImageBuffer(filePath);
+            //        Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
 
-                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
-                    Mat referenceImage = Cv2.ImRead(filePath);
-                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
-                }
-            }
+            //        //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
+            //        Mat referenceImage = Cv2.ImRead(filePath);
+            //        colorBlobAlgorithm.SetReferenceImage(referenceImage);
+            //    }
+            //}
         }
 
         private void ImageSaveMenuItem_Click(object sender, EventArgs e)
@@ -343,13 +343,13 @@ namespace JidamVision
                 openFileDialog.Multiselect = false;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    //cameraform에 선택한 이미지 뿌려줌. 
                     string filePath = openFileDialog.FileName;
-                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.SetImageBuffer(filePath,true);
+                    //CurModel: 현재 검사 중인 모델
                     Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
 
-                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
-                    Mat referenceImage = Cv2.ImRead(filePath);
-                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
+                  
                 }
             }
         }
@@ -364,7 +364,7 @@ namespace JidamVision
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.SetImageBuffer(filePath,false);
                     Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
 
                     //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
