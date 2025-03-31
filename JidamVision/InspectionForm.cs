@@ -23,6 +23,7 @@ namespace JidamVision
 {
     public partial class InspectionForm : DockContent
     {
+        eImageChannel _currentImageChannel = eImageChannel.Color;
         private List<Mat> receivedImages = new List<Mat>(); // 외부 프로그램에서 받은 이미지 목록
         private int currentImageIndex = 0;
         private Timer inspectionTimer;
@@ -54,7 +55,7 @@ namespace JidamVision
 
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
-            UpdateDisplay();
+           
           
             Controls.Add(imageViewer);
         }
@@ -104,19 +105,31 @@ namespace JidamVision
         }
 
 
+        private eImageChannel GetCurrentChannel()
+        {
+         
 
+            return eImageChannel.Color;
+        }
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
-            if (bitmap == null)
             {
-                return;
+                if (bitmap == null)
+                {
+                    //# SAVE ROI#3 채널 정보 변수에 저장
+                    //참고 프로젝트에서 _currentImageChannel를 모두 찾아서, 수정할것
+                    _currentImageChannel = GetCurrentChannel();
+                    bitmap = Global.Inst.InspStage.GetBitmap(1, _currentImageChannel);
+                    if (bitmap == null)
+                        return;
+                }
+
+                imageViewer.LoadBitmap(bitmap);
+
+                Mat curImage = Global.Inst.InspStage.GetMat(1);
+                Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
-
-            imageViewer.LoadBitmap(bitmap);
-
-            Mat curImage = Global.Inst.InspStage.GetMat();
-            Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
         }
 
 
@@ -197,10 +210,7 @@ namespace JidamVision
 
 
 
-        public Mat GetCurrentImage()
-        {
-            return Global.Inst.InspStage.GetMat();
-        }
+      
         // 검사 이미지 불러오기
         public void LoadImage(string imagePath)
         {
@@ -509,8 +519,8 @@ namespace JidamVision
 
         private void btImageLode_Click_1(object sender, EventArgs e)
         {
-            Global.Inst.InspStage.PreView.SetPreview();
-
+           
+            UpdateDisplay();
         }
     }
 }

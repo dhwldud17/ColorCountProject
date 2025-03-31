@@ -31,7 +31,7 @@ namespace JidamVision.Core
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
-        public static readonly int MAX_GRAB_BUF = 5;
+        public static readonly int MAX_GRAB_BUF = 2;
 
         private ImageSpace _imageSpace = null;
         private GrabModel _grabManager = null;
@@ -210,9 +210,9 @@ namespace JidamVision.Core
                 _imageSpace.SetImageInfo(pixelBpp, imageWidth, imageHeight, imageStride);
             }
 
-            SetBuffer(1);
+            SetBuffer(2);
 
-            int bufferIndex = 0;
+            int bufferIndex = reference ? 0 : 1;//레퍼런스 이미지 들어오면 0 번 버퍼에 저장
 
             // Mat의 데이터를 byte 배열로 복사
             int bufSize = (int)(alignedMat.Total() * alignedMat.ElemSize());
@@ -304,30 +304,52 @@ namespace JidamVision.Core
 
         private void DisplayGrabImage(int bufferIndex)
         {
-            var cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm != null)
+            if (bufferIndex == 0)
             {
-                if (cameraForm.InvokeRequired)
+                var cameraForm = MainForm.GetDockForm<CameraForm>();
+                if (cameraForm != null)
                 {
-                    cameraForm.Invoke((MethodInvoker)(() =>
+                    if (cameraForm.InvokeRequired)
+                    {
+                        cameraForm.Invoke((MethodInvoker)(() =>
+                        {
+                            cameraForm.UpdateDisplay();
+                        }));
+                    }
+                    else
                     {
                         cameraForm.UpdateDisplay();
-                    }));
-                }
-                else
-                {
-                    cameraForm.UpdateDisplay();
+                    }
                 }
             }
+            else
+            {
+                var InspectionForm = MainForm.GetDockForm<InspectionForm>();
+                if (InspectionForm != null)
+                {
+                    if (InspectionForm.InvokeRequired)
+                    {
+                        InspectionForm.Invoke((MethodInvoker)(() =>
+                        {
+                            InspectionForm.UpdateDisplay();
+                        }));
+                    }
+                    else
+                    {
+                        InspectionForm.UpdateDisplay();
+                    }
+                }
 
-
-
-
-
-
-
-
+            }
         }
+
+
+
+
+
+
+
+            
 
         public void SaveCurrentImage(string filePath)
         {
@@ -339,7 +361,7 @@ namespace JidamVision.Core
             }
         }
 
-        public Bitmap GetBitmap(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
+        public Bitmap GetBitmap(int bufferIndex=-1, eImageChannel imageChannel = eImageChannel.None)
         {
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
@@ -354,7 +376,7 @@ namespace JidamVision.Core
 
             return Global.Inst.InspStage.ImageSpace.GetBitmap(SelBufferIndex, SelImageChannel);
         }
-        public Mat GetMat(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
+        public Mat GetMat(int bufferIndex =-1, eImageChannel imageChannel = eImageChannel.None)
         {
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
@@ -606,7 +628,7 @@ namespace JidamVision.Core
             string inspImagePath = _model.InspectImagePath;
             if (File.Exists(inspImagePath))
             {
-                Global.Inst.InspStage.SetImageBuffer(inspImagePath,false);
+                Global.Inst.InspStage.SetImageBuffer(inspImagePath, false);
                 Global.Inst.InspStage.SetImageBuffer(inspImagePath, true);
             }
 
@@ -679,7 +701,7 @@ namespace JidamVision.Core
             if (imagePath == "")
                 return false;
 
-            Global.Inst.InspStage.SetImageBuffer(imagePath,true);
+            Global.Inst.InspStage.SetImageBuffer(imagePath, true);
 
             _imageSpace.Split(0);
 

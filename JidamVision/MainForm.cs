@@ -367,9 +367,7 @@ namespace JidamVision
                     Global.Inst.InspStage.SetImageBuffer(filePath,false);
                     Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
 
-                    //컬러알고리즘에 레퍼런스 이미지로도 보냄. 
-                    Mat referenceImage = Cv2.ImRead(filePath);
-                    colorBlobAlgorithm.SetReferenceImage(referenceImage);
+                   
                 }
             }
         }
