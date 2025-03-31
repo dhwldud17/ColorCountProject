@@ -234,7 +234,7 @@ namespace JidamVision.Core
             {
                 if (_previewImage != null)
                 {
-                    Bitmap bitmap = ImageSpace.GetBitmap(0);
+                    Bitmap bitmap = ImageSpace.GetBitmap(1);
                     _previewImage.SetImage_Inspection(BitmapConverter.ToMat(bitmap));
                 }
             }
