@@ -15,7 +15,9 @@ namespace JidamVision.Algorithm
     }
     public class ColorBlobAlgorithm : InspAlgorithm
     {
-        
+        internal static readonly object Instance;
+        internal static readonly object SetColor;
+
         public HSVThreshold HSVThreshold { get; set; } = new HSVThreshold();
         // 픽셀 영역 필터링 (기본값 100)
 
@@ -179,24 +181,18 @@ namespace JidamVision.Algorithm
             IsDefect = !isMatch;
             ResultString = isMatch ? new List<string> { "OK" } : new List<string> { "NG" };
             IsInspected = true;
+            return true;
 
-            return true; ;
-        }
-        //결과값 보냄.
-        // 검사 결과가 Rect정보로 출력이 가능하다면, 이 함수를 상속 받아서, 정보 반환
-        public override int GetResultRect(out List<Rect> resultArea)
-        {
-            resultArea = _findArea;
-            return _findArea.Count;
         }
 
-        // 결과 초기화
-        public override void ResetResult()
+        public Mat GetOutput()
         {
-            IsInspected = false;
-            IsDefect = false;
-            ResultString.Clear();
-            _findArea.Clear();
+            return _srcImage; // 빨간색 영역이 덮인 최종 이미지
+        }
+
+        public void SetImage(Mat image)
+        {
+            _srcImage = image;
         }
     }
 }

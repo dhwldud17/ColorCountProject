@@ -487,20 +487,60 @@ namespace JidamVision.Core
             // BGR -> HSV로 변환
             Mat hsvImage = new Mat();
             Cv2.CvtColor(pick, hsvImage, ColorConversionCodes.BGR2HSV);
+            // H, S, V 채널 분리
+            Mat[] hsvChannels = Cv2.Split(hsvImage); // [0]=H, [1]=S, [2]=V
 
-            // HSV 최소값, 최대값 구하기
-            double minVal, maxVal;
-            OpenCvSharp.Point minLoc, maxLoc;
-            Cv2.MinMaxLoc(hsvImage, out minVal, out maxVal, out minLoc, out maxLoc);
+            // 채널별로 MinMaxLoc 적용
+            double minH, maxH, minS, maxS, minV, maxV;
+            Cv2.MinMaxLoc(hsvChannels[0], out minH, out maxH); // H
+            Cv2.MinMaxLoc(hsvChannels[1], out minS, out maxS); // S
+            Cv2.MinMaxLoc(hsvChannels[2], out minV, out maxV); // V
 
-            // HSV 이미지에서 최소, 최대값을 추출 (Y, X 순서로 인덱싱)
-            Vec3b minHSV = hsvImage.At<Vec3b>(minLoc.Y, minLoc.X); // 최소값 위치에서 HSV 값 가져오기
-            Vec3b maxHSV = hsvImage.At<Vec3b>(maxLoc.Y, maxLoc.X); // 최대값 위치에서 HSV 값 가져오기
+            // HSV의 min, max 값을 Vec3b 형태로 변환
+            Vec3b minHSV = new Vec3b((byte)minH, (byte)minS, (byte)minV);
+            Vec3b maxHSV = new Vec3b((byte)maxH, (byte)maxS, (byte)maxV);
 
             // H, S, V 값 출력
             Console.WriteLine($"Min HSV Value: H = {minHSV.Item0}, S = {minHSV.Item1}, V = {minHSV.Item2}");
             Console.WriteLine($"Max HSV Value: H = {maxHSV.Item0}, S = {maxHSV.Item1}, V = {maxHSV.Item2}");
+
+
+
+
+
+            var propertiesForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propertiesForm != null)
+            {
+                propertiesForm.PickColorWindow(minHSV, maxHSV); // <-- 전달 메서드 만들어줘야 함
+            }
+
+
         }
+
+        //        colorBinaryInspProp.ColorRangeChanged += (s, e) =>
+        //        {
+        //            // 알고리즘에 HSV 값 반영
+        //            var algo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+
+        //            if (algo != null)
+        //            {
+        //             algo.HSVThreshold = new HSVThreshold
+        //                {
+        //                    lower = new Scalar(e.LowerHue, e.LowerSaturation, e.LowerValue),
+        //                     upper = new Scalar(e.UpperHue, e.UpperSaturation, e.UpperValue),
+        //                    invert = e.Invert
+        //                 };
+
+        //    // 이미지 설정
+        //    algo.SetImage(Global.Inst.InspStage.GetMat());
+
+        //        // 검사 실행
+        //        algo.DoInspect();
+
+        //        // 결과 표시
+        //        Global.Inst.InspStage.PreView.SetImage(algo.GetOutput());
+        //    }
+        //};
 
 
 
@@ -829,6 +869,7 @@ namespace JidamVision.Core
         {
             Dispose(true);
         }
+
 
         #endregion //Disposable
     }

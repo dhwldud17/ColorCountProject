@@ -15,6 +15,7 @@ using JidamVision.Algorithm;
 using JidamVision.Teach;
 using static JidamVision.Property.ColorBinaryInspProp;
 using OpenCvSharp;
+using Window = OpenCvSharp.Window;
 
 
 namespace JidamVision
@@ -42,6 +43,10 @@ namespace JidamVision
     public partial class PropertiesForm : DockContent
     {
         Dictionary<string, TabPage> _allTabs = new Dictionary<string, TabPage>();
+
+
+
+        private System.Windows.Forms.Panel panelProperty;
 
         public PropertiesForm()
         {
@@ -92,7 +97,7 @@ namespace JidamVision
             switch (inspPropType)
             {
                 case InspectType.InspBinary:
-                   // Console.WriteLine("InspBinary UserControl 생성 시도"); // 디버깅용 출력
+                    // Console.WriteLine("InspBinary UserControl 생성 시도"); // 디버깅용 출력
                     BinaryInspProp blobProp = new BinaryInspProp();
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
                     blobProp.PropertyChanged += PropertyChanged;
@@ -100,16 +105,17 @@ namespace JidamVision
                     _inspProp = blobProp;
                     break;
                 case InspectType.InspColorBinary:
-                   // Console.WriteLine("InspColorBinary UserControl 생성 시도"); // 디버깅용 출력
-                    ColorBinaryInspProp colorBlobProp = new ColorBinaryInspProp();
-                    if (colorBlobProp == null)
+                    // Console.WriteLine("InspColorBinary UserControl 생성 시도"); // 디버깅용 출력
+                    ColorBinaryInspProp colorBinaryInspProp = new ColorBinaryInspProp();
+                    if (colorBinaryInspProp == null)
                     {
                         Console.WriteLine("colorBlobProp이 null입니다.");
                         return null; // 생성 실패 시 종료
                     }
-                    colorBlobProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
-                    colorBlobProp.PropertyChanged += PropertyChanged;
-                    _inspProp = colorBlobProp;
+                    colorBinaryInspProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
+                    colorBinaryInspProp.PropertyChanged += PropertyChanged;
+                    colorBinaryInspProp.TeachingColorClicked += colorBinaryInspProp_TeachingColorClicked;
+                    _inspProp = colorBinaryInspProp;
                     break;
                 case InspectType.InspMatch:
                     MatchInspProp matchProp = new MatchInspProp();
@@ -122,24 +128,17 @@ namespace JidamVision
             }
             return _inspProp;
         }
-        
-        public void ShowProperty(InspWindow window)
-        {
-            foreach (InspAlgorithm algo in window.AlgorithmList)
-            {
-                Console.WriteLine($"AlgorithmList 포함된 타입: {algo.InspectType}");
-                LoadOptionControl(algo.InspectType);
-            }
 
-            tabPropControl.SelectedIndex = 0;
-        }
+
+
+
 
         public void ResetProperty()
         {
             tabPropControl.TabPages.Clear();
         }
 
-     
+
 
 
         public void UpdateProperty(InspWindow window)
@@ -183,6 +182,26 @@ namespace JidamVision
 
 
 
+        public void PickColorWindow(Vec3b minHSV, Vec3b maxHSV)
+        {
+            foreach (TabPage tabPage in tabPropControl.TabPages)
+            {
+                if (tabPage.Controls.Count > 0)
+                {
+                    UserControl uc = tabPage.Controls[0] as UserControl;
+
+
+                    if (uc is ColorBinaryInspProp colorbinaryProp)
+                    {
+
+                        colorbinaryProp.SetHSV(minHSV, maxHSV);
+
+                        break;
+                    }
+                }
+            }
+        }
+
 
         //#BINARY FILTER#16 이진화 속성 변경시 발생하는 이벤트 수정
         private void ColorRangeSlider_RangeChanged(object sender, ColorRangeChangedEventArgs e)
@@ -225,8 +244,69 @@ namespace JidamVision
             Global.Inst.InspStage.RedrawMainView();
         }
 
-        
+        // 컬러 이진화 학습 버튼 클릭 시 카메라폼에 픽컬러 모드 설정
+
+
+        private void colorBinaryInspProp_TeachingColorClicked(object sender, EventArgs e)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SetPickColorMode();
+            }
+        }
+
+
+
+
+        public void ShowProperty(InspWindow inspWindow)
+        {
+            foreach (InspAlgorithm algo in inspWindow.AlgorithmList)
+            {
+                Console.WriteLine($"AlgorithmList 포함된 타입: {algo.InspectType}");
+                LoadOptionControl(algo.InspectType);
+            }
+
+            tabPropControl.SelectedIndex = 0;
+
+            //var colorProp = new ColorBinaryInspProp();
+            //colorProp.SetAlgorithm((ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary));
+
+            //// HSV 변경 시 필터 적용
+            //colorProp.ColorRangeChanged += (s, e) =>
+            //{
+            //    var algo = (ColorBlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+            //    if (algo != null)
+            //    {
+            //        algo.HSVThreshold = new HSVThreshold
+            //        {
+            //            lower = new Scalar(e.LowerHue, e.LowerSaturation, e.LowerValue),
+            //            upper = new Scalar(e.UpperHue, e.UpperSaturation, e.UpperValue),
+            //            invert = e.Invert
+            //        };
+
+            //        Mat srcImage = Global.Inst.InspStage.GetMat();
+            //        algo.SetImage(srcImage); // 반드시 ColorBlobAlgorithm에 이 메서드 정의되어 있어야 함
+            //        algo.DoInspect();
+
+            //        Global.Inst.InspStage.PreView.SetImage(algo.GetOutput());
+            //    }
+            //};
+
+
+            //// 1. 탭 페이지 하나 가져오기 (혹은 새로 만들기)
+            //if (tabPropControl.TabPages.Count == 0)
+            //    tabPropControl.TabPages.Add("Color Binary");
+
+            //// 2. 첫 번째 탭에 컨트롤 넣기
+            //var tabPage = tabPropControl.TabPages[2];
+            //// ✅ 누락된 부분: UI에 표시!
+            //tabPage.Controls.Clear();
+            //tabPage.Controls.Add(colorProp);
+        }
 
 
     }
+
+
 }
