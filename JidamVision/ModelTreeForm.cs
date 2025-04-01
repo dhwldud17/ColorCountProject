@@ -228,15 +228,20 @@ namespace JidamVision
             MessageBox.Show("ROI가 초기화되었습니다!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        // #CountWire# [1] 전선 카운트 버튼 클릭 시 동작
         private void BtnCountWires_Click(object sender, EventArgs e)
         {
+            // #CountWire# [2] 전선 개수 계산 함수 호출
             int count = CountWiresInBaseROI();
+
+            // #CountWire# [3] 계산된 전선 개수 라벨에 표시
             lblWireCount.Text = $"전선 개수: {count}";
         }
 
+        // #CountWire# [4] 실제 전선 개수 세는 로직
         private int CountWiresInBaseROI()
         {
-            // 카메라에서 현재 이미지 가져오기
+            // #CountWire# [5] 카메라에서 현재 이미지 가져오기
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm == null)
             {
@@ -251,7 +256,7 @@ namespace JidamVision
                 return 0;
             }
 
-            // Base ROI 가져오기
+            // #CountWire# [6] Base ROI 정보 가져오기
             Model model = Global.Inst.InspStage.CurModel;
             InspWindow baseROI = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
             if (baseROI == null)
@@ -260,6 +265,7 @@ namespace JidamVision
                 return 0;
             }
 
+            // #CountWire# [7] ROI 범위가 이미지 내부에 있는지 확인
             Rect imageRect = new Rect(0, 0, image.Width, image.Height);
             Rect roiRect = new Rect(baseROI.WindowArea.X, baseROI.WindowArea.Y, baseROI.WindowArea.Width, baseROI.WindowArea.Height);
             Rect validROI = roiRect & imageRect;
@@ -269,39 +275,42 @@ namespace JidamVision
                 return 0;
             }
 
-            // 잘라낸 ROI 이미지
+            // #CountWire# [8] ROI 영역 자르기
             Mat roiImage = new Mat(image, validROI);
 
-            // 흑백 변환 및 이진화
+            // #CountWire# [9] 흑백 이미지로 변환
             Mat gray = new Mat();
             Cv2.CvtColor(roiImage, gray, ColorConversionCodes.BGR2GRAY);
 
+            // #CountWire# [10] 이진화 (Thresholding)
             Mat binary = new Mat();
             Cv2.Threshold(gray, binary, 60, 255, ThresholdTypes.Binary);
 
-            // 전선 사이 분리 보장 (Morphology)
+            // #CountWire# [11] 노이즈 제거를 위한 Morphology 연산 적용, //전선 사이 분리 보장 (Morphology)
             Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
             Cv2.MorphologyEx(binary, binary, MorphTypes.Open, kernel);
 
+            // #CountWire# [12] 이진화 결과를 PictureBox에 출력
             Bitmap bitmap = BitmapConverter.ToBitmap(binary);
             pictureBoxBinary.Image = bitmap;
 
             //Cv2.ImShow("binary", binary); Cv2.WaitKey();
 
-            // Blob 분석
+            // #CountWire# [13] 외곽선 검출 (윤곽선 기반 Blob 분석)
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchy;
             Cv2.FindContours(binary, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
+            // #CountWire# [14] 일정 면적 이상인 윤곽선만 카운트하여 전선 개수 계산
             int count = 0;
             foreach (var contour in contours)
             {
                 double area = Cv2.ContourArea(contour);
-                if (area >= 30) // 너무 작은 노이즈 제외
+                if (area >= 30) // 너무 작은 노이즈 제거 필터링
                     count++;
             }
             
-            return count;
+            return count; // 최종 전선 개수 반환
 
         }
 
@@ -347,20 +356,21 @@ namespace JidamVision
             //MessageBox.Show("선택된 UID: " + selectedUID);
         }
 
+        // #CountWire# [15] ROI가 새로 추가될 때 자동 처리되는 이벤트 핸들러
         private void CameraForm_RoiAdded(object sender, InspWindow e)
         {
             if (!this.IsHandleCreated) return;
 
             this.Invoke(new Action(() =>
             {
-                // ROI가 Base라면 전선 자동 카운트 + 이미지 표시
+                // #CountWire# [16] 만약 추가된 ROI가 Base라면 전선 자동 카운트 + 이미지 표시
                 if (e.InspWindowType == InspWindowType.Base)
                 {
                     int count = CountWiresInBaseROI();
                     lblWireCount.Text = $"전선 개수: {count}";
                 }
 
-                // TreeView에 ROI 추가
+                // #CountWire# [17] 트리뷰에 새 ROI 노드 추가
                 TreeNode rootNode = tvModelTree.Nodes[0]; // Root 노드
                 TreeNode node = new TreeNode(e.UID);      // UID를 노드 이름으로
                 rootNode.Nodes.Add(node);
