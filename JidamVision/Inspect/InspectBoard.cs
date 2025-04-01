@@ -25,7 +25,7 @@ namespace JidamVision.Inspect
             if (window.InspWindowType == Core.InspWindowType.Group)
             {
                 GroupWindow group = (GroupWindow)window;
-                if (!InspectWindowList(group.Members))
+               // if (!InspectWindowList(group.Members))
                     return false;
             }
             else
@@ -48,7 +48,7 @@ namespace JidamVision.Inspect
                     continue; // 다른 검사 유형은 건너뜀
                 if (!algo.DoInspect())
                     return false;
-
+                Console.WriteLine("한번실행");
                 string resultInfo = string.Join("\r\n", algo.ResultString);
 
                 InspResult inspResult = new InspResult
@@ -98,35 +98,31 @@ namespace JidamVision.Inspect
             //}
 
             //  Cable colorblob 검사->area조건 넘은게 9개면 통과?(기존 1개만 검사 → 전체 검사)
-            InspWindow cabelWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Cabel);
- 
-           
-            if (cabelWindow != null)
+            List<InspWindow> cableWindows = windowList.FindAll(w => w.InspWindowType == Core.InspWindowType.Cabel);
+
+
+            foreach (InspWindow cableWindow in cableWindows)
             {
-               ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cabelWindow.FindInspAlgorithm(InspectType.InspColorBinary);
-               
+                ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cableWindow.FindInspAlgorithm(InspectType.InspColorBinary);
                 if (colorblobAlgo != null && colorblobAlgo.IsUse)
                 {
-                    if (!InspectWindow(cabelWindow))
-                        return false;
+                    //if (!InspectWindow(cableWindow))
+                    //    return false;
 
-                    if (colorblobAlgo.IsInspected)
-                    {
-
-                        //컬러 이진화 후 추출된 영역 값
-                        double areaValue = colorblobAlgo.BinaryArea;
-                      
-                      
-                    }
+                   
+                        colorblobAlgo.DoInspect();
+                        Console.WriteLine($"[ColorBlob 검사] ROI ID: {cableWindow.UID}");
+                       
+                    
                 }
             }
-         
+            
 
-            Console.WriteLine("전체 검사 OK");
+        Console.WriteLine("전체 검사 OK");
             return true;
 
 
 
         }
-    }
+}
 }

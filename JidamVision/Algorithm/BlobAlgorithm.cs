@@ -1,4 +1,5 @@
 ﻿using JidamVision.Core;
+using JidamVision.Property;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -21,7 +22,7 @@ namespace JidamVision.Algorithm
     {
         //이진화 필터로 찾은 영역
         private List<Rect> _findArea;
-       
+
         public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
 
         //픽셀 영역으로 이진화 필터
@@ -33,7 +34,7 @@ namespace JidamVision.Algorithm
 
         public int HeightMin { get; set; } = 0;
         public int HeightMax { get; set; } = 500;
-        public int BlobCount { get; set; } = 9;
+        public int BlobCount { get; set; } = 0;
         public int OutBlobCount { get; set; } = 0;
 
         public BlobAlgorithm()
@@ -63,7 +64,7 @@ namespace JidamVision.Algorithm
             else
                 grayImage = targetImage;
 
-            Mat binaryImage = new Mat();
+            Mat binaryImage = new Mat(); //ROI영역으로 잘리고 이진화 된 이미지.
             //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
             Cv2.InRange(grayImage, BinThreshold.lower, BinThreshold.upper, binaryImage);
 
@@ -87,6 +88,7 @@ namespace JidamVision.Algorithm
             // 컨투어 찾기
             Point[][] contours;
             HierarchyIndex[] hierarchy;
+            Cv2.ImShow("binImage", binImage);
             Cv2.FindContours(binImage, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             // 필터링된 객체를 담을 리스트
@@ -128,7 +130,7 @@ namespace JidamVision.Algorithm
                     continue;
 
                 // 필터링된 객체를 이미지에 그림
-                //Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
+    //            Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
 
                 findBlobCount++;
                 Rect blobRect = boundingRect + InspRect.TopLeft;
@@ -143,16 +145,21 @@ namespace JidamVision.Algorithm
 
             OutBlobCount = findBlobCount;
 
-            if (BlobCount > 0)
+            if (findBlobCount > 0)
             {
-                string result = "NG";
+                string result;
+
                 if (findBlobCount == BlobCount)
                 {
                     result = "OK";
                 }
+                else
+                {
+                    result = "NG";
+                }
                 string resultInfo = "";
                 resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
-                Console.Write(resultInfo); 
+                Console.Write(resultInfo);
                 ResultString.Add(resultInfo);
             }
 
