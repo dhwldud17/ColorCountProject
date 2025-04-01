@@ -28,6 +28,11 @@ namespace JidamVision
         eImageChannel _currentImageChannel = eImageChannel.Color;
         private ColorBlobAlgorithm colorBlobAlgorithm;
         private InspWindow _inspWindow;
+        private bool _isPickColorMode = false;
+        private MouseEventHandler OnImageClicked_PickColor;
+
+        public MouseEventHandler TeachingColorClicked { get; private set; }
+
         public CameraForm()
         {
             InitializeComponent();
@@ -85,11 +90,44 @@ namespace JidamVision
             }
         }
 
-        public void SetPickColorMode()
+        public void TogglePickColorMode()
         {
-            imageViewer.SetPickColorMode();
+            if (_isPickColorMode)
+                ClearColorMode();
+            else
+                SetPickColorMode();
+
         }
 
+        public void SetPickColorMode()
+        {
+            if (!_isPickColorMode)
+            {
+                _isPickColorMode = true;
+                this.Cursor = Cursors.Cross;
+
+                if (imageViewer != null)
+                {
+                    imageViewer.SetPickColorMode();
+                }
+            }
+
+
+        }
+
+        public void ClearColorMode()
+        {
+            if (_isPickColorMode)
+            {
+                _isPickColorMode = false;
+                this.Cursor = Cursors.Default;
+
+                if (imageViewer != null)
+                {
+                    imageViewer.ClearPickColorMode();
+                }
+            }
+        }
 
         //# SAVE ROI#2 GUI상에서 선택된 채널 라디오 버튼에 따른 채널 정보를 반환
         private eImageChannel GetCurrentChannel()
