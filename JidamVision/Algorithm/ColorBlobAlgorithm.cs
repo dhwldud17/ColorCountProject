@@ -25,7 +25,20 @@ namespace JidamVision.Algorithm
         private List<Rect> _findArea; // 검사 이미지에서 추출된 영역
 
      public double BinaryArea { get;  set; } // 검출된 영역의 총 면적
-  
+        public BinaryThreshold BinThreshold { get; set; } = new BinaryThreshold();
+
+        //픽셀 영역으로 이진화 필터
+        public int AreaMin { get; set; } = 50;
+        public int AreaMax { get; set; } = 500;
+
+        public int WidthMin { get; set; } = 0;
+        public int WidthMax { get; set; } = 0;
+
+        public int HeightMin { get; set; } = 0;
+        public int HeightMax { get; set; } = 0;
+        public int ColorBlobCount { get; set; } = 0;
+        public int OutColorBlobCount { get; set; } = 0;
+
         public ColorBlobAlgorithm()
         {
             InspectType = InspectType.InspColorBinary; // 새로운 타입 추가
@@ -36,37 +49,7 @@ namespace JidamVision.Algorithm
         // HSV 값을 바탕으로 색상 범위를 설정
         // 컬러 이진화 필터 함수
 
-        // 색상 비교 함수 (색상 매칭)
-        private bool CompareColorMatch(Mat referenceImage, Mat testImage, Rect referenceRect, Rect testRect)
-        {
-            // 두 이미지의 해당 영역을 추출
-            Mat referenceRegion = new Mat(referenceImage, referenceRect);
-            Mat testRegion = new Mat(testImage, testRect);
-
-            // 두 이미지의 평균 색상 계산 (HSV로 변환 후 평균 색상 계산)
-            Mat referenceHSV = new Mat();
-            Mat testHSV = new Mat();
-
-            Cv2.CvtColor(referenceRegion, referenceHSV, ColorConversionCodes.BGR2HSV);
-            Cv2.CvtColor(testRegion, testHSV, ColorConversionCodes.BGR2HSV);
-
-            // 평균 색상 계산
-            Scalar referenceMean = Cv2.Mean(referenceHSV);
-            Scalar testMean = Cv2.Mean(testHSV);
-
-            // 색상 차이 계산 (HSV의 H, S, V 값 차이)
-            double hDiff = Math.Abs(referenceMean.Val0 - testMean.Val0);
-            double sDiff = Math.Abs(referenceMean.Val1 - testMean.Val1);
-            double vDiff = Math.Abs(referenceMean.Val2 - testMean.Val2);
-
-            // 색상 차이가 일정 범위 이내이면 매칭 성공
-            double maxH = 10; // 허용하는 색상 차이 범위 (Hue)
-            double maxS = 50; // 허용하는 채도 차이 범위 (Saturation)
-            double maxV = 50; // 허용하는 명도 차이 범위 (Value)
-
-            return hDiff <= maxH && sDiff <= maxS && vDiff <= maxV;
-        }
-
+     
 
         private Mat ColorBlobFilter(Mat hsvImage)
         {
@@ -144,20 +127,63 @@ namespace JidamVision.Algorithm
         public override bool DoInspect()
         {
             IsInspected = false;
+            OutColorBlobCount = 0;
 
-            if (_srcImage == null) //검사이미지 없으면 false반환
+            if (_srcImage == null)
                 return false;
-            
-            // 검사 이미지에서 영역 추출
-            _findArea = ProcessImage(_srcImage);
 
-            
+            // HSV 변환
+            Mat hsvImage = new Mat();
+            Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV);
 
-          
+            // HSV 범위 필터링 → 이진 마스크
+            Mat mask = ColorBlobFilter(hsvImage);
+
+            // 이진 마스크를 이용해 Blob 개수 세기
+            // → 이 조건들은 사용자 설정값 (areaMin 등)으로 조정 가능
+            int areaMin = 50;
+            int areaMax = 0;  // 0이면 무제한
+            int widthMin = 0, widthMax = 0, heightMin = 0, heightMax = 0;
+
+            bool blobOk = ColorBlobFilter(mask, areaMin, areaMax, widthMin, widthMax, heightMin, heightMax);
+
+            // BlobFilter 안에서 OutColorBlobCount가 설정됨
+            OutColorBlobCount = OutColorBlobCount;
+
+            // 검사 결과 판정
+            if (ColorBlobCount > 0)
+            {
+                IsDefect = (OutColorBlobCount != ColorBlobCount);  // 개수 다르면 NG
+            }
+            else
+            {
+                IsDefect = !blobOk; // BlobFilter 실패 시 NG
+            }
+
+            // 디버깅용 결과 로그
+            ResultString.Add($"[ColorBlob] Detected: {OutColorBlobCount}, Expected: {ColorBlobCount}");
+            ResultString.Add(IsDefect ? "[Result] NG" : "[Result] OK");
+
             IsInspected = true;
             return true;
-
         }
+        //public override bool DoInspect()
+        //{
+        //    IsInspected = false;
+
+        //    if (_srcImage == null) //검사이미지 없으면 false반환
+        //        return false;
+
+        //    // 검사 이미지에서 영역 추출
+        //    _findArea = ProcessImage(_srcImage);
+
+
+
+
+        //    IsInspected = true;
+        //    return true;
+
+        //}
 
         public Mat GetOutput()
         {
