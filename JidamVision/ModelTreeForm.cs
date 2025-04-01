@@ -124,7 +124,7 @@ namespace JidamVision
                     }
                     else
                     {
-                        _contextMenu.Show(tvModelTree, e.Location);
+                        _contextMenuRoi?.Show(tvModelTree, e.Location);
                     }
                 }
             }
