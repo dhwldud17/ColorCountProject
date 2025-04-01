@@ -65,7 +65,7 @@ namespace JidamVision.Algorithm
             Mat result = new Mat();
 
             // 템플릿 매칭 수행
-            Cv2.MatchTemplate(image, _templateImage, result, TemplateMatchModes.CCoeffNormed);
+   //         Cv2.MatchTemplate(image, _templateImage, result, TemplateMatchModes.CCoeffNormed);
 
             // 가장 높은 점수 위치 찾기
             Cv2.MinMaxLoc(result, out _, out double maxVal, out _, out Point maxLoc);

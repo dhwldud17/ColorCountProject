@@ -193,14 +193,14 @@ namespace JidamVision.Inspect
                             break;
                         }
 
-                    //case InspectType.InspMatch:
-                    //    {
-                    //        MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
+                    case InspectType.InspMatch: //주석풀었더니 오류해결
+                        {
+                            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspAlgo;
 
-                    //        Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
-                    //        matchAlgo.SetInspData(srcImage);
-                    //        break;
-                    //     }
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0, matchAlgo.ImageChannel);
+                            matchAlgo.SetInspData(srcImage);
+                            break;
+                        }
                     case InspectType.InspColorBinary:
                         {
                            ColorBlobAlgorithm ColorAlgo = (ColorBlobAlgorithm)inspAlgo;

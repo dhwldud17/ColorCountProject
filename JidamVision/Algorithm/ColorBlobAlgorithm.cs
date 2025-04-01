@@ -17,13 +17,15 @@ namespace JidamVision.Algorithm
     {
         internal static readonly object Instance;
         internal static readonly object SetColor;
-
+        
         public HSVThreshold HSVThreshold { get; set; } = new HSVThreshold();
         // 픽셀 영역 필터링 (기본값 100)
 
         private List<Rect> _referenceAreas; // 레퍼런스 이미지에서 추출된 영역
         private List<Rect> _findArea; // 검사 이미지에서 추출된 영역
 
+     public double BinaryArea { get;  set; } // 검출된 영역의 총 면적
+  
         public ColorBlobAlgorithm()
         {
             InspectType = InspectType.InspColorBinary; // 새로운 타입 추가
@@ -98,12 +100,16 @@ namespace JidamVision.Algorithm
             Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             List<Rect> foundAreas = new List<Rect>();
+            double totalArea = 0;
+
             foreach (var contour in contours)
             {
                 Rect rect = Cv2.BoundingRect(contour);
                 foundAreas.Add(rect);
+                //**
+                totalArea += rect.Width * rect.Height;
             }
-
+            BinaryArea = totalArea;  // 이진화 영역의 총 면적 저장
             return foundAreas;
         }
 
@@ -139,25 +145,14 @@ namespace JidamVision.Algorithm
         {
             IsInspected = false;
 
-            if (_srcImage == null || _referenceAreas == null || _referenceAreas.Count == 0)
+            if (_srcImage == null) //검사이미지 없으면 false반환
                 return false;
             
             // 검사 이미지에서 영역 추출
             _findArea = ProcessImage(_srcImage);
 
-            // 기준 이미지와 검사 이미지 비교
-            bool isMatch = true;
+            
 
-            for (int i = 0; i < _referenceAreas.Count; i++)
-            {
-                if (i >= _findArea.Count || !CompareColorMatch(_srcImage, _srcImage, _referenceAreas[i], _findArea[i]))
-                {
-                    isMatch = false;
-                    break;
-                }
-            }
-          
-            IsDefect = !isMatch;
           
             IsInspected = true;
             return true;
