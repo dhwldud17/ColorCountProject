@@ -92,28 +92,42 @@ namespace JidamVision
 
         public void TogglePickColorMode()
         {
-            _isPickColorMode = !_isPickColorMode; //on/off
             if (_isPickColorMode)
+                ClearColorMode();
+            else
+                SetPickColorMode();
+
+        }
+
+        public void SetPickColorMode()
+        {
+            if (!_isPickColorMode)
             {
+                _isPickColorMode = true;
+                this.Cursor = Cursors.Cross;
+
                 if (imageViewer != null)
                 {
-                    //ON
-                    this.Cursor = Cursors.Cross;
-                    //imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
                     imageViewer.SetPickColorMode();
                 }
             }
-            else
-            {
-                //OFF
-                this.Cursor = Cursors.Default;
-                //imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
-                imageViewer.ClearPickColorMode();
 
-            }
-            
+
         }
 
+        public void ClearColorMode()
+        {
+            if (_isPickColorMode)
+            {
+                _isPickColorMode = false;
+                this.Cursor = Cursors.Default;
+
+                if (imageViewer != null)
+                {
+                    imageViewer.ClearPickColorMode();
+                }
+            }
+        }
 
         //# SAVE ROI#2 GUI상에서 선택된 채널 라디오 버튼에 따른 채널 정보를 반환
         private eImageChannel GetCurrentChannel()

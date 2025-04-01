@@ -115,6 +115,7 @@ namespace JidamVision
                     colorBinaryInspProp.ColorRangeChanged += ColorRangeSlider_RangeChanged;
                     colorBinaryInspProp.PropertyChanged += PropertyChanged;
                     colorBinaryInspProp.TeachingColorClicked += colorBinaryInspProp_TeachingColorClicked;
+                    colorBinaryInspProp.ColorPickCanceled += colorBinaryInspProp_ColorPickCanceled;
                     _inspProp = colorBinaryInspProp;
                     break;
                 case InspectType.InspMatch:
@@ -253,6 +254,15 @@ namespace JidamVision
             if (cameraForm != null)
             {
                 cameraForm.TogglePickColorMode();
+            }
+        }
+
+        private void colorBinaryInspProp_ColorPickCanceled(object sender, EventArgs e)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.ClearColorMode();
             }
         }
 
