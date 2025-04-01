@@ -362,8 +362,6 @@ namespace JidamVision.Property
    
 
 
-        //필터 선택시, 적용할 필터 효과를 선택하고, 필터 옵션을 선택할 수 있도록 개선
-
 
 
 

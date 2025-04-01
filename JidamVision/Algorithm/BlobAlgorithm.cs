@@ -29,11 +29,11 @@ namespace JidamVision.Algorithm
         public int AreaMax { get; set; } = 500;
 
         public int WidthMin { get; set; } = 0;
-        public int WidthMax { get; set; } = 0;
+        public int WidthMax { get; set; } = 500;
 
         public int HeightMin { get; set; } = 0;
-        public int HeightMax { get; set; } = 0;
-        public int BlobCount { get; set; } = 0;
+        public int HeightMax { get; set; } = 500;
+        public int BlobCount { get; set; } = 9;
         public int OutBlobCount { get; set; } = 0;
 
         public BlobAlgorithm()
@@ -135,6 +135,7 @@ namespace JidamVision.Algorithm
 
                 string blobInfo;
                 blobInfo = $"Blob X:{blobRect.X}, Y:{blobRect.Y}, Size({blobRect.Width},{blobRect.Height})";
+                Console.Write(blobInfo);
                 ResultString.Add(blobInfo);
 
                 _findArea.Add(blobRect);
@@ -151,6 +152,7 @@ namespace JidamVision.Algorithm
                 }
                 string resultInfo = "";
                 resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
+                Console.Write(resultInfo); 
                 ResultString.Add(resultInfo);
             }
 

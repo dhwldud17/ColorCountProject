@@ -61,11 +61,11 @@ namespace JidamVision.Teach
             switch (inspWindow.InspWindowType)
             {
                 case InspWindowType.Base:
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    
                     inspWindow.AddInspAlgorithm(InspectType.InspColorBinary);
                     break;
                 case InspWindowType.Cabel:
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                   
                     inspWindow.AddInspAlgorithm(InspectType.InspColorBinary);
                     break;
             }

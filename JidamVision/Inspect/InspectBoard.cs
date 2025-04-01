@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace JidamVision.Inspect
 {
@@ -96,19 +97,17 @@ namespace JidamVision.Inspect
             //    Console.WriteLine("[Base ROI] OK");
             //}
 
-            //Cable colorblob 검사 -> area조건 넘은게 9개면 통과?(기존 1개만 검사 → 전체 검사)
-            List<InspWindow> cableWindows = windowList.FindAll(w => w.InspWindowType == Core.InspWindowType.Cabel);
-
-            bool allCablesOK = true;// 모든 Cable ROI가 OK인지 확인하는 변수
-                                    // 모든 Cable ROI를 순회하며 검사
-            for (int i = 0; i < cableWindows.Count; i++)
+            //  Cable colorblob 검사->area조건 넘은게 9개면 통과?(기존 1개만 검사 → 전체 검사)
+            InspWindow cabelWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Cabel);
+ 
+           
+            if (cabelWindow != null)
             {
-                InspWindow cableWindow = cableWindows[i];
-                // 해당 Cable ROI의 컬러 이진화 알고리즘 가져오기
-                ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cableWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+               ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cabelWindow.FindInspAlgorithm(InspectType.InspColorBinary);
+               
                 if (colorblobAlgo != null && colorblobAlgo.IsUse)
                 {
-                    if (!InspectWindow(cableWindow))
+                    if (!InspectWindow(cabelWindow))
                         return false;
 
                     if (colorblobAlgo.IsInspected)
@@ -116,23 +115,12 @@ namespace JidamVision.Inspect
 
                         //컬러 이진화 후 추출된 영역 값
                         double areaValue = colorblobAlgo.BinaryArea;
-                        double threshold = 50000;
-                        // 기준값과 비교하여 NG인지 판별 (Threshold 범위 ±10 초과 시 NG)
-                        if (Math.Abs(areaValue - threshold) > 10)
-                        {
-                            Console.WriteLine($"[Cable ROI {i + 1}] NG - Area: {areaValue}, Threshold: {threshold}");
-                            allCablesOK = false;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[Cable ROI {i + 1}] OK - Area: {areaValue}");
-                        }
+                      
+                      
                     }
                 }
             }
-            // 하나라도 NG이면 전체 검사 실패
-            if (!allCablesOK)
-                return false; // 하나라도 NG면 실패
+         
 
             Console.WriteLine("전체 검사 OK");
             return true;

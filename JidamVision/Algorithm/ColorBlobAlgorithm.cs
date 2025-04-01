@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JidamVision.Property;
+using JidamVision.Teach;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace JidamVision.Algorithm
 {
@@ -87,7 +89,8 @@ namespace JidamVision.Algorithm
 
             return mask;
         }
-
+        // 클래스 내부에서 이미지 인덱스 관리 (전역 변수 선언)
+        int imageIndex = 0;
         // 컬러 이진화 후 원하는 영역을 얻음 
         private List<Rect> ProcessImage(Mat image)
         {
@@ -103,17 +106,55 @@ namespace JidamVision.Algorithm
             Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             List<Rect> foundAreas = new List<Rect>();
-            double totalArea = 0;
-
+            _findArea.Clear();
+            int findBlobCount = 0;
+            //// 각 영역에 부여할 ID 값
+             int rectId = 1;
+            Console.WriteLine($"=== [이미지 번호: {imageIndex}] ===");
+            imageIndex++;
             foreach (var contour in contours)
-            {
+            {   
                 Rect rect = Cv2.BoundingRect(contour);
+                double area = Cv2.ContourArea(contour);
+             Console.WriteLine($"[이미지 {imageIndex}, CABEL 번호: {InspWindow.window}] Area: {area}, Rect: {rect.X}, {rect.Y}, {rect.Width}, {rect.Height}");
+                
+                 rectId++;  // 다음 객체를 위해 ID 증가
+                if (area <= 5)
+                { //area가 5이하인 경우 같은 색깔 아니라고 판단.
+                  
+                    continue;
+                }
+
+
+
+
+                    findBlobCount++; //색깔이 같은 것으로 판단
+
+                //어떤 번호가 같은지 나오도록.
+
+                string blobRecInfo = $"[이미지 {imageIndex}, CABEL 번호: {rectId}] 통과한 rec: X:{rect.X}, Y:{rect.Y}, Size({rect.Width},{rect.Height})";
+                Console.WriteLine(blobRecInfo);
+                ResultString.Add(blobRecInfo);
                 foundAreas.Add(rect);
-                //**
-                totalArea += rect.Width * rect.Height;
+               
             }
-            BinaryArea = totalArea;  // 이진화 영역의 총 면적 저장
-            return foundAreas;
+            OutBlobCount = findBlobCount;
+
+            if (findBlobCount > 0)
+            {
+                string result = "NG";
+                if (findBlobCount == 9)
+                {
+                    result = "OK";
+                }
+                string resultInfo = "";
+                resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
+                Console.Write(resultInfo);
+                ResultString.Add(resultInfo);
+            }
+
+            
+            return _findArea;
         }
 
         // 검사 이미지 설정
@@ -121,64 +162,31 @@ namespace JidamVision.Algorithm
         {
             _srcImage = srcImage;
         }
-        // 기준 이미지 설정 (티칭)
-        public void SetReferenceImage(Mat refImage)
-        {
-            // 기준 이미지에서 검사 영역 추출
-            _referenceAreas = ProcessImage(refImage);
-        }
-        // 기준 이미지와 검사 이미지 비교
-        private bool CompareAreas(List<Rect> referenceAreas, List<Rect> detectedAreas)
-        {
-            if (referenceAreas.Count != detectedAreas.Count)
-                return false;
-
-            for (int i = 0; i < referenceAreas.Count; i++)
-            {
-                if (!referenceAreas[i].Equals(detectedAreas[i]))
-                    return false;
-            }
-
-            return true;
-        }
+     
+       
+        
         // 컬러 이진화 후 원하는 영역을 얻음 
 
         //해당 부분이진화한게 area값 해당 기준에 맞는지?
 
-        private bool CustomBlobFilter(Mat binImage)
-        {
-            return base.BlobFilter(binImage, CustomAreaMin, CustomAreaMax, WidthMin, WidthMax, HeightMin, HeightMax);
-        }
+        
 
         public override bool DoInspect()
         {
+            ResetResult();
+            OutBlobCount = 0;
             IsInspected = false;
 
             if (_srcImage == null) //검사이미지 없으면 false반환
                 return false;
-            
+
             // 검사 이미지에서 영역 추출
-            _findArea = ProcessImage(_srcImage);
-            Mat targetImage = _srcImage[InspRect];
+            List<Rect> detectedAreas = ProcessImage(_srcImage);
+            _findArea = detectedAreas;  // 명확하게 업데이트
 
-            Mat grayImage = new Mat();
-            if (targetImage.Type() == MatType.CV_8UC3)
-                Cv2.CvtColor(targetImage, grayImage, ColorConversionCodes.BGR2GRAY);
-            else
-                grayImage = targetImage;
 
-            Mat binaryImage = new Mat();
-            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
-            Cv2.InRange(grayImage, BinThreshold.lower, BinThreshold.upper, binaryImage);
 
-            if (BinThreshold.invert)
-                binaryImage = ~binaryImage;
 
-            if (AreaMin > 0 || AreaMax > 0 || WidthMin > 0 || WidthMax > 0 || HeightMin > 0 || HeightMax > 0)
-            {
-                if (!BlobFilter(binaryImage, AreaMin, AreaMax, WidthMin, WidthMax, HeightMin, HeightMax))
-                    return false;
-            }
 
             IsInspected = true;
 
