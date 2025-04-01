@@ -82,7 +82,7 @@ namespace JidamVision.Algorithm
         }
 
         //#BINARY FILTER#3 이진화 필터처리 함수
-        private bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
+        public bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
         {
             // 컨투어 찾기
             Point[][] contours;

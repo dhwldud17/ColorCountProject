@@ -148,6 +148,8 @@ namespace JidamVision.Property
             threshold.lower.Val2 = vLower;
             threshold.upper.Val2 = vUpper;
             _colorblobAlgo.HSVThreshold = threshold;
+
+
             // 필터 적용 버튼 클릭 이벤트
             //   btnApply.Click += btnApply_Click;
             //  btnApplyHSV.Click += btnApplyHSV_Click;

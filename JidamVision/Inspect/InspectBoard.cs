@@ -114,9 +114,9 @@ namespace JidamVision.Inspect
                     if (colorblobAlgo.IsInspected)
                     {
 
-                        // 컬러 이진화 후 추출된 영역 값
+                        //컬러 이진화 후 추출된 영역 값
                         double areaValue = colorblobAlgo.BinaryArea;
-                        double threshold = 100.0;
+                        double threshold = 50000;
                         // 기준값과 비교하여 NG인지 판별 (Threshold 범위 ±10 초과 시 NG)
                         if (Math.Abs(areaValue - threshold) > 10)
                         {
