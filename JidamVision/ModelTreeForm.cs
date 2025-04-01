@@ -231,11 +231,19 @@ namespace JidamVision
         // #CountWire# [1] 전선 카운트 버튼 클릭 시 동작
         private void BtnCountWires_Click(object sender, EventArgs e)
         {
-            // #CountWire# [2] 전선 개수 계산 함수 호출
-            int count = CountWiresInBaseROI();
+            //// #CountWire# [2] 전선 개수 계산 함수 호출
+            //int count = CountWiresInBaseROI();
 
-            // #CountWire# [3] 계산된 전선 개수 라벨에 표시
-            lblWireCount.Text = $"전선 개수: {count}";
+            //// #CountWire# [3] 계산된 전선 개수 라벨에 표시
+            //lblWireCount.Text = $"전선 개수: {count}";
+
+            var model = Global.Inst.InspStage.CurModel;
+            var baseRoi = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
+            if (baseRoi != null)
+            {
+                int count = GetBaseRoi(baseRoi); // 여기서 사용
+                lblWireCount.Text = $"전선 개수: {count}";
+            }
         }
 
         // #CountWire# [4] 실제 전선 개수 세는 로직
@@ -434,7 +442,21 @@ namespace JidamVision
 
             //MessageBox.Show($"ROI [{uid}] 삭제 완료!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-       
+
+        private int GetBaseRoi(InspWindow roi)
+        {
+            var img = MainForm.GetDockForm<CameraForm>()?.GetCurrentImage();
+            if (img == null || img.Empty() || roi == null) return 0;
+
+            var roiImg = new Mat(img, new Rect(roi.WindowArea.X, roi.WindowArea.Y, roi.WindowArea.Width, roi.WindowArea.Height));
+            Cv2.CvtColor(roiImg, roiImg, ColorConversionCodes.BGR2GRAY);
+            Cv2.Threshold(roiImg, roiImg, 60, 255, ThresholdTypes.Binary);
+            Cv2.MorphologyEx(roiImg, roiImg, MorphTypes.Open, Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3)));
+
+            Cv2.FindContours(roiImg, out var contours, out _, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+            return contours.Count(c => Cv2.ContourArea(c) >= 30);
+        }
+
 
 
     }
