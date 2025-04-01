@@ -13,7 +13,7 @@ namespace JidamVision.Algorithm
         public Scalar upper;
         public bool invert;
     }
-    public class ColorBlobAlgorithm : InspAlgorithm
+    public class ColorBlobAlgorithm : BlobAlgorithm
     {
         internal static readonly object Instance;
         internal static readonly object SetColor;
