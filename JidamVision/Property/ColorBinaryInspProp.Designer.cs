@@ -237,7 +237,7 @@
             this.btnApplyHSV.Name = "btnApplyHSV";
             this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
             this.btnApplyHSV.TabIndex = 27;
-            this.btnApplyHSV.Text = "HSV적용";
+            this.btnApplyHSV.Text = "HSV저장";
             this.btnApplyHSV.UseVisualStyleBackColor = true;
             this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
             // 

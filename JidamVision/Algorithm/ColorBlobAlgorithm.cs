@@ -133,6 +133,8 @@ namespace JidamVision.Algorithm
             return true;
         }
         // 컬러 이진화 후 원하는 영역을 얻음 
+
+        //해당 부분이진화한게 area값 해당 기준에 맞는지?
         public override bool DoInspect()
         {
             IsInspected = false;
@@ -154,32 +156,9 @@ namespace JidamVision.Algorithm
                     break;
                 }
             }
-            //Mat hsvImage = new Mat();
-            //Cv2.CvtColor(_srcImage, hsvImage, ColorConversionCodes.BGR2HSV); // 이미지 HSV로 변환
-
-            //// 필터 적용
-            //Mat mask = ColorBlobFilter(hsvImage);
-
-            //// 빨간색 마스크 생성하여 원본 이미지와 합성
-            //Mat redMask = new Mat(_srcImage.Size(), _srcImage.Type(), new Scalar(0, 0, 255));
-            //Mat result = new Mat();
-            //Cv2.BitwiseAnd(redMask, redMask, result, mask);
-            //Cv2.BitwiseOr(_srcImage, result, _srcImage); // 원본 이미지에 빨간색 영역 추가
-
-
-            //// 윤곽선 찾기
-            //Point[][] contours;
-            //HierarchyIndex[] hierarchy;
-            //Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
-            //// 검출된 영역 저장
-            //foreach (var contour in contours)
-            //{
-            //    Rect rect = Cv2.BoundingRect(contour);
-            //    _findArea.Add(rect);
-            //}
-            // OK / NG 판단
+          
             IsDefect = !isMatch;
-            ResultString = isMatch ? new List<string> { "OK" } : new List<string> { "NG" };
+          
             IsInspected = true;
             return true;
 

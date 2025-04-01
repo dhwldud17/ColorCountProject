@@ -206,35 +206,13 @@ namespace JidamVision.Property
             UpdateColorBinary();
         }
 
-        //필터 적용 버튼 클릭 시
+
+
+
+        //해당 버튼누르면 해당 roi에 현재 설정된 HSV값 저장되게.
         private void btnApplyHSV_Click(object sender, EventArgs e)
         {
 
-
-
-            //inspWindow에서 컬러이진화 알고리즘 찾는 코드 추가
-
-
-
-            //HsvRange threshold = new HsvRange();
-            //threshold.HueUpper = hTrackBarUpper;
-            //threshold.SaturationUpper = sTrackBarUpper;
-
-            //threshold.ValueUpper = ValValue;
-
-            //threshold.HueLower = HueValue;
-            //threshold.SaturationLower = SatValue;
-            //threshold.ValueLower = ValValue;
-
-
-            //threshold.Invert = chkInvert.Checked;
-
-            //ColorblobAlgo.ColorRange = threshold;
-
-
-
-            //이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
-            //   Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspColorBinary);
         }
 
         private void btnApply_Click(object sender, EventArgs e)
