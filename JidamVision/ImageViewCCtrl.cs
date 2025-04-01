@@ -169,9 +169,7 @@ namespace JidamVision
                     break;
                 case InspWindowType.Cabel:
                     color = Color.Pink;
-                    break;
-                
-                
+                    break;                                 
             }
 
             return color;

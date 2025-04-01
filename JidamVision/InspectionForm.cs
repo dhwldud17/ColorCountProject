@@ -89,7 +89,6 @@ namespace JidamVision
                 case EntityActionType.UpdateImage:
                     Global.Inst.InspStage.SetTeachingImage(e.InspWindow);
                     break;
-
                 case EntityActionType.PickColor:
                     Rect rect = imageViewer.GetPickColorRect();
                     Global.Inst.InspStage.PickColorWindow(rect);
@@ -246,8 +245,6 @@ namespace JidamVision
         //이거 해야함 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         private void CheckInspectionImage(Mat inspectionImg)
         {
-
-
             // 검사 이미지에서 ROI 영역 추출
             Mat roiInspectionImage = new Mat(inspectionImg, selectedROI);
 
@@ -328,6 +325,8 @@ namespace JidamVision
             UpdateInspectionResults();
             StartInspection();
             Global.Inst.InspStage.CycleInspect(true);
+            ShowImage(currentImageIndex);
+            UpdateDisplay();
 
             dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
         }
@@ -456,17 +455,22 @@ namespace JidamVision
 
                 // imageViewCCtrl에 표시 (imageViewer와 같은 방식 적용)
                 imageViewer.LoadBitmap(bitmap);
+                MoveToNextImage(currentImageIndex);
             }
         }
-
-        private void imageViewer_Load(object sender, EventArgs e)
+        private void MoveToNextImage(int index)
         {
+            if (imageFiles == null || imageFiles.Length == 0)
+                return;
 
-        }
+            // 다음 이미지로 이동
+            currentImageIndex++;
 
-        private void btImageLode_Click_1(object sender, EventArgs e)
-        {
-            UpdateDisplay();
+            // 이미지 목록을 초과하면 처음으로 되돌아감 (순환 구조)
+            if (currentImageIndex >= imageFiles.Length)
+                currentImageIndex = 0;
+
+            ShowImage(currentImageIndex);
         }
         //private bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
         //{
