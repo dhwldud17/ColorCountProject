@@ -41,7 +41,8 @@ namespace JidamVision.Property
         private bool _isPickColor = false;
 
         public event EventHandler<ColorEventArgs> ColorPicked;
-        public event EventHandler<EventArgs> TeachingColorClicked; 
+        public event EventHandler<EventArgs> TeachingColorClicked;
+        public event EventHandler<EventArgs> ColorPickCanceled;
 
         public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<ColorRangeChangedEventArgs> ColorRangeChanged;
@@ -306,25 +307,38 @@ namespace JidamVision.Property
         }
 
         //색상 추출 메서드
-        public void ExtractColorFromSelection()
-        {
-            if (_bitmapImage == null || _pickColorRect.Width == 0 || _pickColorRect.Height == 0)
-                return;
-            Console.WriteLine($"_pickColorRect: {_pickColorRect}, Width: {_pickColorRect.Width}, Height: {_pickColorRect.Height}");
+        //public void ExtractColorFromSelection()
+        //{
+        //    if (_bitmapImage == null || _pickColorRect.Width == 0 || _pickColorRect.Height == 0)
+        //        return;
+        //    Console.WriteLine($"_pickColorRect: {_pickColorRect}, Width: {_pickColorRect.Width}, Height: {_pickColorRect.Height}");
 
-            // 선택된 영역에서 색상 추출 (예: 이미지의 픽셀 색상 평균값)
-            Bitmap bmpImage = new Bitmap(_bitmapImage); // 이미지 복제
-            Color pixelColor = bmpImage.GetPixel(_pickColorRect.X + _pickColorRect.Width / 2,
-                                            _pickColorRect.Y + _pickColorRect.Height / 2); // 중간 픽셀 추출
+        //    // 선택된 영역에서 색상 추출 (예: 이미지의 픽셀 색상 평균값)
+        //    Bitmap bmpImage = new Bitmap(_bitmapImage); // 이미지 복제
+        //    Color pixelColor = bmpImage.GetPixel(_pickColorRect.X + _pickColorRect.Width / 2,
+        //                                    _pickColorRect.Y + _pickColorRect.Height / 2); // 중간 픽셀 추출
 
-            // 추출된 색상을 변수에 저장하거나, UI에 표시
-            ColorPicked?.Invoke(this, new ColorEventArgs(pixelColor));  // 이벤트로 색상 전달
-        }
+        //    // 추출된 색상을 변수에 저장하거나, UI에 표시
+        //    ColorPicked?.Invoke(this, new ColorEventArgs(pixelColor));  // 이벤트로 색상 전달
+        //}
 
         //학습 버튼 클릭 시 색상 추출 호출
         private void btnTeachingColor_Click(object sender, EventArgs e)
         {
-            TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
+            if (!_isPickColor)
+            {
+                TeachingColorClicked?.Invoke(this, new EventArgs()); // 이벤트 발생
+                _isPickColor = true;
+                btnTeachingColor.BackColor = Color.LightGreen;
+            }
+            else
+            {
+                ColorPickCanceled?.Invoke(this, new EventArgs()); // 이벤트 발생
+                _isPickColor = false;
+                btnTeachingColor.BackColor = Color.LightGray;
+                
+            }
+         
         }
 
         private void panelColorPreview_Paint(object sender, PaintEventArgs e)
