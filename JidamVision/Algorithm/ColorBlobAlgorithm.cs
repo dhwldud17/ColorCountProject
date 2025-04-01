@@ -13,7 +13,7 @@ namespace JidamVision.Algorithm
         public Scalar upper;
         public bool invert;
     }
-    public class ColorBlobAlgorithm : InspAlgorithm
+    public class ColorBlobAlgorithm : BlobAlgorithm
     {
         internal static readonly object Instance;
         internal static readonly object SetColor;
@@ -24,7 +24,10 @@ namespace JidamVision.Algorithm
         private List<Rect> _referenceAreas; // 레퍼런스 이미지에서 추출된 영역
         private List<Rect> _findArea; // 검사 이미지에서 추출된 영역
 
-     public double BinaryArea { get;  set; } // 검출된 영역의 총 면적
+        public int CustomAreaMin { get; set; } = 100; // 원하는 기본값 설정 가능
+        public int CustomAreaMax { get; set; } = 1000;
+
+        public double BinaryArea { get;  set; } // 검출된 영역의 총 면적
   
         public ColorBlobAlgorithm()
         {
@@ -141,6 +144,12 @@ namespace JidamVision.Algorithm
         // 컬러 이진화 후 원하는 영역을 얻음 
 
         //해당 부분이진화한게 area값 해당 기준에 맞는지?
+
+        private bool CustomBlobFilter(Mat binImage)
+        {
+            return base.BlobFilter(binImage, CustomAreaMin, CustomAreaMax, WidthMin, WidthMax, HeightMin, HeightMax);
+        }
+
         public override bool DoInspect()
         {
             IsInspected = false;
@@ -150,19 +159,58 @@ namespace JidamVision.Algorithm
             
             // 검사 이미지에서 영역 추출
             _findArea = ProcessImage(_srcImage);
+            Mat targetImage = _srcImage[InspRect];
 
-            
+            Mat grayImage = new Mat();
+            if (targetImage.Type() == MatType.CV_8UC3)
+                Cv2.CvtColor(targetImage, grayImage, ColorConversionCodes.BGR2GRAY);
+            else
+                grayImage = targetImage;
 
-          
+            Mat binaryImage = new Mat();
+            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
+            Cv2.InRange(grayImage, BinThreshold.lower, BinThreshold.upper, binaryImage);
+
+            if (BinThreshold.invert)
+                binaryImage = ~binaryImage;
+
+            if (AreaMin > 0 || AreaMax > 0 || WidthMin > 0 || WidthMax > 0 || HeightMin > 0 || HeightMax > 0)
+            {
+                if (!BlobFilter(binaryImage, AreaMin, AreaMax, WidthMin, WidthMax, HeightMin, HeightMax))
+                    return false;
+            }
+
             IsInspected = true;
+
             return true;
 
         }
+        public override int GetResultRect(out List<Rect> resultArea)
+        {
+            resultArea = null;
 
+            //#ABSTRACT ALGORITHM#7 검사가 완료되지 않았다면, 리턴
+            if (!IsInspected)
+                return -1;
+
+            if (_findArea is null || _findArea.Count <= 0)
+                return -1;
+
+            resultArea = _findArea;
+            return resultArea.Count;
+        }
         public Mat GetOutput()
         {
             return _srcImage; // 빨간색 영역이 덮인 최종 이미지
         }
+
+
+
+
+
+
+
+
 
         public void SetImage(Mat image)
         {

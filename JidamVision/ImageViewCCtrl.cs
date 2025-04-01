@@ -732,7 +732,7 @@ namespace JidamVision
             {
                 if (_isPickColor)
                 {
-                    Size sampleSize = new Size(10, 10);
+                    Size sampleSize = new Size(50, 50);
                     Rectangle pickRect = new Rectangle(e.X - sampleSize.Width / 2, e.Y - sampleSize.Height / 2,
                         sampleSize.Width, sampleSize.Height);
 
