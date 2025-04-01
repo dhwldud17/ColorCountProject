@@ -42,11 +42,9 @@
             this.vTrackBarUpper = new System.Windows.Forms.TrackBar();
             this.chkShowColorBinaryOnly = new System.Windows.Forms.CheckBox();
             this.chkInvert = new System.Windows.Forms.CheckBox();
-            this.btnApplyHSV = new System.Windows.Forms.Button();
             this.txtMinV = new System.Windows.Forms.TextBox();
             this.txtMinS = new System.Windows.Forms.TextBox();
             this.txtMinH = new System.Windows.Forms.TextBox();
-            this.panelColorPreview = new System.Windows.Forms.Panel();
             this.btnTeachingColor = new System.Windows.Forms.Button();
             this.chkHighlight = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -62,10 +60,6 @@
             this.sTrackBarUpper = new System.Windows.Forms.TrackBar();
             this.hTrackBarLower = new System.Windows.Forms.TrackBar();
             this.sTrackBarLower = new System.Windows.Forms.TrackBar();
-            this.grpFilter = new System.Windows.Forms.GroupBox();
-            this.btnApply = new System.Windows.Forms.Button();
-            this.select_effect2 = new System.Windows.Forms.ComboBox();
-            this.select_effect = new System.Windows.Forms.ComboBox();
             this.grpHSV.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarUpper)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.vTrackBarUpper)).BeginInit();
@@ -73,7 +67,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBarUpper)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarLower)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBarLower)).BeginInit();
-            this.grpFilter.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpHSV
@@ -91,11 +84,9 @@
             this.grpHSV.Controls.Add(this.vTrackBarUpper);
             this.grpHSV.Controls.Add(this.chkShowColorBinaryOnly);
             this.grpHSV.Controls.Add(this.chkInvert);
-            this.grpHSV.Controls.Add(this.btnApplyHSV);
             this.grpHSV.Controls.Add(this.txtMinV);
             this.grpHSV.Controls.Add(this.txtMinS);
             this.grpHSV.Controls.Add(this.txtMinH);
-            this.grpHSV.Controls.Add(this.panelColorPreview);
             this.grpHSV.Controls.Add(this.btnTeachingColor);
             this.grpHSV.Controls.Add(this.chkHighlight);
             this.grpHSV.Controls.Add(this.label10);
@@ -212,7 +203,7 @@
             // chkShowColorBinaryOnly
             // 
             this.chkShowColorBinaryOnly.AutoSize = true;
-            this.chkShowColorBinaryOnly.Location = new System.Drawing.Point(140, 581);
+            this.chkShowColorBinaryOnly.Location = new System.Drawing.Point(20, 633);
             this.chkShowColorBinaryOnly.Name = "chkShowColorBinaryOnly";
             this.chkShowColorBinaryOnly.Size = new System.Drawing.Size(124, 22);
             this.chkShowColorBinaryOnly.TabIndex = 29;
@@ -223,23 +214,13 @@
             // chkInvert
             // 
             this.chkInvert.AutoSize = true;
-            this.chkInvert.Location = new System.Drawing.Point(19, 581);
+            this.chkInvert.Location = new System.Drawing.Point(20, 605);
             this.chkInvert.Name = "chkInvert";
             this.chkInvert.Size = new System.Drawing.Size(70, 22);
             this.chkInvert.TabIndex = 28;
             this.chkInvert.Text = "반전";
             this.chkInvert.UseVisualStyleBackColor = true;
             this.chkInvert.CheckedChanged += new System.EventHandler(this.chkInvert_CheckedChanged);
-            // 
-            // btnApplyHSV
-            // 
-            this.btnApplyHSV.Location = new System.Drawing.Point(328, 609);
-            this.btnApplyHSV.Name = "btnApplyHSV";
-            this.btnApplyHSV.Size = new System.Drawing.Size(134, 94);
-            this.btnApplyHSV.TabIndex = 27;
-            this.btnApplyHSV.Text = "HSV저장";
-            this.btnApplyHSV.UseVisualStyleBackColor = true;
-            this.btnApplyHSV.Click += new System.EventHandler(this.btnApplyHSV_Click);
             // 
             // txtMinV
             // 
@@ -262,18 +243,11 @@
             this.txtMinH.Size = new System.Drawing.Size(88, 28);
             this.txtMinH.TabIndex = 24;
             // 
-            // panelColorPreview
-            // 
-            this.panelColorPreview.Location = new System.Drawing.Point(223, 663);
-            this.panelColorPreview.Name = "panelColorPreview";
-            this.panelColorPreview.Size = new System.Drawing.Size(72, 40);
-            this.panelColorPreview.TabIndex = 23;
-            // 
             // btnTeachingColor
             // 
-            this.btnTeachingColor.Location = new System.Drawing.Point(19, 663);
+            this.btnTeachingColor.Location = new System.Drawing.Point(300, 596);
             this.btnTeachingColor.Name = "btnTeachingColor";
-            this.btnTeachingColor.Size = new System.Drawing.Size(187, 40);
+            this.btnTeachingColor.Size = new System.Drawing.Size(162, 92);
             this.btnTeachingColor.TabIndex = 22;
             this.btnTeachingColor.Text = "Teaching Color";
             this.btnTeachingColor.UseVisualStyleBackColor = true;
@@ -282,7 +256,7 @@
             // chkHighlight
             // 
             this.chkHighlight.AutoSize = true;
-            this.chkHighlight.Location = new System.Drawing.Point(19, 609);
+            this.chkHighlight.Location = new System.Drawing.Point(20, 661);
             this.chkHighlight.Name = "chkHighlight";
             this.chkHighlight.Size = new System.Drawing.Size(246, 22);
             this.chkHighlight.TabIndex = 21;
@@ -403,61 +377,13 @@
             this.sTrackBarLower.Size = new System.Drawing.Size(367, 69);
             this.sTrackBarLower.TabIndex = 33;
             // 
-            // grpFilter
-            // 
-            this.grpFilter.Controls.Add(this.btnApply);
-            this.grpFilter.Controls.Add(this.select_effect2);
-            this.grpFilter.Controls.Add(this.select_effect);
-            this.grpFilter.Location = new System.Drawing.Point(20, 754);
-            this.grpFilter.Name = "grpFilter";
-            this.grpFilter.Size = new System.Drawing.Size(476, 181);
-            this.grpFilter.TabIndex = 1;
-            this.grpFilter.TabStop = false;
-            this.grpFilter.Text = "필터";
-            // 
-            // btnApply
-            // 
-            this.btnApply.Location = new System.Drawing.Point(287, 62);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(121, 82);
-            this.btnApply.TabIndex = 2;
-            this.btnApply.Text = "적용";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
-            // 
-            // select_effect2
-            // 
-            this.select_effect2.FormattingEnabled = true;
-            this.select_effect2.Items.AddRange(new object[] {
-            "NOT 연산"});
-            this.select_effect2.Location = new System.Drawing.Point(103, 118);
-            this.select_effect2.Name = "select_effect2";
-            this.select_effect2.Size = new System.Drawing.Size(121, 26);
-            this.select_effect2.TabIndex = 1;
-            this.select_effect2.Text = "선택2";
-            // 
-            // select_effect
-            // 
-            this.select_effect.AutoCompleteCustomSource.AddRange(new string[] {
-            "비트연산"});
-            this.select_effect.FormattingEnabled = true;
-            this.select_effect.Items.AddRange(new object[] {
-            "Bitwise(비트연산)"});
-            this.select_effect.Location = new System.Drawing.Point(103, 60);
-            this.select_effect.Name = "select_effect";
-            this.select_effect.Size = new System.Drawing.Size(121, 26);
-            this.select_effect.TabIndex = 0;
-            this.select_effect.Text = "선택1";
-            this.select_effect.SelectedIndexChanged += new System.EventHandler(this.select_effect_SelectedIndexChanged);
-            // 
             // ColorBinaryInspProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.grpFilter);
             this.Controls.Add(this.grpHSV);
             this.Name = "ColorBinaryInspProp";
-            this.Size = new System.Drawing.Size(539, 969);
+            this.Size = new System.Drawing.Size(539, 774);
             this.grpHSV.ResumeLayout(false);
             this.grpHSV.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarUpper)).EndInit();
@@ -466,7 +392,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBarUpper)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.hTrackBarLower)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sTrackBarLower)).EndInit();
-            this.grpFilter.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -487,16 +412,10 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox chkHighlight;
         private System.Windows.Forms.Button btnTeachingColor;
-        private System.Windows.Forms.Panel panelColorPreview;
         private System.Windows.Forms.TrackBar sTrackBarUpper;
         private System.Windows.Forms.TextBox txtMinV;
         private System.Windows.Forms.TextBox txtMinS;
         private System.Windows.Forms.TextBox txtMinH;
-        private System.Windows.Forms.GroupBox grpFilter;
-        private System.Windows.Forms.ComboBox select_effect;
-        private System.Windows.Forms.ComboBox select_effect2;
-        private System.Windows.Forms.Button btnApply;
-        private System.Windows.Forms.Button btnApplyHSV;
         private System.Windows.Forms.CheckBox chkInvert;
         private System.Windows.Forms.CheckBox chkShowColorBinaryOnly;
         private System.Windows.Forms.TrackBar vTrackBarUpper;
