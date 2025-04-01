@@ -17,6 +17,8 @@ namespace JidamVision
     public partial class InspectionForm : DockContent
     {
         eImageChannel _currentImageChannel = eImageChannel.Color;
+        private ColorBlobAlgorithm colorBlobAlgorithm;
+        private InspWindow _inspWindow;
         private List<Mat> receivedImages = new List<Mat>(); // 외부 프로그램에서 받은 이미지 목록
         private int currentImageIndex = 0;
         private Timer inspectionTimer;
@@ -26,9 +28,7 @@ namespace JidamVision
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
         private string[] imageFiles; // 이미지 파일 목록
-        private ColorBlobAlgorithm colorBlobAlgorithm;
         private Rect selectedROI; // ROI 영역 저장
-        private InspWindow _inspWindow;
 
         private Model currentModel;
         private Mat inspectedImage;
@@ -38,7 +38,6 @@ namespace JidamVision
         public InspectionForm()
         {
             InitializeComponent();
-            InitializeInspection();
             InitializeTimers();  // 현재 시간 갱신 타이머 초기화
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
@@ -46,11 +45,13 @@ namespace JidamVision
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             // 모델 불러오기 
 
-
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
 
-
             Controls.Add(imageViewer);
+
+            colorBlobAlgorithm = new ColorBlobAlgorithm();  // ✅ 색상 분석 알고리즘 초기화
+            imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;  // ✅ ROI 이벤트 핸들러 연결
+            _inspWindow = new InspWindow();  // ✅ 검사 창 객체 생성
         }
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
@@ -110,7 +111,7 @@ namespace JidamVision
                     //# SAVE ROI#3 채널 정보 변수에 저장
                     //참고 프로젝트에서 _currentImageChannel를 모두 찾아서, 수정할것
                     _currentImageChannel = GetCurrentChannel();
-                    bitmap = Global.Inst.InspStage.GetBitmap(1, _currentImageChannel);
+                    bitmap = Global.Inst.InspStage.GetBitmap(0, _currentImageChannel);
                     if (bitmap == null)
                         return;
                 }
@@ -121,6 +122,11 @@ namespace JidamVision
                 Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
         }
+        public OpenCvSharp.Mat GetInspectionDisplayImage()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat(0, _currentImageChannel);
+        }
+
         public void UpdateDiagramEntity()
         {
             Model model = Global.Inst.InspStage.CurModel;
@@ -164,6 +170,7 @@ namespace JidamVision
 
             imageViewer.SetDiagramEntityList(diagramEntityList);
         }
+
         public void SelectDiagramEntity(InspWindow window)
         {
             imageViewer.SelectDiagramEntity(window);
@@ -236,8 +243,7 @@ namespace JidamVision
             return colorBlobAlgorithm.DoInspect();  // 컬러 이진화 알고리즘을 통해 색상 매칭
         }
 
-
-
+        //이거 해야함 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         private void CheckInspectionImage(Mat inspectionImg)
         {
 
@@ -264,20 +270,6 @@ namespace JidamVision
             // 검사 이미지 화면에 표시
             Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
 
-        }
-
-
-
-
-
-        private void InitializeInspection()
-        {
-            inspectionTimer = new Timer();
-            inspectionTimer.Interval = 1000; // 1초마다 검사 실행
-            inspectionTimer.Tick += InspectionTimer_Tick;
-
-            // 사용할 검사 알고리즘 인스턴스 생성 (예제: MatchAlgorithm)
-            inspector = new MatchAlgorithm();
         }
         private void InitializeDataGridView()
         {
@@ -319,22 +311,27 @@ namespace JidamVision
             faultyCount = 0;
             UpdateInspectionResults(); // UI 업데이트
         }
+        private void InspectionForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
+
+            this.FormClosed -= InspectionForm_FormClosed;
+        }
         private void bntStart_Click(object sender, EventArgs e)
         {
-               currentImageIndex = 0;
+            currentImageIndex = 0;
 
-                // 시작할 때 개수 초기화
-                totalCount = 0;
-                goodCount = 0;
-                faultyCount = 0;
-                UpdateInspectionResults();
+            // 시작할 때 개수 초기화
+            totalCount = 0;
+            goodCount = 0;
+            faultyCount = 0;
+            UpdateInspectionResults();
+            StartInspection();
+            Global.Inst.InspStage.CycleInspect(true);
 
-                StartInspection();
-                inspectionTimer.Start();
-                Global.Inst.InspStage.CycleInspect(true);
-
-                dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
+            dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
         }
+        //평균 값
         private void UpdateInspectionResults()
         {
             rtbTotalnumber.Text = totalCount.ToString();
@@ -345,29 +342,21 @@ namespace JidamVision
             double percent = totalCount > 0 ? (faultyCount / (double)totalCount) * 100 : 0;
             rtbPercent.Text = percent.ToString("0.00") + "%";
         }
-
+        //멈춤
         private void bntStop_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.StopCycle();
-        }
-        private void InspectionTimer_Tick(object sender, EventArgs e)
-        {
-            currentImageIndex++;
-            if (currentImageIndex < receivedImages.Count)
-            {
-                StartInspection();
-            }
-            else
-            {
-                inspectionTimer.Stop();
-                MessageBox.Show("검사가 완료되었습니다.");
-            }
         }
 
         private void StartInspection()
         {
             if (inspector != null)
             {
+                if (currentImageIndex < 0 || currentImageIndex >= receivedImages.Count)
+                {
+                    Console.WriteLine("⚠ 오류: 현재 숫자가 잘못되었습니다! 사진이 없어요!");
+                    return;
+                }
                 inspector.SetInspData(receivedImages[currentImageIndex]);
                 bool result = inspector.DoInspect();
 
@@ -439,7 +428,6 @@ namespace JidamVision
             dtpCurrenttime.Location = new System.Drawing.Point(dtpCurrenttime.Location.X, dtpCurrenttime.Location.Y);
             lbCurrenttime.Location = new System.Drawing.Point(lbCurrenttime.Location.X, lbCurrenttime.Location.Y);
 
-
             bntStart.Location = new System.Drawing.Point(xPos - bntStart.Width - 30, bntStart.Location.Y);
             bntStop.Location = new System.Drawing.Point(xPos - bntStop.Width - 30, bntStop.Location.Y);
             rtbTotalnumber.Location = new System.Drawing.Point(xPos - rtbTotalnumber.Width - 30, rtbTotalnumber.Location.Y);
@@ -449,19 +437,14 @@ namespace JidamVision
             rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y);
             lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y);
             dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
-            rtbPercent.Location = new System.Drawing.Point(xPos- rtbPercent.Width -30, rtbPercent.Location.Y);
-            lbPercent.Location = new System.Drawing.Point(xPos- lbPercent.Width -120, lbPercent.Location.Y);
+            rtbPercent.Location = new System.Drawing.Point(xPos - rtbPercent.Width - 30, rtbPercent.Location.Y);
+            lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 120, lbPercent.Location.Y);
 
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
             imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
             imageViewer.Height = this.Height - margin * 2;
             imageViewer.Location = new System.Drawing.Point(margin - 50, margin);
         }
-
-
-
-
-
         private void ShowImage(int index)
         {
             if (imageFiles != null && imageFiles.Length > 0 && index >= 0 && index < imageFiles.Length)
@@ -483,8 +466,80 @@ namespace JidamVision
 
         private void btImageLode_Click_1(object sender, EventArgs e)
         {
-
             UpdateDisplay();
         }
+        //private bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
+        //{
+        //    // 컨투어 찾기
+        //    Point[][] contours;
+        //    HierarchyIndex[] hierarchy;
+        //    Cv2.FindContours(binImage, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+        //    // 필터링된 객체를 담을 리스트
+        //    Mat filteredImage = Mat.Zeros(binImage.Size(), MatType.CV_8UC1);
+
+        //    if (_findArea is null)
+        //        _findArea = new List<Rect>();
+
+        //    _findArea.Clear();
+
+        //    int findBlobCount = 0;
+
+        //    foreach (var contour in contours)
+        //    {
+        //        double area = Cv2.ContourArea(contour);
+        //        if (area <= 0)
+        //            continue;
+
+        //        if (areaMin > 0 && area < areaMin)
+        //            continue;
+
+        //        if (areaMax > 0 && area > areaMax)
+        //            continue;
+
+        //        // RotatedRect 정보 계산
+        //        //RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
+        //        Rect boundingRect = Cv2.BoundingRect(contour);
+
+        //        if (widthMin > 0 && boundingRect.Width < widthMin)
+        //            continue;
+
+        //        if (widthMax > 0 && boundingRect.Width > widthMax)
+        //            continue;
+
+        //        if (heightMin > 0 && boundingRect.Height < heightMin)
+        //            continue;
+
+        //        if (heightMax > 0 && boundingRect.Height > heightMax)
+        //            continue;
+
+        //        // 필터링된 객체를 이미지에 그림
+        //        //Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
+
+        //        findBlobCount++;
+        //        Rect blobRect = boundingRect + InspRect.TopLeft;
+
+        //        string blobInfo;
+        //        blobInfo = $"Blob X:{blobRect.X}, Y:{blobRect.Y}, Size({blobRect.Width},{blobRect.Height})";
+        //        ResultString.Add(blobInfo);
+
+        //        _findArea.Add(blobRect);
+        //    }
+
+        //    OutBlobCount = findBlobCount;
+
+        //    if (BlobCount > 0)
+        //    {
+        //        string result = "NG";
+        //        if (findBlobCount == BlobCount)
+        //        {
+        //            result = "OK";
+        //        }
+        //        string resultInfo = "";
+        //        resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
+        //        ResultString.Add(resultInfo);
+        //    }
+        //    return true;
+        //}
     }
 }

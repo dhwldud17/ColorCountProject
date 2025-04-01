@@ -71,7 +71,7 @@
             // 
             // rtbTotalnumber
             // 
-            this.rtbTotalnumber.Location = new System.Drawing.Point(559, 271);
+            this.rtbTotalnumber.Location = new System.Drawing.Point(559, 278);
             this.rtbTotalnumber.Name = "rtbTotalnumber";
             this.rtbTotalnumber.Size = new System.Drawing.Size(184, 152);
             this.rtbTotalnumber.TabIndex = 3;
@@ -79,7 +79,7 @@
             // 
             // rtbGood
             // 
-            this.rtbGood.Location = new System.Drawing.Point(558, 447);
+            this.rtbGood.Location = new System.Drawing.Point(558, 454);
             this.rtbGood.Name = "rtbGood";
             this.rtbGood.Size = new System.Drawing.Size(85, 78);
             this.rtbGood.TabIndex = 4;
@@ -87,7 +87,7 @@
             // 
             // rtbFaulty
             // 
-            this.rtbFaulty.Location = new System.Drawing.Point(649, 447);
+            this.rtbFaulty.Location = new System.Drawing.Point(649, 454);
             this.rtbFaulty.Name = "rtbFaulty";
             this.rtbFaulty.Size = new System.Drawing.Size(84, 78);
             this.rtbFaulty.TabIndex = 5;
@@ -146,7 +146,7 @@
             // lbGood
             // 
             this.lbGood.AutoSize = true;
-            this.lbGood.Location = new System.Drawing.Point(559, 426);
+            this.lbGood.Location = new System.Drawing.Point(559, 433);
             this.lbGood.Name = "lbGood";
             this.lbGood.Size = new System.Drawing.Size(44, 18);
             this.lbGood.TabIndex = 12;
@@ -155,7 +155,7 @@
             // lbFaulty
             // 
             this.lbFaulty.AutoSize = true;
-            this.lbFaulty.Location = new System.Drawing.Point(656, 426);
+            this.lbFaulty.Location = new System.Drawing.Point(649, 433);
             this.lbFaulty.Name = "lbFaulty";
             this.lbFaulty.Size = new System.Drawing.Size(44, 18);
             this.lbFaulty.TabIndex = 13;
@@ -173,7 +173,7 @@
             // lbTotalnumber
             // 
             this.lbTotalnumber.AutoSize = true;
-            this.lbTotalnumber.Location = new System.Drawing.Point(559, 238);
+            this.lbTotalnumber.Location = new System.Drawing.Point(559, 257);
             this.lbTotalnumber.Name = "lbTotalnumber";
             this.lbTotalnumber.Size = new System.Drawing.Size(62, 18);
             this.lbTotalnumber.TabIndex = 15;

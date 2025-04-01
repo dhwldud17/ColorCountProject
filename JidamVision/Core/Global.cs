@@ -25,6 +25,7 @@ namespace JidamVision.Core
         #endregion
 
         private InspStage _stage = new InspStage();
+        public static bool IsCameraFormActive = false;
 
         public InspStage InspStage
         {

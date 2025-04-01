@@ -46,7 +46,7 @@ namespace JidamVision
         AddGroup,
         Break,
         PickColor,
-        UpdateImage
+        UpdateImage,
     }
 
     public partial class ImageViewCCtrl : UserControl
@@ -1027,20 +1027,20 @@ namespace JidamVision
 
         public void SelectDiagramEntity(InspWindow window)
         {
-            //DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
-            //if (entity != null)
-            //{
-            //    _multiSelectedEntities.Clear();
-            //    AddSelectedROI(entity);
+            DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
+            if (entity != null)
+            {
+                _multiSelectedEntities.Clear();
+               AddSelectedROI(entity);
 
-            //    _selEntity = entity;
-            //    _roiRect = entity.EntityROI;
-            //}
+                _selEntity = entity;
+                _roiRect = entity.EntityROI;
+            }
 
             if (_diagramEntityList == null || window == null)
                 return;
 
-            foreach (var entity in _diagramEntityList)
+            foreach (var e in _diagramEntityList)
             {
                 entity.IsSelected = (entity.LinkedWindow == window); // 선택된 ROI만 true로
             }

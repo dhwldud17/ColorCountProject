@@ -244,7 +244,7 @@ namespace JidamVision.Core
                         { eImageChannel.Gray, newImageInfo(8) }
                     };
 
-                    _imageByChannel.Add(i, imageByChannel);
+                    _imageByChannel.Add (i, imageByChannel);
                 }
 
                 #endregion Origin Image Buffer Set

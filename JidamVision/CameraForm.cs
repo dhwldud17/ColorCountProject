@@ -295,13 +295,12 @@ namespace JidamVision
         //#INSP WORKER#8 CaearaForm에 검사 버튼을 추가하고, 전체 검사 함수 추가
         private void btnInspect_Click(object sender, EventArgs e)
         {
-            Global.Inst.InspStage.CycleInspect(chkCycle.Checked);
+                Global.Inst.InspStage.CycleInspect(chkCycle.Checked);
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.StopCycle();
-
         }
 
         private void chkPreview_CheckedChanged(object sender, EventArgs e)
@@ -320,8 +319,5 @@ namespace JidamVision
                 imageViewer.ResetEntity();
             }
         }
-
-
-
     }
 }

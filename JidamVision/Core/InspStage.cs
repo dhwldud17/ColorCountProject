@@ -350,6 +350,13 @@ namespace JidamVision.Core
                 Mat displayImage = cameraForm.GetDisplayImage();
                 Cv2.ImWrite(filePath, displayImage);
             }
+
+            var inspectionForm = MainForm.GetDockForm<InspectionForm>();
+            if (inspectionForm != null)
+            {
+                Mat displayImage = inspectionForm.GetInspectionDisplayImage();
+                Cv2.ImWrite(filePath, displayImage);
+            }
         }
 
         public Bitmap GetBitmap(int bufferIndex=-1, eImageChannel imageChannel = eImageChannel.None)
@@ -551,7 +558,7 @@ namespace JidamVision.Core
             Mat curImage = cameraForm.GetDisplayImage();
             if (curImage is null)
                 return;
-
+        
             Mat windowImage = curImage[inspWindow.WindowArea];
             inspWindow.WindowImage = windowImage;
 

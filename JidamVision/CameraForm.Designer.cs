@@ -42,7 +42,9 @@
             this.chkPreview = new System.Windows.Forms.CheckBox();
             this.chkShowROI = new System.Windows.Forms.CheckBox();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnGrab
@@ -211,11 +213,20 @@
             this.imageViewer.Size = new System.Drawing.Size(369, 319);
             this.imageViewer.TabIndex = 2;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(12, 13);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(512, 473);
+            this.pictureBox1.TabIndex = 10;
+            this.pictureBox1.TabStop = false;
+            // 
             // CameraForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(676, 513);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.chkShowROI);
             this.Controls.Add(this.chkPreview);
             this.Controls.Add(this.chkCycle);
@@ -231,6 +242,7 @@
             this.Resize += new System.EventHandler(this.CameraForm_Resize);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -251,5 +263,6 @@
         private System.Windows.Forms.CheckBox chkCycle;
         private System.Windows.Forms.CheckBox chkPreview;
         private System.Windows.Forms.CheckBox chkShowROI;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
