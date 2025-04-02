@@ -741,11 +741,11 @@ namespace JidamVision.Core
             if (imagePath == "")
                 return false;
 
-            Global.Inst.InspStage.SetImageBuffer(imagePath, true);
+            Global.Inst.InspStage.SetImageBuffer(imagePath, false);
 
-            _imageSpace.Split(0);
+            //_imageSpace.Split(1);
 
-            DisplayGrabImage(0);
+            //DisplayGrabImage(1);
 
             return true;
         }

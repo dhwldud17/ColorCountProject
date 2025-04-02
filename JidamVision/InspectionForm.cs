@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Markup;
 using JidamVision.Algorithm;
 using JidamVision.Core;
 using JidamVision.Teach;
@@ -23,6 +24,7 @@ namespace JidamVision
 {
     public partial class InspectionForm : DockContent
     {
+        private ImageViewCCtrl imageViewer;  // imageViewer 객체 선언
         eImageChannel _currentImageChannel = eImageChannel.Color;
         private List<Mat> receivedImages = new List<Mat>(); // 외부 프로그램에서 받은 이미지 목록
         private int currentImageIndex = 0;
@@ -44,12 +46,15 @@ namespace JidamVision
    
         public InspectionForm()
         {
+            blobAlgorithm = new BlobAlgorithm(); // BlobAlgorithm 객체 생성
             InitializeComponent();
             InitializeInspection();
             InitializeTimers();  // 현재 시간 갱신 타이머 초기화
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             InitializeDataGridView();  // DataGridView 초기화
+            InitializeImageViewer();  // imageViewer 초기화
+
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             // 모델 불러오기 
 
@@ -58,6 +63,15 @@ namespace JidamVision
            
           
             Controls.Add(imageViewer);
+        }
+        private void InitializeImageViewer()
+        {
+            if (imageViewer == null)
+            {
+                imageViewer = new ImageViewCCtrl();  // imageViewer 초기화
+                imageViewer.Dock = DockStyle.Fill; // 폼에 맞게 크기 자동 조정
+                Controls.Add(imageViewer);  // 폼에 imageViewer를 추가
+            }
         }
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
@@ -413,42 +427,42 @@ namespace JidamVision
          //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
-        // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
-        //private void CheckColorsInImage(Mat image, int imageIndex)
-        //{
-        //    Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
+            // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
+            //private void CheckColorsInImage(Mat image, int imageIndex)
+            //{
+            //    Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
 
-        //    // 초기화 (모든 색상을 false로 설정)
-        //    foreach (var color in expectedColors)
-        //    {
-        //        colorResults[color] = false;
-        //    }
+            //    // 초기화 (모든 색상을 false로 설정)
+            //    foreach (var color in expectedColors)
+            //    {
+            //        colorResults[color] = false;
+            //    }
 
-        //    for (int x = 0; x < image.Width; x++)
-        //    {
-        //        for (int y = 0; y < image.Height; y++)
-        //        {
-        //            Color pixelColor = GetPixelColor(image, x, y);
+            //    for (int x = 0; x < image.Width; x++)
+            //    {
+            //        for (int y = 0; y < image.Height; y++)
+            //        {
+            //            Color pixelColor = GetPixelColor(image, x, y);
 
-        //            foreach (var expectedColor in expectedColors)
-        //            {
-        //                if (IsSimilarColor(pixelColor, expectedColor))
-        //                {
-        //                    colorResults[expectedColor] = true;
-        //                }
-        //            }
-        //        }
-        //    }
+            //            foreach (var expectedColor in expectedColors)
+            //            {
+            //                if (IsSimilarColor(pixelColor, expectedColor))
+            //                {
+            //                    colorResults[expectedColor] = true;
+            //                }
+            //            }
+            //        }
+            //    }
 
-        //    // 검사 결과를 DataGridView에 추가
-        //    foreach (var kvp in colorResults)
-        //    {
-        //        string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
-        //        dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
-        //    }
-        //}
+            //    // 검사 결과를 DataGridView에 추가
+            //    foreach (var kvp in colorResults)
+            //    {
+            //        string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
+            //        dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
+            //    }
+            }
 
-        // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
+            // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
         private Color GetPixelColor(Mat image, int x, int y)
         {
             Vec3b pixel = image.At<Vec3b>(y, x);
@@ -488,8 +502,13 @@ namespace JidamVision
             lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
             btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
 
+            if (imageViewer == null)
+            {
+                Console.WriteLine("imageViewer가 초기화되지 않았습니다.");
+                return;
+            }
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
-            imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
+            imageViewer.Width = xPos - margin * 0; // UI 요소들과 겹치지 않도록 조정
             imageViewer.Height = this.Height - margin * 2;
             imageViewer.Location = new System.Drawing.Point(margin-50, margin);
         }

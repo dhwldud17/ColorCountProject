@@ -46,7 +46,6 @@
             this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
-            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -273,6 +272,5 @@
         private ImageViewCCtrl imageViewer;
         private System.Windows.Forms.Button btImageLode;
         private System.Windows.Forms.Label lblResult;
-        private ImageViewCCtrl imageViewCCtrl1;
     }
 }
