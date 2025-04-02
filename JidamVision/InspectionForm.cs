@@ -163,14 +163,14 @@ namespace JidamVision
                     //# SAVE ROI#3 채널 정보 변수에 저장
                     //참고 프로젝트에서 _currentImageChannel를 모두 찾아서, 수정할것
                     _currentImageChannel = GetCurrentChannel();
-                    bitmap = Global.Inst.InspStage.GetBitmap(1, _currentImageChannel);
+                    bitmap = Global.Inst.InspStage.GetBitmap(0, _currentImageChannel);
                     if (bitmap == null)
                         return;
                 }
 
                 imageViewer.LoadBitmap(bitmap);
 
-                Mat curImage = Global.Inst.InspStage.GetMat(0);
+                Mat curImage = Global.Inst.InspStage.GetMat();
                 Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
         }
@@ -282,31 +282,13 @@ namespace JidamVision
        
         private void bntStart_Click(object sender, EventArgs e)
         {
-            if (receivedImages.Count > 0)
-            {
-                currentImageIndex = 0;
-
-                // 시작할 때 개수 초기화
-                totalCount = 0;
-                goodCount = 0;
-                faultyCount = 0;
-                //UpdateInspectionResults();
-
-                StartInspection();
-                inspectionTimer.Start();
-
-                dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
-            }
-            else
-            {
-                MessageBox.Show("이미지가 없습니다.");
-            }
+            Global.Inst.InspStage.CycleInspect(chkCycle.Checked);
         }
         
 
         private void bntStop_Click(object sender, EventArgs e)
         {
-            inspectionTimer.Stop();
+            Global.Inst.InspStage.StopCycle();
         }
         private void InspectionTimer_Tick(object sender, EventArgs e)
         {
@@ -362,7 +344,7 @@ namespace JidamVision
             rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
             lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
             btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
-
+            chkCycle.Location = new System.Drawing.Point(xPos - bntStart.Width - 100, bntStart.Location.Y);
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
             imageViewer.Width = xPos - margin * 3; // UI 요소들과 겹치지 않도록 조정
             imageViewer.Height = this.Height - margin * 2;

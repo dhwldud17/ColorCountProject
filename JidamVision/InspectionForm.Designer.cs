@@ -43,14 +43,15 @@
             this.lbFaulty = new System.Windows.Forms.Label();
             this.lbPercent = new System.Windows.Forms.Label();
             this.lbTotalnumber = new System.Windows.Forms.Label();
-            this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
-            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             this.rtbCableResults = new System.Windows.Forms.Label();
             this.rtbWireCount = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
+            this.imageViewer = new JidamVision.ImageViewCCtrl();
+            this.chkCycle = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -190,18 +191,6 @@
             this.lbTotalnumber.TabIndex = 15;
             this.lbTotalnumber.Text = "총개수";
             // 
-            // imageViewer
-            // 
-            this.imageViewer.AutoSize = true;
-            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewer.Location = new System.Drawing.Point(31, 143);
-            this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(506, 446);
-            this.imageViewer.TabIndex = 16;
-            this.imageViewer.Load += new System.EventHandler(this.imageViewer_Load_1);
-            // 
             // btImageLode
             // 
             this.btImageLode.Location = new System.Drawing.Point(559, 231);
@@ -220,17 +209,6 @@
             this.lblResult.Size = new System.Drawing.Size(44, 18);
             this.lblResult.TabIndex = 18;
             this.lblResult.Text = "결과";
-            // 
-            // imageViewCCtrl1
-            // 
-            this.imageViewCCtrl1.AutoSize = true;
-            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewCCtrl1.Location = new System.Drawing.Point(89, 344);
-            this.imageViewCCtrl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
-            this.imageViewCCtrl1.Size = new System.Drawing.Size(4, 4);
-            this.imageViewCCtrl1.TabIndex = 19;
             // 
             // rtbCableResults
             // 
@@ -272,11 +250,45 @@
             this.label2.TabIndex = 23;
             this.label2.Text = "케이블 색 매칭: ";
             // 
+            // imageViewCCtrl1
+            // 
+            this.imageViewCCtrl1.AutoSize = true;
+            this.imageViewCCtrl1.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewCCtrl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewCCtrl1.Location = new System.Drawing.Point(89, 344);
+            this.imageViewCCtrl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewCCtrl1.Name = "imageViewCCtrl1";
+            this.imageViewCCtrl1.Size = new System.Drawing.Size(4, 4);
+            this.imageViewCCtrl1.TabIndex = 19;
+            // 
+            // imageViewer
+            // 
+            this.imageViewer.AutoSize = true;
+            this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.imageViewer.Location = new System.Drawing.Point(31, 143);
+            this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(506, 446);
+            this.imageViewer.TabIndex = 16;
+            this.imageViewer.Load += new System.EventHandler(this.imageViewer_Load_1);
+            // 
+            // chkCycle
+            // 
+            this.chkCycle.AutoSize = true;
+            this.chkCycle.Location = new System.Drawing.Point(430, 114);
+            this.chkCycle.Name = "chkCycle";
+            this.chkCycle.Size = new System.Drawing.Size(77, 22);
+            this.chkCycle.TabIndex = 24;
+            this.chkCycle.Text = "cycle";
+            this.chkCycle.UseVisualStyleBackColor = true;
+            // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
+            this.Controls.Add(this.chkCycle);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.rtbWireCount);
@@ -333,5 +345,6 @@
         private System.Windows.Forms.Label rtbWireCount;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox chkCycle;
     }
 }
