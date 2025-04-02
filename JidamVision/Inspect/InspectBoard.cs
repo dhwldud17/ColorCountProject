@@ -16,7 +16,7 @@ namespace JidamVision.Inspect
         public InspectBoard()
         {
         }
-
+        public Mat TargetImage { get; set; } // 🔹 targetImage를 저장할 필드 추가
         public bool Inspect(InspWindow window)
         {
             if (window is null)
@@ -25,8 +25,8 @@ namespace JidamVision.Inspect
             if (window.InspWindowType == Core.InspWindowType.Group)
             {
                 GroupWindow group = (GroupWindow)window;
-               // if (!InspectWindowList(group.Members))
-                    return false;
+                // if (!InspectWindowList(group.Members))
+                return false;
             }
             else
             {
@@ -60,7 +60,7 @@ namespace JidamVision.Inspect
                 };
 
                 ColorBlobAlgorithm colorblobAlgo = algo as ColorBlobAlgorithm;
-                
+
 
                 List<Rect> resultArea = new List<Rect>();
                 int resultCnt = algo.GetResultRect(out resultArea);
@@ -83,23 +83,25 @@ namespace JidamVision.Inspect
 
 
             //Base ROI에서 카운트 검사 비교
-            //InspWindow baseWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Base);
-            //if (baseWindow != null)
-            //{
-            //    int baseCount = GetBaseROICount(baseWindow); // Base ROI 개수 가져오기
-            //    int expectedCount = 9; // 기준 개수  -> 레퍼런스 이미지 카운트한걸로 수정하기.
+            InspWindow baseWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Base);
+            if (baseWindow != null)
+            {
+                int baseCount = GetBaseROICount(baseWindow); // Base ROI 개수 가져오기
+                int expectedCount = 9; // 기준 개수  -> 레퍼런스 이미지 카운트한걸로 수정하기.
 
-            //    if (baseCount != expectedCount)
-            //    {
-            //        Console.WriteLine($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}");
-            //        return false;
-            //    }
-            //    Console.WriteLine("[Base ROI] OK");
-            //}
+                if (baseCount != expectedCount)
+                {
+                    Console.WriteLine($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}");
+                    return false;
+                }
+                Console.WriteLine("[Base ROI] OK");
+            }
 
             //  Cable colorblob 검사->area조건 넘은게 9개면 통과?(기존 1개만 검사 → 전체 검사)
-            List<InspWindow> cableWindows = windowList.FindAll(w => w.InspWindowType == Core.InspWindowType.Cabel);
 
+
+            List<InspWindow> cableWindows = windowList.FindAll(w => w.InspWindowType == Core.InspWindowType.Cabel);
+            
 
             foreach (InspWindow cableWindow in cableWindows)
             {
@@ -108,21 +110,25 @@ namespace JidamVision.Inspect
                 {
                     //if (!InspectWindow(cableWindow))
                     //    return false;
-
                    
-                        colorblobAlgo.DoInspect();
-                        Console.WriteLine($"[ColorBlob 검사] ROI ID: {cableWindow.UID}");
-                       
-                    
+                   // Cv2.ImShow($"ROI {cableWindow.UID}", targetImage); // 🔹 변하는지 확인
+                  //  Cv2.WaitKey(1); // OpenCV가 UI 업데이트할 수 있도록 잠시 대기
+                  
+                     Console.WriteLine($"[ColorBlob 검사] ROI ID: {cableWindow.UID}");
+                    //cabel하나씩 실행
+                    colorblobAlgo.DoInspect();
+                   
+
+
                 }
             }
-            
 
-        Console.WriteLine("전체 검사 OK");
+
+            Console.WriteLine("전체 검사 OK");
             return true;
 
 
 
         }
-}
+    }
 }

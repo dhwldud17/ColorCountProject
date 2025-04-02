@@ -101,14 +101,15 @@ namespace JidamVision.Algorithm
             // 🔹 필터 적용
             Mat mask = ColorBlobFilter(hsvImage);
             
-            
-         
 
             // 🔹 컬러 이진화된 결과 확인
             Cv2.ImShow("Binary Mask", mask);
            
 
             return mask; // 컬러 이진화된 Mat 반환
+
+
+
         }
             // 검사 이미지 설정
             public void SetSourceImage(Mat srcImage)
@@ -131,11 +132,17 @@ namespace JidamVision.Algorithm
             IsInspected = false;
             if (_srcImage == null)
                 return false;
-
-            //binarymask랑 targetImage,binImage크기 다른거같음 
-
             Mat targetImage = _srcImage[InspRect];
-            Cv2.ImShow("targetImage", targetImage);
+            //binarymask랑 targetImage,binImage크기 다른거같음 
+            if (targetImage.Type() != MatType.CV_8UC3)
+            {
+                Console.WriteLine("8비트입니다");
+                
+            }
+           
+                
+          //  Cv2.ImShow("targetImage", targetImage);
+           // Cv2.WaitKey();
             Mat binaryImage = new Mat(); //잘리고 컬러이진화 된 이미지
             // 🔹 관심 영역(ROI) 찾기
             binaryImage = ProcessImage(targetImage);
@@ -155,15 +162,7 @@ namespace JidamVision.Algorithm
 
         }
 
-        public bool DoInspect(InspWindow window)
-        {
-            // 🔹 window 정보를 활용한 검사 로직 추가 가능
-            Console.WriteLine($"[ColorBlob 검사] ROI ID: {window.UID}");
-            
-
-            // 기존 DoInspect 로직 실행
-            return DoInspect();
-        }
+       
 
 
 

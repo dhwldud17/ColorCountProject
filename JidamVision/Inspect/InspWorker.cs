@@ -205,7 +205,7 @@ namespace JidamVision.Inspect
                         {
                            ColorBlobAlgorithm ColorAlgo = (ColorBlobAlgorithm)inspAlgo;
 
-                            Mat srcImage = Global.Inst.InspStage.GetMat(0, ColorAlgo.ImageChannel);
+                            Mat srcImage = Global.Inst.InspStage.GetMat(0,eImageChannel.Color);
                             ColorAlgo.SetInspData(srcImage);
                             break;
                         }

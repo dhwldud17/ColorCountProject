@@ -88,7 +88,7 @@ namespace JidamVision.Algorithm
             // 컨투어 찾기
             Point[][] contours;
             HierarchyIndex[] hierarchy;
-            Cv2.ImShow("binImage", binImage);
+
             Cv2.FindContours(binImage, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             // 필터링된 객체를 담을 리스트
@@ -96,7 +96,8 @@ namespace JidamVision.Algorithm
 
             if (_findArea is null)
                 _findArea = new List<Rect>();
-
+           // Cv2.ImShow("bin", binImage);
+           // Cv2.WaitKey();
             _findArea.Clear();
 
             int findBlobCount = 0;
@@ -130,11 +131,11 @@ namespace JidamVision.Algorithm
                     continue;
 
                 // 필터링된 객체를 이미지에 그림
-    //            Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
+                //            Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
 
                 findBlobCount++;
                 Rect blobRect = boundingRect + InspRect.TopLeft;
-
+                //여기까지온건 . 레퍼런스이미지랑 컬러 같은거.
                 string blobInfo;
                 blobInfo = $"Blob X:{blobRect.X}, Y:{blobRect.Y}, Size({blobRect.Width},{blobRect.Height})";
                 Console.Write(blobInfo);
@@ -144,27 +145,24 @@ namespace JidamVision.Algorithm
             }
 
             OutBlobCount = findBlobCount;
-
+            string result;
             if (findBlobCount > 0)
             {
-                string result;
-
-                if (findBlobCount == BlobCount)
-                {
-                    result = "OK";
-                }
-                else
-                {
-                    result = "NG";
-                }
-                string resultInfo = "";
-                resultInfo = $"[{result}] match blob count [in : {BlobCount},out : {findBlobCount}]";
-                Console.Write(resultInfo);
-                ResultString.Add(resultInfo);
+                result = "OK";
             }
+            else
+            {
+                result = "NG";
+            }
+            string resultInfo = "";
+            resultInfo = $"[{result}] match blob count]";
+            Console.Write(resultInfo);
+            ResultString.Add(resultInfo);
+        
 
             return true;
         }
+
 
         //#BINARY FILTER#4 이진화 영역 반환
         public override int GetResultRect(out List<Rect> resultArea)
