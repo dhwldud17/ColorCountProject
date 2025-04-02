@@ -345,5 +345,83 @@ namespace JidamVision
                 tvModelTree.ExpandAll(); // 자동 펼치기
             }));
         }
+
+
+        public int GetBaseRoi(InspWindow baseROI)  //CountWiresInBaseROI()
+        {
+            // #CountWire# [5] 카메라에서 현재 이미지 가져오기
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm == null)
+            {
+                MessageBox.Show("카메라 화면을 찾을 수 없습니다.");
+                return 0;
+            }
+
+            Mat image = cameraForm.GetCurrentImage();
+            if (image == null || image.Empty())
+            {
+                MessageBox.Show("이미지가 없습니다.");
+                return 0;
+            }
+
+            // #CountWire# [6] Base ROI 정보 가져오기
+            Model model = Global.Inst.InspStage.CurModel;
+            if (baseROI == null)
+            {
+                MessageBox.Show("Base ROI가 설정되지 않았습니다.");
+                return 0;
+            }
+
+            // #CountWire# [7] ROI 범위가 이미지 내부에 있는지 확인
+            Rect imageRect = new Rect(0, 0, image.Width, image.Height);
+            Rect roiRect = new Rect(baseROI.WindowArea.X, baseROI.WindowArea.Y, baseROI.WindowArea.Width, baseROI.WindowArea.Height);
+            Rect validROI = roiRect & imageRect;
+            if (validROI.Width <= 0 || validROI.Height <= 0)
+            {
+                MessageBox.Show("유효하지 않은 ROI 영역입니다.");
+                return 0;
+            }
+
+            // #CountWire# [8] ROI 영역 자르기
+            Mat roiImage = new Mat(image, validROI);
+
+            // #CountWire# [9] 흑백 이미지로 변환
+            Mat gray = new Mat();
+            Cv2.CvtColor(roiImage, gray, ColorConversionCodes.BGR2GRAY);
+
+            // #CountWire# [10] 이진화 (Thresholding)
+            Mat binary = new Mat();
+            Cv2.Threshold(gray, binary, 60, 255, ThresholdTypes.Binary);
+
+            // #CountWire# [11] 노이즈 제거를 위한 Morphology 연산 적용, //전선 사이 분리 보장 (Morphology)
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
+            Cv2.MorphologyEx(binary, binary, MorphTypes.Open, kernel);
+
+            // #CountWire# [12] 이진화 결과를 PictureBox에 출력
+            Bitmap bitmap = BitmapConverter.ToBitmap(binary);
+            pictureBoxBinary.Image = bitmap;
+
+            //Cv2.ImShow("binary", binary); Cv2.WaitKey();
+
+            // #CountWire# [13] 외곽선 검출 (윤곽선 기반 Blob 분석)
+            OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(binary, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            // #CountWire# [14] 일정 면적 이상인 윤곽선만 카운트하여 전선 개수 계산
+            int count = 0;
+            foreach (var contour in contours)
+            {
+                double area = Cv2.ContourArea(contour);
+                if (area >= 20) // 너무 작은 노이즈 제거 필터링
+                    count++;
+            }
+
+            return count; // 최종 전선 개수 반환
+
+        }
+
+
+
     }
 }

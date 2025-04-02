@@ -86,7 +86,8 @@ namespace JidamVision.Inspect
             InspWindow baseWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Base);
             if (baseWindow != null)
             {
-                int baseCount = GetBaseROICount(baseWindow); // Base ROI 개수 가져오기
+                ModelTreeForm modelTreeForm = new ModelTreeForm();  // 객체 생성
+                int baseCount = modelTreeForm.GetBaseRoi(baseWindow); // Base ROI 개수 가져오기
                 int expectedCount = 9; // 기준 개수  -> 레퍼런스 이미지 카운트한걸로 수정하기.
 
                 if (baseCount != expectedCount)
