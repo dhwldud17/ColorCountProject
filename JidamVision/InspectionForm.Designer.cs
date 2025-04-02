@@ -45,13 +45,9 @@
             this.lbTotalnumber = new System.Windows.Forms.Label();
             this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
-            this.rtbCableResults = new System.Windows.Forms.Label();
-            this.rtbWireCount = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.chkCycle = new System.Windows.Forms.CheckBox();
             this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
-            this.chkCycle = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -123,12 +119,13 @@
             // dgvMetric
             // 
             this.dgvMetric.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMetric.Location = new System.Drawing.Point(761, 66);
+            this.dgvMetric.Location = new System.Drawing.Point(761, 12);
             this.dgvMetric.Name = "dgvMetric";
             this.dgvMetric.RowHeadersWidth = 62;
             this.dgvMetric.RowTemplate.Height = 30;
-            this.dgvMetric.Size = new System.Drawing.Size(183, 424);
+            this.dgvMetric.Size = new System.Drawing.Size(260, 460);
             this.dgvMetric.TabIndex = 8;
+            this.dgvMetric.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMetric_CellContentClick);
             // 
             // dtpCurrenttime
             // 
@@ -210,45 +207,15 @@
             this.lblResult.TabIndex = 18;
             this.lblResult.Text = "결과";
             // 
-            // rtbCableResults
+            // chkCycle
             // 
-            this.rtbCableResults.AutoSize = true;
-            this.rtbCableResults.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.rtbCableResults.Location = new System.Drawing.Point(348, 512);
-            this.rtbCableResults.Name = "rtbCableResults";
-            this.rtbCableResults.Size = new System.Drawing.Size(175, 32);
-            this.rtbCableResults.TabIndex = 20;
-            this.rtbCableResults.Text = "cabelresult";
-            // 
-            // rtbWireCount
-            // 
-            this.rtbWireCount.AutoSize = true;
-            this.rtbWireCount.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.rtbWireCount.Location = new System.Drawing.Point(348, 440);
-            this.rtbWireCount.Name = "rtbWireCount";
-            this.rtbWireCount.Size = new System.Drawing.Size(159, 32);
-            this.rtbWireCount.TabIndex = 21;
-            this.rtbWireCount.Text = "wirecount";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(92, 436);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(226, 36);
-            this.label1.TabIndex = 22;
-            this.label1.Text = "와이어 개수:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label2.Location = new System.Drawing.Point(53, 508);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(289, 36);
-            this.label2.TabIndex = 23;
-            this.label2.Text = "케이블 색 매칭: ";
+            this.chkCycle.AutoSize = true;
+            this.chkCycle.Location = new System.Drawing.Point(430, 114);
+            this.chkCycle.Name = "chkCycle";
+            this.chkCycle.Size = new System.Drawing.Size(77, 22);
+            this.chkCycle.TabIndex = 24;
+            this.chkCycle.Text = "cycle";
+            this.chkCycle.UseVisualStyleBackColor = true;
             // 
             // imageViewCCtrl1
             // 
@@ -273,26 +240,12 @@
             this.imageViewer.TabIndex = 16;
             this.imageViewer.Load += new System.EventHandler(this.imageViewer_Load_1);
             // 
-            // chkCycle
-            // 
-            this.chkCycle.AutoSize = true;
-            this.chkCycle.Location = new System.Drawing.Point(430, 114);
-            this.chkCycle.Name = "chkCycle";
-            this.chkCycle.Size = new System.Drawing.Size(77, 22);
-            this.chkCycle.TabIndex = 24;
-            this.chkCycle.Text = "cycle";
-            this.chkCycle.UseVisualStyleBackColor = true;
-            // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(954, 618);
+            this.ClientSize = new System.Drawing.Size(1160, 783);
             this.Controls.Add(this.chkCycle);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.rtbWireCount);
-            this.Controls.Add(this.rtbCableResults);
             this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.btImageLode);
@@ -341,10 +294,6 @@
         private System.Windows.Forms.Button btImageLode;
         private System.Windows.Forms.Label lblResult;
         private ImageViewCCtrl imageViewCCtrl1;
-        private System.Windows.Forms.Label rtbCableResults;
-        private System.Windows.Forms.Label rtbWireCount;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox chkCycle;
     }
 }

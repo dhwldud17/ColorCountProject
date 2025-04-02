@@ -98,7 +98,7 @@ namespace JidamVision.Inspect
                 {
                     SLogger.Write($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}", SLogger.LogType.Error);
                    // Console.WriteLine($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}");
-                    return false;
+                  //  return false;//카운트 개수 틀려도 계속 검사진행되도록 수정
                 }
                 SLogger.Write("[Base ROI] 전선 개수 OK", SLogger.LogType.Info);
 

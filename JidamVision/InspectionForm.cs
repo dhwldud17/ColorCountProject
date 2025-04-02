@@ -33,16 +33,14 @@ namespace JidamVision
         private int totalCount = 0;  // 총 검사 개수
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
+        private int wireCount = 0;
         private string[] imageFiles; // 이미지 파일 목록
         private ColorBlobAlgorithm colorBlobAlgorithm;
         private Rect selectedROI; // ROI 영역 저장
         private InspWindow _inspWindow;
-       
-        private Model currentModel;
-        private Mat inspectedImage;
-        private List<InspWindow> currentROIs;
-        // ✅검사할 색상 정의 (추가된 부분)
-        
+        private List<string> cableResultsList = new List<string>(); // CableResults 저장 리스트
+                                                                   
+
         public InspectionForm()
         {
             InitializeComponent();
@@ -50,14 +48,13 @@ namespace JidamVision
             InitializeTimers();  // 현재 시간 갱신 타이머 초기화
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
-            InitializeDataGridView();  // DataGridView 초기화
+         
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             // 모델 불러오기 
            
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
-           
-          
+        
             Controls.Add(imageViewer);
         }
 
@@ -77,10 +74,15 @@ namespace JidamVision
 
 
                 rtbTotalnumber.Text = totalCount.ToString();
-                rtbWireCount.Text = latestResult.WireCount.ToString();
+                wireCount = latestResult.WireCount;
                 
-                rtbCableResults.Text = string.Join(", ", latestResult.CableResults); // 리스트 데이터를 문자열로 변환
-                                                                                     // 퍼센트 계산 (불량 개수 / 총 개수 * 100)
+             // rtbCableResults.Text = string.Join(", ", latestResult.CableResults); // 리스트 데이터를 문자열로 변환
+                                                                                   
+                cableResultsList.Clear();
+                cableResultsList.AddRange(latestResult.CableResults);  // CableResults 저장
+                                                                       // DataGridView 업데이트
+                UpdateDataGridView(latestResult.CableResults);
+                // 퍼센트 계산 (불량 개수 / 총 개수 * 100)
                 if (latestResult.WireCount != 9 || latestResult.CableResults.Any(result => result == "NG")) 
                 {    //카운트개수 안맞거나 케이블에서 NG가 하나라도있으면
                     faultyCount++;
@@ -93,7 +95,48 @@ namespace JidamVision
                 Show_Result();
             }
         }
+        private void UpdateDataGridView(List<string> cableResults)
+        {
+            if (dgvMetric.InvokeRequired)
+            {
+                dgvMetric.Invoke(new Action(() => UpdateDataGridView(cableResults)));
+                return;
+            }
+            dgvMetric.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill; // 열 너비 자동 조절
+            dgvMetric.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells; // 행 높이 자동 조절
+            dgvMetric.AllowUserToResizeColumns = false; // 사용자가 열 크기 변경 못하게 설정
+            dgvMetric.AllowUserToResizeRows = false; // 사용자가 행 크기 변경 못하게 설정
+            dgvMetric.RowHeadersVisible = false; // 왼쪽 빈 공간(화살표) 숨기기
+            // DataGridView에 컬럼이 없으면 추가
+            if (dgvMetric.Columns.Count == 0)
+            {
+                dgvMetric.Columns.Add("CableType", "Cable");
+                dgvMetric.Columns.Add("Result", "Result");
+            }
 
+            dgvMetric.Rows.Clear(); // 기존 데이터 삭제 후 새 데이터 추가
+
+            //  WireCount(총 개수) 추가
+            int countRowIndex = dgvMetric.Rows.Add("WireCount", wireCount.ToString());
+            dgvMetric.Rows[countRowIndex].DefaultCellStyle.Font = new Font(dgvMetric.Font, FontStyle.Bold); // 굵게 표시
+            if (wireCount != 9)
+            {
+                dgvMetric.Rows[countRowIndex].Cells[1].Style.BackColor = Color.Red;
+                dgvMetric.Rows[countRowIndex].Cells[1].Style.ForeColor = Color.White; // 글씨색 흰색
+            }
+            // 2️⃣ CableResults 추가
+            for (int i = 0; i < cableResults.Count && i < 9; i++) // 최대 9개까지 업데이트
+            {
+                int rowIndex = dgvMetric.Rows.Add($"Cable{i + 1}", cableResults[i]);
+
+                // NG인 경우 해당 셀을 빨간색으로 변경
+                if (cableResults[i] == "NG")
+                {
+                    dgvMetric.Rows[rowIndex].Cells[1].Style.BackColor = Color.Red;
+                    dgvMetric.Rows[rowIndex].Cells[1].Style.ForeColor = Color.White; // 글씨색 흰색으로 변경
+                }
+            }
+        }
         private void Show_Result()
         {
                 rtbFaulty.Text=faultyCount.ToString();
@@ -250,13 +293,7 @@ namespace JidamVision
             // 사용할 검사 알고리즘 인스턴스 생성 (예제: MatchAlgorithm)
             inspector = new MatchAlgorithm();
         }
-        private void InitializeDataGridView()
-        {
-            dgvMetric.ColumnCount = 3;
-            dgvMetric.Columns[0].Name = "이미지 번호";
-            dgvMetric.Columns[1].Name = "기준 색상";
-            dgvMetric.Columns[2].Name = "검사 결과";
-        }
+        
       
         private void InitializeTimers()
         {
@@ -391,6 +428,11 @@ namespace JidamVision
         }
 
         private void rtbGood_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvMetric_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
