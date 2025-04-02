@@ -1105,39 +1105,39 @@ namespace JidamVision
 
         public void SelectDiagramEntity(InspWindow window)
         {
-            DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
-            if (entity != null)
-            {
-                _multiSelectedEntities.Clear();
-                AddSelectedROI(entity);
+            //DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
+            //if (entity != null)
+            //{
+            //    _multiSelectedEntities.Clear();
+            //    AddSelectedROI(entity);
 
-                _selEntity = entity;
-                _roiRect = entity.EntityROI;
+            //    _selEntity = entity;
+            //    _roiRect = entity.EntityROI;
+            //}
+
+            if (_diagramEntityList == null || window == null)
+                return;
+
+            foreach (var entity in _diagramEntityList)
+            {
+                entity.IsSelected = (entity.LinkedWindow == window); // 선택된 ROI만 true로
             }
 
-            //if (_diagramEntityList == null || window == null)
-            //    return;
+            _multiSelectedEntities.Clear();
+            _selEntity = _diagramEntityList.FirstOrDefault(e => e.LinkedWindow == window);
+            if (_selEntity != null)
+            {
+                _roiRect = _selEntity.EntityROI;
+                AddSelectedROI(_selEntity); // 선택 영역 추가
+            }
 
-            //foreach (var entity in _diagramEntityList)
-            //{
-            //    entity.IsSelected = (entity.LinkedWindow == window); // 선택된 ROI만 true로
-            //}
-
-            //_multiSelectedEntities.Clear();
-            //_selEntity = _diagramEntityList.FirstOrDefault(e => e.LinkedWindow == window);
-            //if (_selEntity != null)
-            //{
-            //    _roiRect = _selEntity.EntityROI;
-            //    AddSelectedROI(_selEntity); // 선택 영역 추가
-            //}
-
-            //this.Invalidate(); // 다시 그려서 선택 강조
+            this.Invalidate(); // 다시 그려서 선택 강조
 
         }
 
-       
 
-   
+
+
 
         //#GROUP ROI#4 팝업 메뉴 함수 
         #region Group Create and Break
