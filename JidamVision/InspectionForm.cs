@@ -24,8 +24,9 @@ namespace JidamVision
 {
     public partial class InspectionForm : DockContent
     {
-        private ImageViewCCtrl imageViewer;  // imageViewer 객체 선언
         eImageChannel _currentImageChannel = eImageChannel.Color;
+        private ColorBlobAlgorithm colorBlobAlgorithm;
+        private InspWindow _inspWindow;
         private List<Mat> receivedImages = new List<Mat>(); // 외부 프로그램에서 받은 이미지 목록
         private int currentImageIndex = 0;
         private Timer inspectionTimer;
@@ -35,20 +36,19 @@ namespace JidamVision
         private int goodCount = 0;   // 양품 개수
         private int faultyCount = 0; // 불량 개수
         private string[] imageFiles; // 이미지 파일 목록
-        private ColorBlobAlgorithm colorBlobAlgorithm;
         private Rect selectedROI; // ROI 영역 저장
-        private InspWindow _inspWindow;
+        private BlobAlgorithm blobAlgorithm;
 
         private Model currentModel;
         private Mat inspectedImage;
         private List<InspWindow> currentROIs;
         // ✅검사할 색상 정의 (추가된 부분)
-   
+        private List<Rect> _findArea;
+
         public InspectionForm()
         {
             blobAlgorithm = new BlobAlgorithm(); // BlobAlgorithm 객체 생성
             InitializeComponent();
-            InitializeInspection();
             InitializeTimers();  // 현재 시간 갱신 타이머 초기화
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
             ConfigureDateTimePickers(); // DateTimePicker 포맷 설정
@@ -58,11 +58,13 @@ namespace JidamVision
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             // 모델 불러오기 
 
-
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
-           
-          
+
             Controls.Add(imageViewer);
+
+            colorBlobAlgorithm = new ColorBlobAlgorithm();  // ✅ 색상 분석 알고리즘 초기화
+            imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;  // ✅ ROI 이벤트 핸들러 연결
+            _inspWindow = new InspWindow();  // ✅ 검사 창 객체 생성
         }
         private void InitializeImageViewer()
         {
@@ -109,7 +111,6 @@ namespace JidamVision
                 case EntityActionType.UpdateImage:
                     Global.Inst.InspStage.SetTeachingImage(e.InspWindow);
                     break;
-
                 case EntityActionType.PickColor:
                     Rect rect = imageViewer.GetPickColorRect();
                     Global.Inst.InspStage.PickColorWindow(rect);
@@ -117,12 +118,8 @@ namespace JidamVision
 
             }
         }
-
-
         private eImageChannel GetCurrentChannel()
         {
-         
-
             return eImageChannel.Color;
         }
 
@@ -145,13 +142,10 @@ namespace JidamVision
                 Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
         }
-
-
-
-
-
-
-
+        public OpenCvSharp.Mat GetInspectionDisplayImage()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat(0, _currentImageChannel);
+        }
 
         public void UpdateDiagramEntity()
         {
@@ -196,51 +190,41 @@ namespace JidamVision
 
             imageViewer.SetDiagramEntityList(diagramEntityList);
         }
+
         public void SelectDiagramEntity(InspWindow window)
         {
             imageViewer.SelectDiagramEntity(window);
         }
-
         public void UpdateImageViewer()
         {
             imageViewer.Invalidate();
         }
-
-
         public void AddRect(List<Rect> rects)
         {
             //#BINARY FILTER#18 imageViewer는 Rectangle 타입으로 그래픽을 그리므로, 
             //아래 코드를 이용해, Rect -> Rectangle로 변환하는 람다식
             var rectangles = rects.Select(r => new Rectangle(r.X, r.Y, r.Width, r.Height)).ToList();
             imageViewer.AddRect(rectangles);
-
         }
-
         public void AddRoi(InspWindowType inspWindowType)
         {
             imageViewer.NewRoi(inspWindowType);
         }
-
-
-
-
-      
         // 검사 이미지 불러오기
         public void LoadImage(string imagePath)
         {
             inspectedImage = Cv2.ImRead(imagePath);
             // 검사 이미지 로드 후 화면에 표시하는 코드 추가
-          
         }
         public void CompareROIWithInspection()
         {
             foreach (var roi in currentROIs)
             {// ROI 위치 정보와 비교할 이미지에서 해당 영역 추출
                 var roiRect = roi.WindowArea;  // ROI의 위치 및 크기 정보
-          //      var roiImage = inspectedImage[roiRect];
+                                               //      var roiImage = inspectedImage[roiRect];
 
                 // ROI 이미지와 검사가 올바른지 비교 (여기서 컬러 이진화 알고리즘을 사용할 수도 있음)
-       //         bool isMatch = CompareROI(roiImage, roi);
+                //         bool isMatch = CompareROI(roiImage, roi);
 
                 // 결과에 따라 표시 (초록색/빨간색)
                 //if (isMatch)
@@ -268,7 +252,7 @@ namespace JidamVision
             Scalar colorScalar = new Scalar(color.B, color.G, color.R); // OpenCV에서 색상은 BGR 순서
             Cv2.Rectangle(inspectedImage, rect, colorScalar, 2);
             // 그린 이미지를 화면에 표시
-         
+
         }
         // 색상 매칭 함수 (컬러 이진화 알고리즘을 이용한 예시)
         private bool ColorMatch(Mat roiImage, InspWindow roi)
@@ -278,13 +262,9 @@ namespace JidamVision
             colorBlobAlgorithm.SetSourceImage(roiImage);
             return colorBlobAlgorithm.DoInspect();  // 컬러 이진화 알고리즘을 통해 색상 매칭
         }
-
-
-    
+        //이거 해야됨
         private void CheckInspectionImage(Mat inspectionImg)
         {
-           
-
             // 검사 이미지에서 ROI 영역 추출
             Mat roiInspectionImage = new Mat(inspectionImg, selectedROI);
 
@@ -306,21 +286,7 @@ namespace JidamVision
 
             // 검사 이미지 화면에 표시
             Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
-           
-        }
 
-
-      
-
-
-        private void InitializeInspection()
-        {
-            inspectionTimer = new Timer();
-            inspectionTimer.Interval = 1000; // 1초마다 검사 실행
-            inspectionTimer.Tick += InspectionTimer_Tick;
-
-            // 사용할 검사 알고리즘 인스턴스 생성 (예제: MatchAlgorithm)
-            inspector = new MatchAlgorithm();
         }
         private void InitializeDataGridView()
         {
@@ -329,7 +295,7 @@ namespace JidamVision
             dgvMetric.Columns[1].Name = "기준 색상";
             dgvMetric.Columns[2].Name = "검사 결과";
         }
-      
+
         private void InitializeTimers()
         {
             // 현재 시간 자동 갱신 타이머 설정
@@ -362,28 +328,44 @@ namespace JidamVision
             faultyCount = 0;
             UpdateInspectionResults(); // UI 업데이트
         }
+        private void InspectionForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
+
+            this.FormClosed -= InspectionForm_FormClosed;
+        }
         private void bntStart_Click(object sender, EventArgs e)
         {
+            currentImageIndex = 0;
+
+            //시작할 때 개수 초기화
+            totalCount = 0;
+            goodCount = 0;
+            faultyCount = 0;
+            UpdateInspectionResults();
+            StartInspection();
+            Global.Inst.InspStage.CycleInspect(true);
+            ShowImage(currentImageIndex);
+            UpdateDisplay();
+
+            dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
+
+            // 검사 이미지에서 색상 검사 또는 Blob 필터링을 추가하려면 다음을 사용
             if (receivedImages.Count > 0)
             {
-                currentImageIndex = 0;
+                // 예시로 첫 번째 이미지를 가져와서 BlobFilter 실행
+                Mat binImage = receivedImages[currentImageIndex]; // 이진화된 이미지를 전달
 
-                // 시작할 때 개수 초기화
-                totalCount = 0;
-                goodCount = 0;
-                faultyCount = 0;
-                UpdateInspectionResults();
+                //bool filterResult = BlobFilter(binImage);
 
-                StartInspection();
-                inspectionTimer.Start();
-
-                dtpStartTime.Value = DateTime.Now; // 시작 버튼을 누른 순간의 시간 기록
-            }
-            else
-            {
-                MessageBox.Show("이미지가 없습니다.");
+                //if (filterResult)
+                //{
+                //    // 결과가 정상적으로 처리되었다면, 결과를 DataGridView에 추가하거나 표시
+                //    UpdateInspectionResults();
+                //}
             }
         }
+        //평균 값
         private void UpdateInspectionResults()
         {
             rtbTotalnumber.Text = totalCount.ToString();
@@ -394,29 +376,21 @@ namespace JidamVision
             double percent = totalCount > 0 ? (faultyCount / (double)totalCount) * 100 : 0;
             rtbPercent.Text = percent.ToString("0.00") + "%";
         }
-
+        //멈춤
         private void bntStop_Click(object sender, EventArgs e)
         {
-            inspectionTimer.Stop();
-        }
-        private void InspectionTimer_Tick(object sender, EventArgs e)
-        {
-            currentImageIndex++;
-            if (currentImageIndex < receivedImages.Count)
-            {
-                StartInspection();
-            }
-            else
-            {
-                inspectionTimer.Stop();
-                MessageBox.Show("검사가 완료되었습니다.");
-            }
+            Global.Inst.InspStage.StopCycle();
         }
 
         private void StartInspection()
         {
             if (inspector != null)
             {
+                if (currentImageIndex < 0 || currentImageIndex >= receivedImages.Count)
+                {
+                    Console.WriteLine("⚠ 오류: 현재 숫자가 잘못되었습니다! 사진이 없어요!");
+                    return;
+                }
                 inspector.SetInspData(receivedImages[currentImageIndex]);
                 bool result = inspector.DoInspect();
 
@@ -424,8 +398,8 @@ namespace JidamVision
                 Console.WriteLine($"검사 결과: {(result ? "성공" : "실패")}");
             }
             // ✅ 이미지 색상 검사 추가
-         //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
-        }
+            //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
+            //}
 
             // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
             //private void CheckColorsInImage(Mat image, int imageIndex)
@@ -460,9 +434,9 @@ namespace JidamVision
             //        string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
             //        dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
             //    }
-            }
+        }
 
-            // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
+        // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
         private Color GetPixelColor(Mat image, int x, int y)
         {
             Vec3b pixel = image.At<Vec3b>(y, x);
@@ -481,26 +455,24 @@ namespace JidamVision
             int margin = 80;
 
             // 오른쪽 UI 요소들의 X 위치 조정
-            int xPos =  this.Width - dgvMetric.Width - margin;
+            int xPos = this.Width - dgvMetric.Width - margin;
 
             dtpStartTime.Location = new System.Drawing.Point(dtpStartTime.Location.X, dtpStartTime.Location.Y);
             lbStartTime.Location = new System.Drawing.Point(lbStartTime.Location.X, lbStartTime.Location.Y);
             dtpCurrenttime.Location = new System.Drawing.Point(dtpCurrenttime.Location.X, dtpCurrenttime.Location.Y);
             lbCurrenttime.Location = new System.Drawing.Point(lbCurrenttime.Location.X, lbCurrenttime.Location.Y);
 
-
-            bntStart.Location = new System.Drawing.Point(xPos-bntStart.Width-30, bntStart.Location.Y);
-            bntStop.Location = new System.Drawing.Point(xPos- bntStop.Width-30, bntStop.Location.Y);
-            rtbTotalnumber.Location = new System.Drawing.Point(xPos- rtbTotalnumber.Width-30, rtbTotalnumber.Location.Y);
+            bntStart.Location = new System.Drawing.Point(xPos - bntStart.Width - 30, bntStart.Location.Y);
+            bntStop.Location = new System.Drawing.Point(xPos - bntStop.Width - 30, bntStop.Location.Y);
+            rtbTotalnumber.Location = new System.Drawing.Point(xPos - rtbTotalnumber.Width - 30, rtbTotalnumber.Location.Y);
             lbTotalnumber.Location = new System.Drawing.Point(xPos - lbTotalnumber.Width - 120, lbTotalnumber.Location.Y);
             rtbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, rtbGood.Location.Y);
             lbGood.Location = new System.Drawing.Point(xPos - lbGood.Width - 130, lbGood.Location.Y);
             rtbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, rtbFaulty.Location.Y);
             lbFaulty.Location = new System.Drawing.Point(xPos - lbFaulty.Width - 60, lbFaulty.Location.Y);
             dgvMetric.Location = new System.Drawing.Point(xPos, dgvMetric.Location.Y);
-            rtbPercent.Location = new System.Drawing.Point(xPos, rtbPercent.Location.Y);
-            lbPercent.Location = new System.Drawing.Point(xPos, lbPercent.Location.Y);
-            btImageLode.Location = new System.Drawing.Point(xPos - bntStop.Width -30, bntStop.Location.Y + 40);
+            rtbPercent.Location = new System.Drawing.Point(xPos - rtbPercent.Width - 30, rtbPercent.Location.Y);
+            lbPercent.Location = new System.Drawing.Point(xPos - lbPercent.Width - 120, lbPercent.Location.Y);
 
             if (imageViewer == null)
             {
@@ -510,13 +482,8 @@ namespace JidamVision
             // imageViewCCtrl1 크기 조정 (좌측 상단에 고정)
             imageViewer.Width = xPos - margin * 0; // UI 요소들과 겹치지 않도록 조정
             imageViewer.Height = this.Height - margin * 2;
-            imageViewer.Location = new System.Drawing.Point(margin-50, margin);
+            imageViewer.Location = new System.Drawing.Point(margin - 50, margin);
         }
-
-      
-            
-        
-
         private void ShowImage(int index)
         {
             if (imageFiles != null && imageFiles.Length > 0 && index >= 0 && index < imageFiles.Length)
@@ -528,18 +495,22 @@ namespace JidamVision
 
                 // imageViewCCtrl에 표시 (imageViewer와 같은 방식 적용)
                 imageViewer.LoadBitmap(bitmap);
+                MoveToNextImage(currentImageIndex);
             }
         }
-
-        private void imageViewer_Load(object sender, EventArgs e)
+        private void MoveToNextImage(int index)
         {
+            if (imageFiles == null || imageFiles.Length == 0)
+                return;
 
-        }
+            // 다음 이미지로 이동
+            currentImageIndex++;
 
-        private void btImageLode_Click_1(object sender, EventArgs e)
-        {
-           
-            UpdateDisplay();
+            // 이미지 목록을 초과하면 처음으로 되돌아감 (순환 구조)
+            if (currentImageIndex >= imageFiles.Length)
+                currentImageIndex = 0;
+
+            ShowImage(currentImageIndex);
         }
     }
 }

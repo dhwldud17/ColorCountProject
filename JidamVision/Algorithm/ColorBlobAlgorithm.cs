@@ -161,14 +161,6 @@ namespace JidamVision.Algorithm
 
 
         }
-
-       
-
-
-
-
-
-
         public override int GetResultRect(out List<Rect> resultArea)
         {
             resultArea = null;
@@ -187,15 +179,6 @@ namespace JidamVision.Algorithm
         {
             return _srcImage; // 빨간색 영역이 덮인 최종 이미지
         }
-
-
-
-
-
-
-
-
-
         public void SetImage(Mat image)
         {
             _srcImage = image;
