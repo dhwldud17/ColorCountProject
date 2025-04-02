@@ -50,14 +50,15 @@ namespace JidamVision.Sequence
                     break;
                 case CommunicatorType.WCF:
                     string ip = parameters[0] as string;
-                    if (NetHelper.Ping(ip))
-                    {
-                        _clinet = new MessageDuplexClient(BindingType.Tcp, ip);
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    _clinet = new MessageDuplexClient(BindingType.Tcp, ip);
+                    //if (NetHelper.Ping(ip))
+                    //{
+                    //    _clinet = new MessageDuplexClient(BindingType.Tcp, ip);
+                    //}
+                    //else
+                    //{
+                    //    return;
+                    //}
                     break;
             }
 
@@ -98,9 +99,15 @@ namespace JidamVision.Sequence
 
         public void SendMachineInfo()
         {
+            //#WCF_FSM#1 서버와 통신을 하기 위해서는, 약속된 클라이언트 여야함.
+            //현재 정의된 클라이언트는 아래 중에서 하나를 선택하여 MachineName으로 설정해야함
+            //VISION01
+            //VISION02
+            //VISION03
+            //환경설정에서 SettingXml.Inst.MachineName에 값을 설정하도록 할것
             Message content = new Message
             {
-                Command = Message.MessageCommand.MachineName,
+                Command = Message.MessageCommand.HandShake,
                 MachineName = SettingXml.Inst.MachineName
             };
 

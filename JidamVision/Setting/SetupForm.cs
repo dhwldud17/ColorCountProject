@@ -39,6 +39,10 @@ namespace JidamVision.Setting
             PathSetting pathSetting = new PathSetting();
             AddTabControl(pathSetting, "Path");
 
+            CommunicatorSetting commSetting = new CommunicatorSetting();
+            AddTabControl(commSetting, "Communicator");
+
+
             //기본값으로 카메라 설정 페이지 보이도록 설정
             tabSetting.SelectTab(0);
         }

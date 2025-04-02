@@ -81,8 +81,11 @@ namespace JidamVision.Algorithm
 
             return true;
         }
-
+       
         //#BINARY FILTER#3 이진화 필터처리 함수
+        public int findBlobCount = 0; // OK 개수
+        public int ngBlobCount = 0; // NG 개수
+        public int OutNgBlobCount = 0; // 총 NG 개수
         public bool BlobFilter(Mat binImage, int areaMin, int areaMax, int widthMin, int widthMax, int heightMin, int heightMax)
         {
             // 컨투어 찾기
@@ -100,7 +103,7 @@ namespace JidamVision.Algorithm
            // Cv2.WaitKey();
             _findArea.Clear();
 
-            int findBlobCount = 0;
+            int findBlob = 0;
 
             foreach (var contour in contours)
             {
@@ -133,7 +136,8 @@ namespace JidamVision.Algorithm
                 // 필터링된 객체를 이미지에 그림
                 //            Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
 
-                findBlobCount++;
+                findBlob++;
+                 
                 Rect blobRect = boundingRect + InspRect.TopLeft;
                 //여기까지온건 . 레퍼런스이미지랑 컬러 같은거.
                 string blobInfo;
@@ -143,19 +147,27 @@ namespace JidamVision.Algorithm
 
                 _findArea.Add(blobRect);
             }
-
-            OutBlobCount = findBlobCount;
+           
+            OutBlobCount = findBlob;
             string result;
-            if (findBlobCount > 0)
+
+
+            if (findBlob > 0)
             {
                 result = "OK";
+                IsDefect = false; //불량x
+                findBlobCount++; //OK인 개수.
             }
             else
             {
                 result = "NG";
+                IsDefect = true; //불량
+                ngBlobCount++; // NG 개수 증가
+                OutNgBlobCount = ngBlobCount; // 총 NG 개수 업데이트
+                //불량개수
             }
             string resultInfo = "";
-            resultInfo = $"[{result}] match blob count]";
+            resultInfo = $"[{result}] : 현재 사진에서 OK 개수: {findBlobCount}, NG 개수: {OutNgBlobCount}";
             Console.Write(resultInfo);
             ResultString.Add(resultInfo);
         

@@ -41,6 +41,7 @@
             this.chkCycle = new System.Windows.Forms.CheckBox();
             this.chkPreview = new System.Windows.Forms.CheckBox();
             this.chkShowROI = new System.Windows.Forms.CheckBox();
+            this.btnAutoRun = new System.Windows.Forms.Button();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -74,7 +75,7 @@
             this.groupBox1.Controls.Add(this.rbtnGreenChannel);
             this.groupBox1.Controls.Add(this.rbtnBlueChannel);
             this.groupBox1.Controls.Add(this.rbtnRedChannel);
-            this.groupBox1.Location = new System.Drawing.Point(556, 314);
+            this.groupBox1.Location = new System.Drawing.Point(554, 356);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(106, 183);
             this.groupBox1.TabIndex = 4;
@@ -166,7 +167,7 @@
             // chkCycle
             // 
             this.chkCycle.AutoSize = true;
-            this.chkCycle.Location = new System.Drawing.Point(556, 200);
+            this.chkCycle.Location = new System.Drawing.Point(554, 242);
             this.chkCycle.Margin = new System.Windows.Forms.Padding(4);
             this.chkCycle.Name = "chkCycle";
             this.chkCycle.Size = new System.Drawing.Size(79, 22);
@@ -177,7 +178,7 @@
             // chkPreview
             // 
             this.chkPreview.AutoSize = true;
-            this.chkPreview.Location = new System.Drawing.Point(554, 232);
+            this.chkPreview.Location = new System.Drawing.Point(552, 274);
             this.chkPreview.Margin = new System.Windows.Forms.Padding(4);
             this.chkPreview.Name = "chkPreview";
             this.chkPreview.Size = new System.Drawing.Size(98, 22);
@@ -191,7 +192,7 @@
             this.chkShowROI.AutoSize = true;
             this.chkShowROI.Checked = true;
             this.chkShowROI.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowROI.Location = new System.Drawing.Point(554, 266);
+            this.chkShowROI.Location = new System.Drawing.Point(552, 308);
             this.chkShowROI.Margin = new System.Windows.Forms.Padding(4);
             this.chkShowROI.Name = "chkShowROI";
             this.chkShowROI.Size = new System.Drawing.Size(113, 22);
@@ -199,6 +200,17 @@
             this.chkShowROI.Text = "Show ROI";
             this.chkShowROI.UseVisualStyleBackColor = true;
             this.chkShowROI.CheckedChanged += new System.EventHandler(this.chkShowROI_CheckedChanged);
+            // 
+            // btnAutoRun
+            // 
+            this.btnAutoRun.Location = new System.Drawing.Point(552, 198);
+            this.btnAutoRun.Margin = new System.Windows.Forms.Padding(4);
+            this.btnAutoRun.Name = "btnAutoRun";
+            this.btnAutoRun.Size = new System.Drawing.Size(107, 36);
+            this.btnAutoRun.TabIndex = 10;
+            this.btnAutoRun.Text = "자동 검사";
+            this.btnAutoRun.UseVisualStyleBackColor = true;
+            this.btnAutoRun.Click += new System.EventHandler(this.btnAutoRun_Click);
             // 
             // imageViewer
             // 
@@ -215,7 +227,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(676, 513);
+            this.ClientSize = new System.Drawing.Size(680, 561);
+            this.Controls.Add(this.btnAutoRun);
             this.Controls.Add(this.chkShowROI);
             this.Controls.Add(this.chkPreview);
             this.Controls.Add(this.chkCycle);
@@ -251,5 +264,6 @@
         private System.Windows.Forms.CheckBox chkCycle;
         private System.Windows.Forms.CheckBox chkPreview;
         private System.Windows.Forms.CheckBox chkShowROI;
+        private System.Windows.Forms.Button btnAutoRun;
     }
 }

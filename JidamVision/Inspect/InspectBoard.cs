@@ -48,7 +48,7 @@ namespace JidamVision.Inspect
                     continue; // 다른 검사 유형은 건너뜀
                 if (!algo.DoInspect())
                     return false;
-                Console.WriteLine("한번실행");
+              
                 string resultInfo = string.Join("\r\n", algo.ResultString);
 
                 InspResult inspResult = new InspResult
@@ -60,7 +60,7 @@ namespace JidamVision.Inspect
                 };
 
                 ColorBlobAlgorithm colorblobAlgo = algo as ColorBlobAlgorithm;
-
+                inspResult.ResultValue = $"{colorblobAlgo.OutBlobCount}/{colorblobAlgo.BlobCount}";
 
                 List<Rect> resultArea = new List<Rect>();
                 int resultCnt = algo.GetResultRect(out resultArea);
@@ -102,8 +102,8 @@ namespace JidamVision.Inspect
 
 
             List<InspWindow> cableWindows = windowList.FindAll(w => w.InspWindowType == Core.InspWindowType.Cabel);
-            
 
+          //  int OKCount = 0;
             foreach (InspWindow cableWindow in cableWindows)
             {
                 ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cableWindow.FindInspAlgorithm(InspectType.InspColorBinary);
@@ -112,13 +112,21 @@ namespace JidamVision.Inspect
                     //if (!InspectWindow(cableWindow))
                     //    return false;
                    
-                   // Cv2.ImShow($"ROI {cableWindow.UID}", targetImage); // 🔹 변하는지 확인
-                  //  Cv2.WaitKey(1); // OpenCV가 UI 업데이트할 수 있도록 잠시 대기
+                   
                   
-                     Console.WriteLine($"[ColorBlob 검사] ROI ID: {cableWindow.UID}");
+                     Console.WriteLine($"\n[ColorBlob 검사] ROI ID: {cableWindow.UID}\n");
                     //cabel하나씩 실행
                     colorblobAlgo.DoInspect();
-                   
+                    //여기에 위에 실행한 결과 받아올수있도록 코드 추가
+                    if (colorblobAlgo.OutBlobCount == 9)
+                    {
+                      // OKCount++;
+                        Console.WriteLine($"[ColorBlob 검사] OK - 감지된 개수: {colorblobAlgo.OutBlobCount}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[ColorBlob 검사] NG - 감지된 개수: {colorblobAlgo.OutBlobCount}");
+                    }
 
 
                 }

@@ -20,7 +20,9 @@ namespace JidamVision.Algorithm
     {
         internal static readonly object Instance;
         internal static readonly object SetColor;
+
         
+
         public HSVThreshold HSVThreshold { get; set; } = new HSVThreshold();
         // 픽셀 영역 필터링 (기본값 100)
 
@@ -127,8 +129,8 @@ namespace JidamVision.Algorithm
 
         public override bool DoInspect()
         {
-            
 
+            OutBlobCount = 0;
             IsInspected = false;
             if (_srcImage == null)
                 return false;

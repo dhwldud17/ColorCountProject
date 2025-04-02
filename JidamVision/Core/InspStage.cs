@@ -133,8 +133,8 @@ namespace JidamVision.Core
                 InitModelGrab(MAX_GRAB_BUF);
             }
 
-            //VisionSequence.Inst.InitSequence();
-            //VisionSequence.Inst.SeqCommand += SeqCommand;
+            VisionSequence.Inst.InitSequence();
+            VisionSequence.Inst.SeqCommand += SeqCommand;
 
 
             return true;
@@ -719,8 +719,8 @@ namespace JidamVision.Core
                 if (!VirtualGrab())
                     return false;
             }
-
-            if (!_inspWorker.RunInspect())
+            bool isDefect = false;
+            if (!_inspWorker.RunInspect(out isDefect))
                 return false;
 
             return true;
@@ -754,61 +754,75 @@ namespace JidamVision.Core
         {
             switch (seqCmd)
             {
-                case SeqCmd.OpenRecipe:
-                    {
-                        SLogger.Write("MMI : OpenRecipe", SLogger.LogType.Info);
+                //case SeqCmd.OpenRecipe:
+                //    {
+                //        SLogger.Write("MMI : OpenRecipe", SLogger.LogType.Info);
 
-                        string modelName = (string)Param;
-                        string modelPath = Path.Combine(SettingXml.Inst.ModelDir, modelName, modelName + ".xml");
+                //        string modelName = (string)Param;
+                //        string modelPath = Path.Combine(SettingXml.Inst.ModelDir, modelName, modelName + ".xml");
 
-                        string errMsg = "";
+                //        string errMsg = "";
 
-                        if (File.Exists(modelPath))
-                        {
-                            if (!LoadModel(modelPath))
-                                errMsg = "모델 열기 실패!";
-                        }
-                        else
-                        {
-                            errMsg = $"{modelName}이 존재하지 않습니다!";
-                        }
+                //        if (File.Exists(modelPath))
+                //        {
+                //            if (!LoadModel(modelPath))
+                //                errMsg = "모델 열기 실패!";
+                //        }
+                //        else
+                //        {
+                //            errMsg = $"{modelName}이 존재하지 않습니다!";
+                //        }
 
-                        VisionSequence.Inst.VisionCommand(Vision2Mmi.ModeLoaded, errMsg);
-                    }
-                    break;
-                case SeqCmd.InspReady:
-                    {
-                        SLogger.Write("MMI : InspReady", SLogger.LogType.Info);
+                //        VisionSequence.Inst.VisionCommand(Vision2Mmi.ModeLoaded, errMsg);
+                //    }
+                //    break;
+                //case SeqCmd.InspReady:
+                //    {
+                //        SLogger.Write("MMI : InspReady", SLogger.LogType.Info);
 
-                        //검사 모드 진입
-                        string errMsg = "";
+                //        //검사 모드 진입
+                //        string errMsg = "";
 
-                        MessagingLibrary.Message msg = (MessagingLibrary.Message)Param;
-                        if (!InspectReady(msg.LotNumber, msg.SerialID))
-                        {
-                            errMsg = string.Format("Inspection not ready");
-                            SLogger.Write(errMsg, SLogger.LogType.Error);
-                        }
+                //        if(Param != null)
+                //        {
+                //            MessagingLibrary.Message msg = (MessagingLibrary.Message)Param;
+                //            if (!InspectReady(msg.LotNumber, msg.SerialID))
+                //            {
+                //                errMsg = string.Format("Inspection not ready");
+                //                SLogger.Write(errMsg, SLogger.LogType.Error);
+                //            }
+                //        }
 
-                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspReady, errMsg);
-                    }
-                    break;
+                //        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspReady, errMsg);
+                //    }
+                //    break;
                 case SeqCmd.InspStart:
                     {
+                        //#WCF_FSM#5 카메라 촬상 후, 검사 진행
                         SLogger.Write("MMI : InspStart", SLogger.LogType.Info);
 
                         //검사 시작
                         string errMsg = "";
+                        
+                        if (UseCamera)
+                        {
+                            if (!Grab(0))
+                            {
+                                errMsg = string.Format("Failed to grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
 
-                        MessagingLibrary.Message msg = (MessagingLibrary.Message)Param;
-                        _serialID = msg.SerialID;
-                        if (!OneCycle())
+
+                        bool isDefect = false;
+                        if (!_inspWorker.RunInspect(out isDefect))
                         {
                             errMsg = string.Format("Failed to inspect");
                             SLogger.Write(errMsg, SLogger.LogType.Error);
                         }
 
-                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, errMsg);
+                        //#WCF_FSM#6 비젼 -> 제어에 검사 완료 및 결과 전송
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone,null);
                     }
                     break;
                 case SeqCmd.InspEnd:
@@ -827,6 +841,21 @@ namespace JidamVision.Core
             }
         }
 
+        public bool RunInspect( out bool isDefect)
+        {
+            isDefect = false; // 기본값
+            bool result = false;
+
+            // 검사 실행 코드
+            if (isDefect)
+            {
+                isDefect = true; // NG 결과
+                result = true;
+            }
+
+            return result;
+        }
+
         //검사를 위한 준비 작업
         private bool InspectReady(string lotNumber, string serialID)
         {
@@ -836,6 +865,33 @@ namespace JidamVision.Core
             LiveMode = false;
             UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
 
+            return true;
+        }
+
+        public bool StartAutoRun()
+        {
+            SLogger.Write("Action : StartAutoRun");
+
+            string modelPath = CurModel.ModelPath;
+            if (modelPath == "")
+            {
+                SLogger.Write("열려진 모델이 없습니다!", SLogger.LogType.Error);
+                MessageBox.Show("열려진 모델이 없습니다!");
+                return false;
+            }
+
+            if (_grabManager is null)
+            {
+                SLogger.Write("카메라가 설정되지 않았습니다!", SLogger.LogType.Error);
+                MessageBox.Show("카메라가 설정되지 않았습니다!");
+                return false;
+            }
+
+            LiveMode = false;
+            UseCamera = SettingXml.Inst.CamType != CameraType.None ? true : false;
+
+            string modelName = Path.GetFileNameWithoutExtension(modelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
             return true;
         }
 
@@ -869,7 +925,6 @@ namespace JidamVision.Core
         {
             Dispose(true);
         }
-
 
         #endregion //Disposable
     }
