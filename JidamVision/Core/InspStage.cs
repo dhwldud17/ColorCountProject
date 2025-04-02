@@ -304,8 +304,7 @@ namespace JidamVision.Core
 
         private void DisplayGrabImage(int bufferIndex)
         {
-            if (bufferIndex == 0)
-            {
+           
                 var cameraForm = MainForm.GetDockForm<CameraForm>();
                 if (cameraForm != null)
                 {
@@ -340,7 +339,7 @@ namespace JidamVision.Core
                     }
                 }
 
-            }
+            
         }
 
 

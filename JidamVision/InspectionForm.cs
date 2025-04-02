@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision.Algorithm;
 using JidamVision.Core;
+using JidamVision.Inspect;
 using JidamVision.Teach;
 using JidamVision.Util;
 using OpenCvSharp;
@@ -36,12 +37,12 @@ namespace JidamVision
         private ColorBlobAlgorithm colorBlobAlgorithm;
         private Rect selectedROI; // ROI 영역 저장
         private InspWindow _inspWindow;
-
+       
         private Model currentModel;
         private Mat inspectedImage;
         private List<InspWindow> currentROIs;
         // ✅검사할 색상 정의 (추가된 부분)
-   
+        
         public InspectionForm()
         {
             InitializeComponent();
@@ -52,12 +53,54 @@ namespace JidamVision
             InitializeDataGridView();  // DataGridView 초기화
             colorBlobAlgorithm = new ColorBlobAlgorithm();
             // 모델 불러오기 
-
+           
 
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
            
           
             Controls.Add(imageViewer);
+        }
+
+        public void UpdateInspectionResults()
+        {
+            var manager = InspectionManager.Instance;
+
+            if (manager.AllResults.Count > 0)
+            {
+                var latestResult = manager.AllResults.Last(); // 가장 최신 검사 결과 가져오기
+                totalCount++;
+                if (rtbTotalnumber.InvokeRequired)
+                {
+                    rtbTotalnumber.Invoke(new Action(UpdateInspectionResults));
+                    return;
+                }
+
+
+                rtbTotalnumber.Text = totalCount.ToString();
+                rtbWireCount.Text = latestResult.WireCount.ToString();
+                
+                rtbCableResults.Text = string.Join(", ", latestResult.CableResults); // 리스트 데이터를 문자열로 변환
+                                                                                     // 퍼센트 계산 (불량 개수 / 총 개수 * 100)
+                if (latestResult.WireCount != 9 || latestResult.CableResults.Any(result => result == "NG")) 
+                {    //카운트개수 안맞거나 케이블에서 NG가 하나라도있으면
+                    faultyCount++;
+
+                }
+                else
+                {
+                    goodCount++;
+                }
+                Show_Result();
+            }
+        }
+
+        private void Show_Result()
+        {
+                rtbFaulty.Text=faultyCount.ToString();
+                rtbGood.Text=goodCount.ToString();
+
+                double percent = totalCount > 0 ? (faultyCount / (double)totalCount) * 100 : 0;
+                rtbPercent.Text = percent.ToString("0.00") + "%";
         }
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
@@ -127,7 +170,7 @@ namespace JidamVision
 
                 imageViewer.LoadBitmap(bitmap);
 
-                Mat curImage = Global.Inst.InspStage.GetMat(1);
+                Mat curImage = Global.Inst.InspStage.GetMat(0);
                 Global.Inst.InspStage.PreView.SetImage_Inspection(curImage);
             }
         }
@@ -193,107 +236,6 @@ namespace JidamVision
         }
 
 
-        public void AddRect(List<Rect> rects)
-        {
-            //#BINARY FILTER#18 imageViewer는 Rectangle 타입으로 그래픽을 그리므로, 
-            //아래 코드를 이용해, Rect -> Rectangle로 변환하는 람다식
-            var rectangles = rects.Select(r => new Rectangle(r.X, r.Y, r.Width, r.Height)).ToList();
-            imageViewer.AddRect(rectangles);
-
-        }
-
-        public void AddRoi(InspWindowType inspWindowType)
-        {
-            imageViewer.NewRoi(inspWindowType);
-        }
-
-
-
-
-      
-        // 검사 이미지 불러오기
-        public void LoadImage(string imagePath)
-        {
-            inspectedImage = Cv2.ImRead(imagePath);
-            // 검사 이미지 로드 후 화면에 표시하는 코드 추가
-          
-        }
-        public void CompareROIWithInspection()
-        {
-            foreach (var roi in currentROIs)
-            {// ROI 위치 정보와 비교할 이미지에서 해당 영역 추출
-                var roiRect = roi.WindowArea;  // ROI의 위치 및 크기 정보
-          //      var roiImage = inspectedImage[roiRect];
-
-                // ROI 이미지와 검사가 올바른지 비교 (여기서 컬러 이진화 알고리즘을 사용할 수도 있음)
-       //         bool isMatch = CompareROI(roiImage, roi);
-
-                // 결과에 따라 표시 (초록색/빨간색)
-                //if (isMatch)
-                //{
-                //    DrawResult(roiRect, Color.Green);  // 초록색 표시
-                //}
-                //else
-                //{
-                //    DrawResult(roiRect, Color.Red);    // 빨간색 표시
-                //}
-            }
-        }
-
-        // ROI 비교 함수 (간단한 예시로, 실제 비교 로직은 컬러 이진화 등으로 확장 가능)
-        private bool CompareROI(Mat roiImage, InspWindow roi)
-        {
-            // 예시: 단순히 색상값 비교 또는 이진화 알고리즘을 통한 비교
-            return ColorMatch(roiImage, roi); // ColorMatch는 예시 함수
-        }
-
-        // 검사 결과 그리기
-        private void DrawResult(Rect rect, Color color)
-        {
-            // 이미지를 그리기 위해서는 OpenCV의 그리기 함수를 사용할 수 있음
-            Scalar colorScalar = new Scalar(color.B, color.G, color.R); // OpenCV에서 색상은 BGR 순서
-            Cv2.Rectangle(inspectedImage, rect, colorScalar, 2);
-            // 그린 이미지를 화면에 표시
-         
-        }
-        // 색상 매칭 함수 (컬러 이진화 알고리즘을 이용한 예시)
-        private bool ColorMatch(Mat roiImage, InspWindow roi)
-        {
-            // 예시로 ColorBlobAlgorithm을 사용하여 색상 비교
-            // 실제로는 ROI에 대한 색상 비교 후, 매칭 여부 반환
-            colorBlobAlgorithm.SetSourceImage(roiImage);
-            return colorBlobAlgorithm.DoInspect();  // 컬러 이진화 알고리즘을 통해 색상 매칭
-        }
-
-
-    
-        private void CheckInspectionImage(Mat inspectionImg)
-        {
-           
-
-            // 검사 이미지에서 ROI 영역 추출
-            Mat roiInspectionImage = new Mat(inspectionImg, selectedROI);
-
-            // 검사 이미지에서 해당 ROI 영역을 검사
-            colorBlobAlgorithm.SetInspData(roiInspectionImage);
-
-            // 검사 실행
-            bool result = colorBlobAlgorithm.DoInspect();
-
-            // 결과 출력
-            if (colorBlobAlgorithm.IsDefect)
-            {
-                lblResult.Text = "NG"; // 불량
-            }
-            else
-            {
-                lblResult.Text = "OK"; // 정상
-            }
-
-            // 검사 이미지 화면에 표시
-            Bitmap bmp = BitmapConverter.ToBitmap(inspectionImg);
-           
-        }
 
 
       
@@ -337,17 +279,7 @@ namespace JidamVision
             dtpCurrenttime.CustomFormat = "yyyy-MM-dd HH:mm:ss";
         }
         // 외부 프로그램에서 이미지 리스트를 설정하는 함수
-        public void SetImages(List<Mat> images)
-        {
-            receivedImages = images;
-            currentImageIndex = 0;
-
-            // 검사 시작 전 개수 초기화
-            totalCount = 0;
-            goodCount = 0;
-            faultyCount = 0;
-            UpdateInspectionResults(); // UI 업데이트
-        }
+       
         private void bntStart_Click(object sender, EventArgs e)
         {
             if (receivedImages.Count > 0)
@@ -358,7 +290,7 @@ namespace JidamVision
                 totalCount = 0;
                 goodCount = 0;
                 faultyCount = 0;
-                UpdateInspectionResults();
+                //UpdateInspectionResults();
 
                 StartInspection();
                 inspectionTimer.Start();
@@ -370,16 +302,7 @@ namespace JidamVision
                 MessageBox.Show("이미지가 없습니다.");
             }
         }
-        private void UpdateInspectionResults()
-        {
-            rtbTotalnumber.Text = totalCount.ToString();
-            rtbGood.Text = goodCount.ToString();
-            rtbFaulty.Text = faultyCount.ToString();
-
-            // 퍼센트 계산 (불량 개수 / 총 개수 * 100)
-            double percent = totalCount > 0 ? (faultyCount / (double)totalCount) * 100 : 0;
-            rtbPercent.Text = percent.ToString("0.00") + "%";
-        }
+        
 
         private void bntStop_Click(object sender, EventArgs e)
         {
@@ -413,55 +336,7 @@ namespace JidamVision
          //   CheckColorsInImage(receivedImages[currentImageIndex], currentImageIndex);
         }
 
-        // ✅ 추가된 메서드: 이미지에서 색상 확인 후 DataGridView에 추가
-        //private void CheckColorsInImage(Mat image, int imageIndex)
-        //{
-        //    Dictionary<Color, bool> colorResults = new Dictionary<Color, bool>();
-
-        //    // 초기화 (모든 색상을 false로 설정)
-        //    foreach (var color in expectedColors)
-        //    {
-        //        colorResults[color] = false;
-        //    }
-
-        //    for (int x = 0; x < image.Width; x++)
-        //    {
-        //        for (int y = 0; y < image.Height; y++)
-        //        {
-        //            Color pixelColor = GetPixelColor(image, x, y);
-
-        //            foreach (var expectedColor in expectedColors)
-        //            {
-        //                if (IsSimilarColor(pixelColor, expectedColor))
-        //                {
-        //                    colorResults[expectedColor] = true;
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    // 검사 결과를 DataGridView에 추가
-        //    foreach (var kvp in colorResults)
-        //    {
-        //        string resultText = kvp.Value ? $"{kvp.Key.Name} OK" : $"{kvp.Key.Name} NOK";
-        //        dgvMetric.Rows.Add(imageIndex + 1, kvp.Key.Name, resultText);
-        //    }
-        //}
-
-        // ✅ OpenCV Mat에서 특정 좌표의 픽셀 색상을 가져오는 메서드
-        private Color GetPixelColor(Mat image, int x, int y)
-        {
-            Vec3b pixel = image.At<Vec3b>(y, x);
-            return Color.FromArgb(pixel[2], pixel[1], pixel[0]); // OpenCV는 BGR 순서이므로 RGB로 변환
-        }
-
-        // ✅ 색상 유사성 검사 (약간의 오차 허용)
-        private bool IsSimilarColor(Color color1, Color color2, int tolerance = 30)
-        {
-            return Math.Abs(color1.R - color2.R) <= tolerance &&
-                   Math.Abs(color1.G - color2.G) <= tolerance &&
-                   Math.Abs(color1.B - color2.B) <= tolerance;
-        }
+     
         private void InspectionForm_Resize(object sender, EventArgs e)
         {
             int margin = 80;
@@ -521,6 +396,21 @@ namespace JidamVision
         {
            
             UpdateDisplay();
+        }
+
+        private void rtbTotalnumber_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void imageViewer_Load_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rtbGood_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

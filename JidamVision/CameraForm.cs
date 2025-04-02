@@ -17,6 +17,7 @@ using OpenCvSharp;
 using JidamVision.Util;
 using System.Diagnostics.Eventing.Reader;
 using JidamVision.Algorithm;
+using JidamVision.Inspect;
 
 namespace JidamVision
 {
@@ -347,6 +348,17 @@ namespace JidamVision
         private void btnInspect_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.CycleInspect(chkCycle.Checked);
+            foreach (var result in InspectionManager.Instance.AllResults)
+            {
+                Console.WriteLine($"Current Image: {result.ImageIndex}");
+                Console.WriteLine($"Wire Count: {result.WireCount}");
+
+                for (int i = 0; i < result.CableResults.Count; i++)
+                {
+                    Console.WriteLine($"Cable {i + 1}: {result.CableResults[i]}");
+                }
+                Console.WriteLine("-----------------------------");
+            }
         }
 
         private void btnStop_Click(object sender, EventArgs e)

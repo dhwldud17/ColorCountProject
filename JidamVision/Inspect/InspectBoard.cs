@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using JidamVision.Util;
+using JidamVision.Inspect;
+using System.Windows.Forms;
 
 namespace JidamVision.Inspect
 {
@@ -16,7 +19,7 @@ namespace JidamVision.Inspect
         public InspectBoard()
         {
         }
-        public Mat TargetImage { get; set; } // 🔹 targetImage를 저장할 필드 추가
+        
         public bool Inspect(InspWindow window)
         {
             if (window is null)
@@ -81,21 +84,24 @@ namespace JidamVision.Inspect
             //  Point alignOffset = new Point(0, 0);
             //우리는 오프셋 없음.
 
-
+            
             //Base ROI에서 카운트 검사 비교
             InspWindow baseWindow = windowList.Find(w => w.InspWindowType == Core.InspWindowType.Base);
             if (baseWindow != null)
             {
                 ModelTreeForm modelTreeForm = new ModelTreeForm();  // 객체 생성
                 int baseCount = modelTreeForm.GetBaseRoi(baseWindow); // Base ROI 개수 가져오기
+                InspectionManager.Instance.UpdateWireCount(InspWorker.Instance._currentImageIndex, baseCount);  // wire 개수만 추가
                 int expectedCount = 9; // 기준 개수  -> 레퍼런스 이미지 카운트한걸로 수정하기.
 
                 if (baseCount != expectedCount)
                 {
-                    Console.WriteLine($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}");
+                    SLogger.Write($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}", SLogger.LogType.Error);
+                   // Console.WriteLine($"[Base ROI] NG - 감지된 개수: {baseCount}, 기대값: {expectedCount}");
                     return false;
                 }
-                Console.WriteLine("[Base ROI] OK");
+                SLogger.Write("[Base ROI] 전선 개수 OK", SLogger.LogType.Info);
+
             }
 
             //  Cable colorblob 검사->area조건 넘은게 9개면 통과?(기존 1개만 검사 → 전체 검사)
@@ -109,13 +115,9 @@ namespace JidamVision.Inspect
                 ColorBlobAlgorithm colorblobAlgo = (ColorBlobAlgorithm)cableWindow.FindInspAlgorithm(InspectType.InspColorBinary);
                 if (colorblobAlgo != null && colorblobAlgo.IsUse)
                 {
-                    //if (!InspectWindow(cableWindow))
-                    //    return false;
-                   
-                   // Cv2.ImShow($"ROI {cableWindow.UID}", targetImage); // 🔹 변하는지 확인
-                  //  Cv2.WaitKey(1); // OpenCV가 UI 업데이트할 수 있도록 잠시 대기
-                  
-                     Console.WriteLine($"[ColorBlob 검사] ROI ID: {cableWindow.UID}");
+
+
+                    SLogger.Write($"[ColorBlob 검사] ROI ID: {cableWindow.UID}", SLogger.LogType.Info);
                     //cabel하나씩 실행
                     colorblobAlgo.DoInspect();
                    
@@ -124,8 +126,12 @@ namespace JidamVision.Inspect
                 }
             }
 
-
-            Console.WriteLine("전체 검사 OK");
+            var form = Application.OpenForms.OfType<InspectionForm>().FirstOrDefault();
+            if (form != null)
+            {
+                form.UpdateInspectionResults(); // 인스턴스를 통해 호출
+            }
+            Console.WriteLine("전체 검사 OK"); //사진 한개 검사완료. 
             return true;
 
 

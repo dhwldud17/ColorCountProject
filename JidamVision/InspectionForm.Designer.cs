@@ -47,6 +47,8 @@
             this.btImageLode = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
             this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
+            this.rtbCableResults = new System.Windows.Forms.Label();
+            this.rtbWireCount = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -72,22 +74,27 @@
             // 
             // rtbTotalnumber
             // 
+            this.rtbTotalnumber.Font = new System.Drawing.Font("Gulim", 28F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.rtbTotalnumber.Location = new System.Drawing.Point(559, 338);
             this.rtbTotalnumber.Name = "rtbTotalnumber";
             this.rtbTotalnumber.Size = new System.Drawing.Size(184, 152);
             this.rtbTotalnumber.TabIndex = 3;
             this.rtbTotalnumber.Text = "";
+            this.rtbTotalnumber.TextChanged += new System.EventHandler(this.rtbTotalnumber_TextChanged);
             // 
             // rtbGood
             // 
+            this.rtbGood.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.rtbGood.Location = new System.Drawing.Point(559, 532);
             this.rtbGood.Name = "rtbGood";
             this.rtbGood.Size = new System.Drawing.Size(85, 78);
             this.rtbGood.TabIndex = 4;
             this.rtbGood.Text = "";
+            this.rtbGood.TextChanged += new System.EventHandler(this.rtbGood_TextChanged);
             // 
             // rtbFaulty
             // 
+            this.rtbFaulty.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.rtbFaulty.Location = new System.Drawing.Point(659, 532);
             this.rtbFaulty.Name = "rtbFaulty";
             this.rtbFaulty.Size = new System.Drawing.Size(84, 78);
@@ -96,6 +103,7 @@
             // 
             // rtbPercent
             // 
+            this.rtbPercent.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.rtbPercent.Location = new System.Drawing.Point(761, 532);
             this.rtbPercent.Name = "rtbPercent";
             this.rtbPercent.Size = new System.Drawing.Size(183, 78);
@@ -169,7 +177,7 @@
             this.lbPercent.Name = "lbPercent";
             this.lbPercent.Size = new System.Drawing.Size(62, 18);
             this.lbPercent.TabIndex = 14;
-            this.lbPercent.Text = "퍼센트";
+            this.lbPercent.Text = "불량률";
             // 
             // lbTotalnumber
             // 
@@ -190,6 +198,7 @@
             this.imageViewer.Name = "imageViewer";
             this.imageViewer.Size = new System.Drawing.Size(506, 446);
             this.imageViewer.TabIndex = 16;
+            this.imageViewer.Load += new System.EventHandler(this.imageViewer_Load_1);
             // 
             // btImageLode
             // 
@@ -221,11 +230,33 @@
             this.imageViewCCtrl1.Size = new System.Drawing.Size(4, 4);
             this.imageViewCCtrl1.TabIndex = 19;
             // 
+            // rtbCableResults
+            // 
+            this.rtbCableResults.AutoSize = true;
+            this.rtbCableResults.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.rtbCableResults.Location = new System.Drawing.Point(340, 112);
+            this.rtbCableResults.Name = "rtbCableResults";
+            this.rtbCableResults.Size = new System.Drawing.Size(175, 32);
+            this.rtbCableResults.TabIndex = 20;
+            this.rtbCableResults.Text = "cabelresult";
+            // 
+            // rtbWireCount
+            // 
+            this.rtbWireCount.AutoSize = true;
+            this.rtbWireCount.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.rtbWireCount.Location = new System.Drawing.Point(105, 109);
+            this.rtbWireCount.Name = "rtbWireCount";
+            this.rtbWireCount.Size = new System.Drawing.Size(159, 32);
+            this.rtbWireCount.TabIndex = 21;
+            this.rtbWireCount.Text = "wirecount";
+            // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
+            this.Controls.Add(this.rtbWireCount);
+            this.Controls.Add(this.rtbCableResults);
             this.Controls.Add(this.imageViewCCtrl1);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.btImageLode);
@@ -274,5 +305,7 @@
         private System.Windows.Forms.Button btImageLode;
         private System.Windows.Forms.Label lblResult;
         private ImageViewCCtrl imageViewCCtrl1;
+        private System.Windows.Forms.Label rtbCableResults;
+        private System.Windows.Forms.Label rtbWireCount;
     }
 }

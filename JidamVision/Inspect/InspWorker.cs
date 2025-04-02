@@ -30,9 +30,20 @@ namespace JidamVision.Inspect
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private int _threadCount = 1;
         private SynchronizationContext _uiContext;
+        public int _totalImages = 21;  // 총 검사 해야하는 이미지개수. // 설정할수도있지만 일단 고정값 줌
+        public int _currentImageIndex { get; private set; } = 0; // 초기값 0
 
         private InspectBoard _inspectBoard = new InspectBoard();
-
+        private static InspWorker _instance;
+        public static InspWorker Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new InspWorker();
+                return _instance;
+            }
+        }
         public InspWorker(int threadCount)
         {
             _threadCount = threadCount;
@@ -107,10 +118,19 @@ namespace JidamVision.Inspect
                 //Thread.Sleep(200); // 주기 설정
             }
         }
-
+        public void IncreaseImageIndex()
+        {
+            _currentImageIndex++;
+        }
         //#INSP WORKER#2 InspStage내의 모든 InspWindow들을 검사하는 함수
         public bool RunInspect()
         {
+            Instance.IncreaseImageIndex(); // 싱글톤을 통해 증가
+           // _currentImageIndex++;  // 새 이미지 검사 시작할 때 증가
+            
+            InspectionManager.Instance.AddPartialResult(Instance._currentImageIndex); // 검사 시작 시 ID만 추가
+            SLogger.Write($"현재 검사 중인 이미지: {_currentImageIndex}/{_totalImages}", SLogger.LogType.Info);
+           
             Model curMode = Global.Inst.InspStage.CurModel;
             List<InspWindow> inspWindowList = curMode.InspWindowList;
             foreach (var inspWindow in inspWindowList)
@@ -130,7 +150,11 @@ namespace JidamVision.Inspect
 
             return true;
         }
-
+        public void SetTotalImages(int total)  // 총 이미지 개수 설정 함수
+        {
+            _totalImages = total;
+            _currentImageIndex = 0; // 초기화
+        }
         //#INSP WORKER#5 특정 InspWindow에 대한 검사 진행
         //inspType이 있다면 그것만을 검사하고, 없다면 InpsWindow내의 모든 알고리즘 검사
         public bool TryInspect(InspWindow inspObj, InspectType inspType)

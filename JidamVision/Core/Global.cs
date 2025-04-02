@@ -30,7 +30,8 @@ namespace JidamVision.Core
         {
             get { return _stage; }
         }
-
+       
+       
         public Global()
         {
         }

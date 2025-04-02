@@ -1,5 +1,7 @@
 ﻿using JidamVision.Core;
+using JidamVision.Inspect;
 using JidamVision.Property;
+using JidamVision.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -155,8 +157,12 @@ namespace JidamVision.Algorithm
                 result = "NG";
             }
             string resultInfo = "";
-            resultInfo = $"[{result}] match blob count]";
-            Console.Write(resultInfo);
+            resultInfo = $"전선 컬러 비교 검사 결과 : {result}]";
+            // Console.Write(resultInfo);
+            SLogger.Write(resultInfo, SLogger.LogType.Info);
+            InspWorker inspWorker = new InspWorker();
+            int currentIndex = InspWorker.Instance._currentImageIndex;
+            InspectionManager.Instance.AddCableResult(currentIndex, result);
             ResultString.Add(resultInfo);
         
 

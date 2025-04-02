@@ -103,7 +103,7 @@ namespace JidamVision.Algorithm
             
 
             // 🔹 컬러 이진화된 결과 확인
-            Cv2.ImShow("Binary Mask", mask);
+           // Cv2.ImShow("Binary Mask", mask);
            
 
             return mask; // 컬러 이진화된 Mat 반환
