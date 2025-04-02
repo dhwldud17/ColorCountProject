@@ -320,9 +320,9 @@ namespace JidamVision.Core
                         cameraForm.UpdateDisplay();
                     }
                 }
-            }
-            else
-            {
+            
+            
+            
                 var InspectionForm = MainForm.GetDockForm<InspectionForm>();
                 if (InspectionForm != null)
                 {

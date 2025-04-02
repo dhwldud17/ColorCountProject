@@ -49,6 +49,8 @@
             this.imageViewCCtrl1 = new JidamVision.ImageViewCCtrl();
             this.rtbCableResults = new System.Windows.Forms.Label();
             this.rtbWireCount = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMetric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -193,7 +195,7 @@
             this.imageViewer.AutoSize = true;
             this.imageViewer.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.imageViewer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.imageViewer.Location = new System.Drawing.Point(27, 145);
+            this.imageViewer.Location = new System.Drawing.Point(31, 143);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imageViewer.Name = "imageViewer";
             this.imageViewer.Size = new System.Drawing.Size(506, 446);
@@ -234,7 +236,7 @@
             // 
             this.rtbCableResults.AutoSize = true;
             this.rtbCableResults.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.rtbCableResults.Location = new System.Drawing.Point(340, 112);
+            this.rtbCableResults.Location = new System.Drawing.Point(348, 512);
             this.rtbCableResults.Name = "rtbCableResults";
             this.rtbCableResults.Size = new System.Drawing.Size(175, 32);
             this.rtbCableResults.TabIndex = 20;
@@ -244,17 +246,39 @@
             // 
             this.rtbWireCount.AutoSize = true;
             this.rtbWireCount.Font = new System.Drawing.Font("Gulim", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.rtbWireCount.Location = new System.Drawing.Point(105, 109);
+            this.rtbWireCount.Location = new System.Drawing.Point(348, 440);
             this.rtbWireCount.Name = "rtbWireCount";
             this.rtbWireCount.Size = new System.Drawing.Size(159, 32);
             this.rtbWireCount.TabIndex = 21;
             this.rtbWireCount.Text = "wirecount";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label1.Location = new System.Drawing.Point(92, 436);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(226, 36);
+            this.label1.TabIndex = 22;
+            this.label1.Text = "와이어 개수:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label2.Location = new System.Drawing.Point(53, 508);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(289, 36);
+            this.label2.TabIndex = 23;
+            this.label2.Text = "케이블 색 매칭: ";
             // 
             // InspectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(954, 618);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.rtbWireCount);
             this.Controls.Add(this.rtbCableResults);
             this.Controls.Add(this.imageViewCCtrl1);
@@ -307,5 +331,7 @@
         private ImageViewCCtrl imageViewCCtrl1;
         private System.Windows.Forms.Label rtbCableResults;
         private System.Windows.Forms.Label rtbWireCount;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
