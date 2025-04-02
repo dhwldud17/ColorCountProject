@@ -39,6 +39,8 @@ namespace JidamVision
         private ContextMenuStrip _contextMenuRoot;
         
         private ContextMenuStrip _contextMenuRoi;
+
+        // #우클릭 시 삭제 ContextMenu초기화#[17] 생성자에서 메뉴 구성
         public ModelTreeForm()
         {
 
@@ -98,49 +100,60 @@ namespace JidamVision
             //_contextMenuRoi = new ContextMenuStrip();
             //ToolStripMenuItem deleteRoiItem = new ToolStripMenuItem("삭제", null, DeleteNode_Click) { Tag = "Delete" };
 
-            // Root 노드 전용 컨텍스트 메뉴 초기화
+            // #우클릭 시 삭제 ContextMenu초기화#[17-1] Root 전용 메뉴 (Base, Cabel 추가)  // Root 노드 전용 컨텍스트 메뉴 초기화
             _contextMenuRoot = new ContextMenuStrip();
             _contextMenuRoot.Items.Add(new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" });
             _contextMenuRoot.Items.Add(new ToolStripMenuItem("Cabel", null, AddNode_Click) { Tag = "Cabel" });
 
-            // ROI 노드 전용 컨텍스트 메뉴 초기화
+            // #우클릭 시 삭제 ContextMenu초기화#[17-2] ROI 노드 전용 메뉴 (삭제)  // ROI 노드 전용 컨텍스트 메뉴 초기화
             _contextMenuRoi = new ContextMenuStrip();
             _contextMenuRoi.Items.Add(new ToolStripMenuItem("삭제", null, DeleteNode_Click) { Tag = "Delete" });
         }
 
+        // #우클릭 시 삭제 우클릭Context#[1] 트리뷰에서 마우스 누를 때 발생하는 이벤트
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
         {
-            //Root 노드에서 마우스 오른쪽 버튼 클릭 시에, 팝업 메뉴 생성
+            // #우클릭 시 삭제 우클릭Context#[1-1] 마우스 우클릭인지 확인  //Root 노드에서 마우스 오른쪽 버튼 클릭 시에, 팝업 메뉴 생성
             if (e.Button == MouseButtons.Right)
             {
+                // #우클릭 시 삭제 우클릭Context#[2] 클릭된 위치의 노드 가져오기
                 TreeNode clickedNode = tvModelTree.GetNodeAt(e.X, e.Y);
                 if (clickedNode != null)
                 {
+                    // #우클릭 시 삭제 우클릭Context#[3] 트리뷰에서 해당 노드를 선택 상태로 설정
                     tvModelTree.SelectedNode = clickedNode;
 
+                    // #우클릭 시 삭제 우클릭Context#[4] "Root" 노드일 경우 → Base/Cabel 추가 메뉴 표시
                     if (clickedNode.Text == "Root")
                     {
-                        _contextMenuRoot.Show(tvModelTree, e.Location);
+                        _contextMenuRoot.Show(tvModelTree, e.Location);  // Base, Cabel 메뉴
                     }
                     else
                     {
+                        // #우클릭 시 삭제 우클릭Context#[5] 그 외의 노드일 경우 → 삭제 메뉴 표시
                         _contextMenuRoi?.Show(tvModelTree, e.Location);
                     }
                 }
             }
         }
 
-        //팝업 메뉴에서, 메뉴 선택시 실행되는 함수
+        // #우클릭 시 삭제 ROI추가#[6] 메뉴에서 Base 또는 Cabel 클릭 시 실행  //팝업 메뉴에서, 메뉴 선택시 실행되는 함수
         private void AddNode_Click(object sender, EventArgs e)
         {
             if (tvModelTree.SelectedNode != null & sender is ToolStripMenuItem)
             {
                 ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
+
+                // #우클릭 시 삭제 ROI추가#[7] 메뉴 항목의 Tag 값으로 ROI 타입 구분
                 string nodeType = menuItem.Tag?.ToString();
+
+                // #우클릭 시 삭제 ROI추가#[8] Base 추가
                 if (nodeType == "Base")
                 {
                     AddNewROI(InspWindowType.Base);
                 }
+
+                // #우클릭 시 삭제 ROI추가#[9] Cabel 추가
                 else if (nodeType == "Cabel")
                 {
                     AddNewROI(InspWindowType.Cabel);
@@ -149,15 +162,15 @@ namespace JidamVision
             }
         }
 
-        //imageViewer에 ROI 추가 기능 실행
+        // #우클릭 시 삭제 ROI추가#[10] 실제로 ImageViewer에 ROI를 추가하는 함수  //imageViewer에 ROI 추가 기능 실행
         private void AddNewROI(InspWindowType inspWindowType)
         {
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
-                cameraForm.AddRoi(inspWindowType);
+                cameraForm.AddRoi(inspWindowType); // 실제 ROI 객체 생성 요청
 
-                // Base ROI를 설정한 경우에만 카운트 버튼 활성화
+                // #우클릭 시 삭제 ROI추가#[11] Base ROI가 추가되면 전선 카운트 버튼 활성화  // Base ROI를 설정한 경우에만 카운트 버튼 활성화
                 if (inspWindowType == InspWindowType.Base)
                 {
                     btnCountWires.Enabled = true;
@@ -192,36 +205,39 @@ namespace JidamVision
             tvModelTree.ExpandAll();
         }
 
-        // ROI 초기화 기능 추가
+        // // #ROI초기화#[1~4] ROI 초기화 기능 정의  // ROI 초기화 기능 추가
         public void ResetROI()
         {
-            // 트리뷰 초기화
+            // #ROI초기화#[1-1] TreeView 전체 노드 제거  // 트리뷰 초기화
             tvModelTree.Nodes.Clear();
+            // #ROI초기화#[1-2] 기본 루트 노드 "Root"만 다시 추가
             tvModelTree.Nodes.Add("Root");
 
-            // 현재 모델의 ROI 리스트 초기화
+            // #ROI초기화#[2] 현재 모델의 ROI 리스트 초기화 (즉, 내부 ROI 데이터 삭제)
             Model model = Global.Inst.InspStage.CurModel;
-            model.InspWindowList.Clear();
+            model.InspWindowList.Clear();  // 실제 데이터 제거
 
-            // 버튼 비활성화
+            // #ROI초기화#[3] 전선 카운트 버튼 비활성화 (Base ROI가 없기 때문에)
             btnCountWires.Enabled = false;
 
-            // UI 갱신
+            // #ROI초기화#[4-1] CameraForm 화면 및 이미지 갱신  //UI 갱신
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
             if (cameraForm != null)
             {
-                cameraForm.UpdateDiagramEntity();
-                cameraForm.UpdateImageViewer();
+                cameraForm.UpdateDiagramEntity();  // ROI 리스트 UI 갱신
+                cameraForm.UpdateImageViewer();  // 이미지 위 ROI 제거 후 다시 그림
             }
 
+            // #ROI초기화#[4-2] InspectionForm 화면 및 이미지 갱신 (있을 경우)
             InspectionForm inspectionForm = MainForm.GetDockForm<InspectionForm>();
             if(inspectionForm != null)
             {
-                inspectionForm.UpdateDiagramEntity();
+                inspectionForm.UpdateDiagramEntity(); // 동일하게 갱신
                 inspectionForm.UpdateImageViewer();
             }
         }
 
+        // #ROI초기화#[5] "ROI 리셋" 버튼을 클릭했을 때 실행되는 이벤트 핸들러
         private void BtnResetROI_Click(object sender, EventArgs e)
         {
             ResetROI();  // ROI 초기화 실행
@@ -231,23 +247,31 @@ namespace JidamVision
         // #CountWire# [1] 전선 카운트 버튼 클릭 시 동작
         private void BtnCountWires_Click(object sender, EventArgs e)
         {
-            //// #CountWire# [2] 전선 개수 계산 함수 호출
-            //int count = CountWiresInBaseROI();
+            // #CountWire# [2] 전선 개수 계산 함수 호출
+            int count = GetBaseRoi();
 
-            //// #CountWire# [3] 계산된 전선 개수 라벨에 표시
-            //lblWireCount.Text = $"전선 개수: {count}";
+            // #CountWire# [3] 계산된 전선 개수 라벨에 표시
+            lblWireCount.Text = $"전선 개수: {count}";
 
-            var model = Global.Inst.InspStage.CurModel;
-            var baseRoi = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
-            if (baseRoi != null)
-            {
-                int count = GetBaseRoi(baseRoi); // 여기서 사용
-                lblWireCount.Text = $"전선 개수: {count}";
-            }
+            //// [1] 현재 모델 정보를 가져온다 (ROI 정보들이 들어 있음)
+            //var model = Global.Inst.InspStage.CurModel;
+
+            //// [2] 모델 안의 ROI 리스트에서 Base 타입의 ROI를 하나 찾는다
+            //var baseRoi = model.InspWindowList.FirstOrDefault(w => w.InspWindowType == InspWindowType.Base);
+
+            //// [3] Base ROI가 있다면 아래 처리 진행
+            //if (baseRoi != null)
+            //{
+            //    // [4] GetBaseRoi() 함수를 호출하여 전선 개수를 계산
+            //    int count = GetBaseRoi(baseRoi);  //  여기서 핵심 처리
+
+            //    // [5] 계산된 개수를 UI 라벨에 표시
+            //    lblWireCount.Text = $"전선 개수: {count}";
+            //}
         }
 
         // #CountWire# [4] 실제 전선 개수 세는 로직
-        private int CountWiresInBaseROI()
+        private int GetBaseRoi()  //CountWiresInBaseROI()
         {
             // #CountWire# [5] 카메라에서 현재 이미지 가져오기
             CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
@@ -322,37 +346,20 @@ namespace JidamVision
 
         }
 
+        // #ROI강조#[1] TreeView에서 노드 선택 시 호출
         private void tvModelTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            //string selectedName = e.Node.Text;
 
-            //if (selectedName.StartsWith("CABLE_") || selectedName.StartsWith("BAS_"))
-            //{
-            //    // 현재 모델에서 선택된 이름과 UID가 같은 ROI 찾기
-            //    Model model = Global.Inst.InspStage.CurModel;
-            //    InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedName);
-
-            //    if (selectedWindow != null)
-            //    {
-            //        CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
-            //        if (cameraForm != null)
-            //        {
-            //            // ROI 선택 (화면에서 강조됨)
-            //            cameraForm.SelectDiagramEntity(selectedWindow);
-            //        }
-            //    }
-            //}
-
-            // 선택된 노드 이름
+            // #ROI강조#[2] 선택한 노드의 UID 가져오기
             string selectedUID = e.Node.Text;
 
-            // 모델에서 해당 UID를 가진 ROI 찾기
+            // #ROI강조#[2] 현재 모델에서 UID 일치하는 ROI(InspWindow) 찾기
             Model model = Global.Inst.InspStage.CurModel;
             InspWindow selectedWindow = model.InspWindowList.FirstOrDefault(w => w.UID == selectedUID);
 
             if (selectedWindow != null)
             {
-                // CameraForm 불러오기
+                // #ROI강조#[3] 카메라 폼의 SelectDiagramEntity() 호출
                 CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
                 if (cameraForm != null)
                 {
@@ -374,7 +381,7 @@ namespace JidamVision
                 // #CountWire# [16] 만약 추가된 ROI가 Base라면 전선 자동 카운트 + 이미지 표시
                 if (e.InspWindowType == InspWindowType.Base)
                 {
-                    int count = CountWiresInBaseROI();
+                    int count = GetBaseRoi();
                     lblWireCount.Text = $"전선 개수: {count}";
                 }
 
@@ -387,14 +394,17 @@ namespace JidamVision
             }));
         }
 
+        // #우클릭 시 삭제 RO삭제#[12] "삭제" 메뉴 클릭 시 실행
         private void DeleteNode_Click(object sender, EventArgs e)
         {
             TreeNode selectedNode = tvModelTree.SelectedNode;
+
+            // #우클릭 시 삭제 RO삭제#[13] "Root"는 삭제 금지, 나머지만 삭제 가능
             if (selectedNode != null && selectedNode.Text != "Root")
             {
                 string uid = selectedNode.Text;
 
-                // 모델에서도 삭제
+                // #우클릭 시 삭제 RO삭제#[14] 모델에서 해당 UID의 ROI 찾기  // 모델에서도 삭제
                 Model model = Global.Inst.InspStage.CurModel;
                 var target = model.InspWindowList.FirstOrDefault(w => w.UID == uid);
                 if (target != null)
@@ -402,10 +412,10 @@ namespace JidamVision
                     model.InspWindowList.Remove(target);
                 }
 
-                // 트리뷰에서 삭제
+                // #우클릭 시 삭제 RO삭제#[15] 트리뷰 노드 삭제  // 트리뷰에서 삭제
                 selectedNode.Remove();
 
-                // 화면 갱신
+                // #우클릭 시 삭제 RO삭제#[16] UI 갱신 (화면 다시 그림)  // 화면 갱신
                 CameraForm cam = MainForm.GetDockForm<CameraForm>();
                 if (cam != null)
                 {
@@ -413,49 +423,42 @@ namespace JidamVision
                     cam.UpdateImageViewer();
                 }
             }
-
-            //TreeNode selectedNode = tvModelTree.SelectedNode;
-            //if (tvModelTree.SelectedNode != null && tvModelTree.SelectedNode.Text != "Root")
-            //{
-            //    tvModelTree.Nodes.Remove(selectedNode);
-
-            //    string uid = tvModelTree.SelectedNode.Text;
-
-            //    // 모델에서 해당 UID를 가진 ROI 제거
-            //    Model model = Global.Inst.InspStage.CurModel;
-            //    var roiToRemove = model.InspWindowList.FirstOrDefault(w => w.UID == uid);
-            //    if (roiToRemove != null)
-
-            //        model.InspWindowList.Remove(roiToRemove);
-
-
-            //    // 트리뷰에서 노드 제거
-            //    tvModelTree.SelectedNode.Remove();
-
-            //    // 이미지 뷰어 갱신
-            //    CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
-            //    if (cameraForm != null)
-            //    {
-            //        cameraForm.UpdateDiagramEntity();
-            //        cameraForm.UpdateImageViewer();
-            //    }
-
-            //MessageBox.Show($"ROI [{uid}] 삭제 완료!", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private int GetBaseRoi(InspWindow roi)
-        {
-            var img = MainForm.GetDockForm<CameraForm>()?.GetCurrentImage();
-            if (img == null || img.Empty() || roi == null) return 0;
+        //private int GetBaseRoi(InspWindow roi)
+        //{
+        //    // [1] 현재 카메라 화면에서 이미지(Mat 객체)를 가져온다
+        //    var image = MainForm.GetDockForm<CameraForm>()?.GetCurrentImage();
 
-            var roiImg = new Mat(img, new Rect(roi.WindowArea.X, roi.WindowArea.Y, roi.WindowArea.Width, roi.WindowArea.Height));
-            Cv2.CvtColor(roiImg, roiImg, ColorConversionCodes.BGR2GRAY);
-            Cv2.Threshold(roiImg, roiImg, 60, 255, ThresholdTypes.Binary);
-            Cv2.MorphologyEx(roiImg, roiImg, MorphTypes.Open, Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3)));
+        //    // [2] ROI나 이미지가 null이거나 비어 있다면 0 반환
+        //    if (roi == null || image == null || image.Empty()) return 0;
 
-            Cv2.FindContours(roiImg, out var contours, out _, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
-            return contours.Count(c => Cv2.ContourArea(c) >= 30);
-        }
+        //    // [3] ROI 영역만큼 이미지를 잘라낸다 (Mat 객체 생성)
+        //    var roiImage = new Mat(image, roi.WindowArea);
+
+        //    // [4] ROI 이미지를 흑백(Grayscale)으로 변환
+        //    Cv2.CvtColor(roiImage, roiImage, ColorConversionCodes.BGR2GRAY);
+
+        //    // [5] 흑백 이미지를 이진화 (흰색/검은색만 남기는 처리)
+        //    Cv2.Threshold(roiImage, roiImage, 60, 255, ThresholdTypes.Binary);
+
+        //    // [6] 전선끼리 붙은 부분을 분리하기 위해 Morphology 연산 (노이즈 제거용)
+        //    Cv2.MorphologyEx(
+        //        roiImage, roiImage,
+        //        MorphTypes.Open,
+        //        Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3))
+        //    );
+
+        //    // [7] 외곽선(Contour)들을 찾아낸다 (전선 등 밝은 영역 경계 추출)
+        //    Cv2.FindContours(
+        //        roiImage, out var contours, out _,
+        //        RetrievalModes.External,
+        //        ContourApproximationModes.ApproxSimple
+        //    );
+
+        //    // [8] 일정 면적 이상(30픽셀 이상)의 윤곽선만 전선으로 간주하여 카운트
+        //    return contours.Count(c => Cv2.ContourArea(c) >= 30);
+        //}
 
 
 

@@ -276,6 +276,7 @@ namespace JidamVision
 
             imageViewer.SetDiagramEntityList(diagramEntityList);
         }
+        // #ROI강조#[3 → 4] 선택된 ROI를 이미지 뷰어 컨트롤로 넘김
         public void SelectDiagramEntity(InspWindow window)
         {
             imageViewer.SelectDiagramEntity(window);

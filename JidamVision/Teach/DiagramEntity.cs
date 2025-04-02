@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace JidamVision.Teach
 {
     //#MULTI ROI#1 ImageViewer에 표시되는 ROI정보를 관리하는 클래스
+    // #ROI강조#[5] ROI 선택 여부 속성
     public class DiagramEntity
     {
         //ROI 연결된 InspWindow
@@ -19,6 +20,7 @@ namespace JidamVision.Teach
         //ROI 위치 이동을 하지 못하게 할지 여부
         public bool IsHold { get; set; }
 
+        // #ROI강조#[5] 강조 여부 ← 중요 포인트!
         public bool IsSelected { get; set; } = false;
 
         public DiagramEntity()

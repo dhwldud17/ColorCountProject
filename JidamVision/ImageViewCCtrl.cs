@@ -1024,7 +1024,7 @@ namespace JidamVision
             Invalidate();
             return true;
         }
-
+        // #ROI강조#[4] 선택된 ROI 강조 처리
         public void SelectDiagramEntity(InspWindow window)
         {
             //DiagramEntity entity = _diagramEntityList.Find(e => e.LinkedWindow == window);
@@ -1037,15 +1037,20 @@ namespace JidamVision
             //    _roiRect = entity.EntityROI;
             //}
 
+            // #ROI강조#[4-1] 리스트 또는 입력값 없으면 종료
             if (_diagramEntityList == null || window == null)
                 return;
 
+            // #ROI강조#[5] 모든 DiagramEntity 중 선택된 ROI만 IsSelected = true
             foreach (var entity in _diagramEntityList)
             {
                 entity.IsSelected = (entity.LinkedWindow == window); // 선택된 ROI만 true로
             }
 
+            // #ROI강조#[5] 다중 선택 리스트 초기화
             _multiSelectedEntities.Clear();
+
+            // #ROI강조#[5] 선택된 ROI 하나만 저장
             _selEntity = _diagramEntityList.FirstOrDefault(e => e.LinkedWindow == window);
             if (_selEntity != null)
             {
@@ -1053,6 +1058,7 @@ namespace JidamVision
                 AddSelectedROI(_selEntity); // 선택 영역 추가
             }
 
+            // #ROI강조#[6] 다시 그려서 강조 상태 반영
             this.Invalidate(); // 다시 그려서 선택 강조
 
         }
