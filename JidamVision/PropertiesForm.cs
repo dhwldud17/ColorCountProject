@@ -96,14 +96,14 @@ namespace JidamVision
             UserControl _inspProp = null;
             switch (inspPropType)
             {
-                case InspectType.InspBinary:
-                    // Console.WriteLine("InspBinary UserControl 생성 시도"); // 디버깅용 출력
-                    BinaryInspProp blobProp = new BinaryInspProp();
-                    blobProp.RangeChanged += RangeSlider_RangeChanged;
-                    blobProp.PropertyChanged += PropertyChanged;
+                //case InspectType.InspBinary:
+                //    // Console.WriteLine("InspBinary UserControl 생성 시도"); // 디버깅용 출력
+                //    BinaryInspProp blobProp = new BinaryInspProp();
+                //    blobProp.RangeChanged += RangeSlider_RangeChanged;
+                //    blobProp.PropertyChanged += PropertyChanged;
 
-                    _inspProp = blobProp;
-                    break;
+                    //_inspProp = blobProp;
+                    //break;
                 case InspectType.InspColorBinary:
                     // Console.WriteLine("InspColorBinary UserControl 생성 시도"); // 디버깅용 출력
                     ColorBinaryInspProp colorBinaryInspProp = new ColorBinaryInspProp();
@@ -118,11 +118,11 @@ namespace JidamVision
                     colorBinaryInspProp.ColorPickCanceled += colorBinaryInspProp_ColorPickCanceled;
                     _inspProp = colorBinaryInspProp;
                     break;
-                case InspectType.InspMatch:
-                    MatchInspProp matchProp = new MatchInspProp();
-                    matchProp.PropertyChanged += PropertyChanged;
-                    _inspProp = matchProp;
-                    break;
+                //case InspectType.InspMatch:
+                //    MatchInspProp matchProp = new MatchInspProp();
+                //    matchProp.PropertyChanged += PropertyChanged;
+                //    _inspProp = matchProp;
+                //    break;
                 default:
                     //MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;

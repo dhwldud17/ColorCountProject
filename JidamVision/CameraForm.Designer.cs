@@ -74,7 +74,7 @@
             this.groupBox1.Controls.Add(this.rbtnGreenChannel);
             this.groupBox1.Controls.Add(this.rbtnBlueChannel);
             this.groupBox1.Controls.Add(this.rbtnRedChannel);
-            this.groupBox1.Location = new System.Drawing.Point(556, 314);
+            this.groupBox1.Location = new System.Drawing.Point(554, 378);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(106, 183);
             this.groupBox1.TabIndex = 4;
@@ -215,7 +215,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(676, 513);
+            this.ClientSize = new System.Drawing.Size(688, 594);
             this.Controls.Add(this.chkShowROI);
             this.Controls.Add(this.chkPreview);
             this.Controls.Add(this.chkCycle);
